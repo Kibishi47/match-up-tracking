@@ -7,6 +7,7 @@ export default defineEventHandler(async (event) => {
   const query = getQuery(event)
 
   const gameId = query.gameId ? String(query.gameId) : null
+  const metaId = query.metaId ? String(query.metaId) : null
   const myArchetypeId = query.myArchetypeId 
     ? String(query.myArchetypeId) 
     : (query.myDeckId ? String(query.myDeckId) : null)
@@ -29,17 +30,21 @@ export default defineEventHandler(async (event) => {
 
   const db = useDb()
 
-  // 1. Tous les archétypes non archivés de l'utilisateur pour ce jeu
+  // 1. Tous les archétypes non archivés de l'utilisateur pour ce jeu et cette méta
+  const archetypeConditions = [
+    eq(archetypes.userId, user.id),
+    eq(archetypes.gameId, gameId),
+    eq(archetypes.isArchived, false)
+  ]
+
+  if (metaId) {
+    archetypeConditions.push(eq(archetypes.metaId, metaId))
+  }
+
   const userArchetypes = await db
     .select()
     .from(archetypes)
-    .where(
-      and(
-        eq(archetypes.userId, user.id),
-        eq(archetypes.gameId, gameId),
-        eq(archetypes.isArchived, false)
-      )
-    )
+    .where(and(...archetypeConditions))
     .orderBy(archetypes.name)
 
   // Si aucun deck actif n'est sélectionné, renvoyer les archétypes et des stats vides

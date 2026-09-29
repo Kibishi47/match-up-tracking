@@ -4,7 +4,7 @@ import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 import { asc, eq, and } from 'drizzle-orm'
 import * as schema from './schema'
-import { users, games, userGames, archetypes, matches } from './schema'
+import { users, games, userGames, metas, archetypes, matches } from './schema'
 
 // Charger le fichier .env si non défini dans l'environnement
 if (!process.env.DATABASE_URL) {
@@ -40,6 +40,7 @@ interface SeedGame {
   name: string
   slug: string
   logoUrl?: string
+  metaName: string
   archetypes: SeedArchetype[]
 }
 
@@ -48,6 +49,7 @@ const seedData: SeedGame[] = [
     name: 'Riftbound',
     slug: 'riftbound',
     logoUrl: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=120&auto=format&fit=crop&q=80',
+    metaName: 'Set 1 - Origin',
     archetypes: [
       {
         name: 'Irelia Tempo',
@@ -76,6 +78,7 @@ const seedData: SeedGame[] = [
     name: 'Pokémon TCG',
     slug: 'pokemon-tcg',
     logoUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png',
+    metaName: 'Format Standard',
     archetypes: [
       {
         name: 'Dracaufeu ex / Pidgeot',
@@ -111,6 +114,7 @@ const seedData: SeedGame[] = [
     name: 'One Piece Card Game',
     slug: 'one-piece-card-game',
     logoUrl: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=120&auto=format&fit=crop&q=80',
+    metaName: 'OP-06',
     archetypes: [
       {
         name: 'Luffy Rouge / Gear 5',
@@ -146,6 +150,7 @@ const seedData: SeedGame[] = [
     name: 'Star Wars: Unlimited',
     slug: 'star-wars-unlimited',
     logoUrl: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=120&auto=format&fit=crop&q=80',
+    metaName: 'Spark of Rebellion',
     archetypes: [
       {
         name: 'Sabine Green Aggro',
@@ -236,7 +241,37 @@ async function seed() {
         .onConflictDoNothing()
       console.log(`   🔗 Lié à l'admin ${adminUser.username}`)
 
-      // 3. Insérer les archétypes pour ce compte admin
+      // 3. Créer ou récupérer la méta de référence pour ce jeu
+      let targetMeta = await db
+        .select()
+        .from(metas)
+        .where(
+          and(
+            eq(metas.userId, adminUser.id),
+            eq(metas.gameId, existingGame.id),
+            eq(metas.name, gameData.metaName)
+          )
+        )
+        .limit(1)
+        .then(rows => rows[0])
+
+      if (!targetMeta) {
+        const [insertedMeta] = await db
+          .insert(metas)
+          .values({
+            userId: adminUser.id,
+            gameId: existingGame.id,
+            name: gameData.metaName,
+            isActive: true
+          })
+          .returning()
+        targetMeta = insertedMeta
+        console.log(`   + Méta créée: ${targetMeta.name} (id: ${targetMeta.id})`)
+      } else {
+        console.log(`   = Méta existante: ${targetMeta.name} (id: ${targetMeta.id})`)
+      }
+
+      // 4. Insérer ou mettre à jour les archétypes pour ce compte admin avec la méta associée
       const insertedArchetypeMap: Record<string, string> = {}
 
       for (const arch of gameData.archetypes) {
@@ -259,6 +294,7 @@ async function seed() {
             .values({
               userId: adminUser.id,
               gameId: existingGame.id,
+              metaId: targetMeta.id,
               name: arch.name,
               card1Name: arch.card1Name,
               card1ImageUrl: arch.card1ImageUrl || null,
@@ -268,10 +304,17 @@ async function seed() {
             })
             .returning()
           insertedArchetypeMap[arch.name] = inserted.id
-          console.log(`   + Archétype créé: ${arch.name}`)
+          console.log(`   + Archétype créé: ${arch.name} [meta: ${targetMeta.name}]`)
         } else {
+          // S'assurer que le metaId est bien aligné avec la méta du seeder
+          if (existingArch.metaId !== targetMeta.id) {
+            await db
+              .update(archetypes)
+              .set({ metaId: targetMeta.id })
+              .where(eq(archetypes.id, existingArch.id))
+          }
           insertedArchetypeMap[arch.name] = existingArch.id
-          console.log(`   = Archétype déjà présent: ${arch.name}`)
+          console.log(`   = Archétype déjà présent: ${arch.name} [meta: ${targetMeta.name}]`)
         }
       }
 
