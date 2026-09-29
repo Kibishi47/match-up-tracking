@@ -16,7 +16,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'log-match', opponentId: string, result: 'win' | 'loss'): void
+  (e: 'log-match', opponentId: string, result: 'win' | 'loss' | 'draw'): void
 }>()
 </script>
 
@@ -98,7 +98,7 @@ const emit = defineEmits<{
                         ? 'bg-slate-800 text-slate-300 border-slate-700'
                         : 'bg-red-500/15 text-red-400 border-red-500/30')
                   ]"
-                  :title="`Taux de victoire : ${statsByOpponent[opp.id].wins}V - ${statsByOpponent[opp.id].losses}D`"
+                  :title="`Taux de victoire : ${statsByOpponent[opp.id].wins}V - ${statsByOpponent[opp.id].losses}D${statsByOpponent[opp.id].draws ? ' - ' + statsByOpponent[opp.id].draws + 'N' : ''}`"
                 >
                   WR {{ statsByOpponent[opp.id].winrate }}%
                 </span>
@@ -120,7 +120,8 @@ const emit = defineEmits<{
               <div class="mt-1 text-[11px] text-slate-400">
                 <span v-if="statsByOpponent?.[opp.id] && statsByOpponent[opp.id].total > 0">
                   {{ statsByOpponent[opp.id].wins }}W - {{ statsByOpponent[opp.id].losses }}L
-                  <span class="text-slate-500">({{ statsByOpponent[opp.id].total }} m.)</span>
+                  <span v-if="statsByOpponent[opp.id].draws" class="text-amber-400/90"> - {{ statsByOpponent[opp.id].draws }}D</span>
+                  <span class="text-slate-500"> ({{ statsByOpponent[opp.id].total }} m.)</span>
                 </span>
                 <span v-else class="text-slate-500 italic">0 match joué</span>
               </div>
@@ -128,24 +129,48 @@ const emit = defineEmits<{
           </div>
         </div>
 
-        <!-- Boutons d'action rapide Victoire (W) / Défaite (L) -->
-        <div class="mt-2 pt-3 border-t border-slate-800/80 grid grid-cols-2 gap-2">
+        <!-- Boutons d'action rapide Victoire (W) / Défaite (L) / Nul (D) avec icônes explicites -->
+        <div class="mt-2 pt-3 border-t border-slate-800/80 grid grid-cols-3 gap-1.5">
+          <!-- Victoire avec flèche montante -->
           <button
+            type="button"
             @click="emit('log-match', opp.id, 'win')"
-            class="py-2.5 rounded-xl font-black text-sm text-white bg-emerald-600 hover:bg-emerald-500 active:scale-95 transition flex items-center justify-center gap-1.5 shadow-md shadow-emerald-950/40 cursor-pointer"
-            title="Enregistrer une victoire immédiate"
+            class="py-2 px-1 rounded-xl font-bold text-xs text-white bg-emerald-600 hover:bg-emerald-500 active:scale-95 transition flex items-center justify-center gap-1 shadow-md shadow-emerald-950/40 cursor-pointer"
+            title="Enregistrer une Victoire (flèche montante)"
           >
-            <span>VICTOIRE</span>
-            <span class="text-xs bg-emerald-700/60 px-1.5 py-0.5 rounded">W</span>
+            <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m5 12 7-7 7 7"/>
+              <path d="M12 19V5"/>
+            </svg>
+            <span>Win</span>
           </button>
 
+          <!-- Défaite avec flèche descendante -->
           <button
+            type="button"
             @click="emit('log-match', opp.id, 'loss')"
-            class="py-2.5 rounded-xl font-black text-sm text-white bg-red-600 hover:bg-red-500 active:scale-95 transition flex items-center justify-center gap-1.5 shadow-md shadow-red-950/40 cursor-pointer"
-            title="Enregistrer une défaite immédiate"
+            class="py-2 px-1 rounded-xl font-bold text-xs text-white bg-red-600 hover:bg-red-500 active:scale-95 transition flex items-center justify-center gap-1 shadow-md shadow-red-950/40 cursor-pointer"
+            title="Enregistrer une Défaite (flèche descendante)"
           >
-            <span>DÉFAITE</span>
-            <span class="text-xs bg-red-700/60 px-1.5 py-0.5 rounded">L</span>
+            <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m19 12-7 7-7-7"/>
+              <path d="M12 5v14"/>
+            </svg>
+            <span>Loss</span>
+          </button>
+
+          <!-- Match Nul avec signe égal -->
+          <button
+            type="button"
+            @click="emit('log-match', opp.id, 'draw')"
+            class="py-2 px-1 rounded-xl font-bold text-xs text-white bg-amber-600 hover:bg-amber-500 active:scale-95 transition flex items-center justify-center gap-1 shadow-md shadow-amber-950/40 cursor-pointer"
+            title="Enregistrer un Match Nul"
+          >
+            <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="9" x2="19" y2="9"/>
+              <line x1="5" y1="15" x2="19" y2="15"/>
+            </svg>
+            <span>Nul</span>
           </button>
         </div>
       </div>

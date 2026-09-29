@@ -18,10 +18,11 @@
       </div>
     </div>
 
-    <!-- W / L Buttons skeleton -->
-    <div class="mt-2 pt-3 border-t border-slate-800/80 grid grid-cols-2 gap-2">
-      <div class="h-10 bg-slate-800/80 rounded-xl" />
-      <div class="h-10 bg-slate-800/80 rounded-xl" />
+    <!-- Quick Action Buttons skeleton (3 buttons 1:1) -->
+    <div class="mt-2 pt-3 border-t border-slate-800/80 grid grid-cols-3 gap-1.5">
+      <div class="h-8 bg-slate-800/80 rounded-xl" />
+      <div class="h-8 bg-slate-800/80 rounded-xl" />
+      <div class="h-8 bg-slate-800/80 rounded-xl" />
     </div>
   </div>
 </template>

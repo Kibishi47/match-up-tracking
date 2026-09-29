@@ -8,7 +8,7 @@
     <div class="divide-y divide-slate-800/80">
       <div v-for="i in 5" :key="i" class="py-3.5 flex items-center justify-between gap-4">
         <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-lg bg-slate-800" />
+          <div class="w-12 h-8 rounded-lg bg-slate-800 flex-shrink-0" />
           <div class="space-y-1.5">
             <div class="h-4 w-44 bg-slate-700 rounded-md" />
             <div class="h-3 w-28 bg-slate-800/60 rounded-md" />

@@ -63,8 +63,8 @@ const editingMatch = ref<MatchWithRelations | null>(null)
 
 const { toast, confirmAction } = useNotify()
 
-// Enregistrement rapide d'un match (W ou L)
-const logMatch = async (opponentId: string, result: 'win' | 'loss') => {
+// Enregistrement rapide d'un match (W, L ou D)
+const logMatch = async (opponentId: string, result: 'win' | 'loss' | 'draw') => {
   if (!activeGameId.value || !activeDeckId.value) {
     toast.warning('Veuillez d’abord sélectionner un jeu et votre deck actif.')
     return
@@ -222,7 +222,7 @@ const formatDate = (dateStr: string | Date) => {
               <div class="flex items-center gap-3.5">
                 <span
                   :class="[
-                    'w-9 h-9 rounded-xl flex items-center justify-center font-black text-xs uppercase flex-shrink-0 shadow-sm',
+                    'w-12 h-8 rounded-lg flex items-center justify-center font-black text-xs uppercase flex-shrink-0 shadow-sm tracking-wide',
                     m.result === 'win'
                       ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                       : (m.result === 'loss' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30')
