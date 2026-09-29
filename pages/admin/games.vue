@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Game } from '~/server/database/schema'
+import type { Game } from '~/server/db/schema'
 
 definePageMeta({
   middleware: 'admin'
@@ -13,7 +13,7 @@ const successMessage = ref<string | null>(null)
 
 // Formulaire
 const form = reactive({
-  id: null as number | null,
+  id: null as string | null,
   name: '',
   slug: '',
   logoUrl: ''

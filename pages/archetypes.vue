@@ -1,28 +1,20 @@
 <script setup lang="ts">
-import type { Archetype, Game } from '~/server/database/schema'
+import type { Archetype } from '~/server/db/schema'
 
 definePageMeta({
   middleware: 'auth'
 })
 
-// Jeux disponibles
-const { data: gamesList } = await useFetch<Game[]>('/api/games')
-const selectedGameId = ref<number | null>(null)
-
-// Initialiser le jeu sélectionné
-watch(gamesList, (newGames) => {
-  if (newGames && newGames.length > 0 && selectedGameId.value === null) {
-    selectedGameId.value = newGames[0].id
-  }
-}, { immediate: true })
+// Utiliser la session de jeu partagée
+const { games: gamesList, activeGameId, setActiveGame } = useGameSession()
 
 // Charger les archétypes pour le jeu sélectionné
 const { data: archetypesList, refresh: refreshArchetypes, status: loadingArchetypes } = await useFetch<Archetype[]>('/api/archetypes', {
   query: computed(() => ({
-    gameId: selectedGameId.value || undefined,
+    gameId: activeGameId.value || undefined,
     includeArchived: false
   })),
-  watch: [selectedGameId]
+  watch: [activeGameId]
 })
 
 const isSubmitting = ref(false)
@@ -31,7 +23,7 @@ const successMessage = ref<string | null>(null)
 
 // Formulaire
 const form = reactive({
-  id: null as number | null,
+  id: null as string | null,
   name: '',
   card1Name: '',
   card1ImageUrl: '',
@@ -63,7 +55,7 @@ const editArchetype = (arch: Archetype) => {
 }
 
 const submitForm = async () => {
-  if (!selectedGameId.value) {
+  if (!activeGameId.value) {
     errorMessage.value = 'Veuillez sélectionner un jeu TCG'
     return
   }
@@ -93,7 +85,7 @@ const submitForm = async () => {
       await $fetch('/api/archetypes', {
         method: 'POST',
         body: {
-          gameId: selectedGameId.value,
+          gameId: activeGameId.value,
           name: form.name,
           card1Name: form.card1Name,
           card1ImageUrl: form.card1ImageUrl,
@@ -128,7 +120,7 @@ const archiveArchetype = async (arch: Archetype) => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-950">
+  <div class="min-h-screen bg-slate-950 pb-24">
     <AppHeader />
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -144,7 +136,8 @@ const archiveArchetype = async (arch: Archetype) => {
         <div class="flex items-center gap-3">
           <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Jeu :</label>
           <select
-            v-model="selectedGameId"
+            :value="activeGameId"
+            @change="setActiveGame(($event.target as HTMLSelectElement).value)"
             class="px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-emerald-500 font-medium"
           >
             <option v-for="g in gamesList" :key="g.id" :value="g.id">
