@@ -9,7 +9,7 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
+    "db:migrate": "tsx server/database/migrate.ts",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio"
   },
@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.13.4",
-    "drizzle-kit": "^0.30.4"
+    "drizzle-kit": "^0.30.4",
+    "tsx": "^4.19.3"
   }
 }
