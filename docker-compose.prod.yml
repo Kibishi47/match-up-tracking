@@ -6,9 +6,17 @@ services:
     restart: always
     expose:
       - "3000"
+    networks:
+      - default
+      - coolify
     environment:
       - NODE_ENV=production
       - DATABASE_URL=${DATABASE_URL}
       - NUXT_SESSION_PASSWORD=${NUXT_SESSION_PASSWORD}
       - NUXT_OAUTH_DISCORD_CLIENT_ID=${NUXT_OAUTH_DISCORD_CLIENT_ID}
       - NUXT_OAUTH_DISCORD_CLIENT_SECRET=${NUXT_OAUTH_DISCORD_CLIENT_SECRET}
+
+networks:
+  default:
+  coolify:
+    external: true
