@@ -1,5 +1,5 @@
 import { migrate } from 'drizzle-orm/postgres-js/migrator'
-import { useDb } from '../database'
+import { useDb } from '../db'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import fs from 'node:fs'
@@ -11,9 +11,9 @@ export default defineNitroPlugin(async () => {
   try {
     const db = useDb()
     // Trouver le dossier migrations soit en dev soit dans le build
-    let migrationsFolder = path.resolve(process.cwd(), 'server/database/migrations')
+    let migrationsFolder = path.resolve(process.cwd(), 'server/db/migrations')
     if (!fs.existsSync(migrationsFolder)) {
-      migrationsFolder = path.resolve(process.cwd(), '.output/server/database/migrations')
+      migrationsFolder = path.resolve(process.cwd(), '.output/server/db/migrations')
     }
 
     if (fs.existsSync(migrationsFolder)) {

@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm'
-import { useDb, games } from '../../../database'
+import { useDb, games } from '../../../db'
 import { requireAdminUser } from '../../../utils/auth'
 import { slugify } from '../../../utils/slug'
 

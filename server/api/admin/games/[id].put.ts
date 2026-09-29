@@ -1,17 +1,16 @@
 import { and, eq, ne } from 'drizzle-orm'
-import { useDb, games } from '../../../database'
+import { useDb, games } from '../../../db'
 import { requireAdminUser } from '../../../utils/auth'
 import { slugify } from '../../../utils/slug'
 
 export default defineEventHandler(async (event) => {
   await requireAdminUser(event)
-  const idParam = getRouterParam(event, 'id')
-  const gameId = parseInt(idParam || '', 10)
+  const gameId = getRouterParam(event, 'id')
 
-  if (isNaN(gameId)) {
+  if (!gameId) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'ID de jeu invalide'
+      statusMessage: 'ID de jeu requis'
     })
   }
 

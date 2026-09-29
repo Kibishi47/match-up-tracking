@@ -1,5 +1,5 @@
 import { eq, sql } from 'drizzle-orm'
-import { useDb, users } from '../../database'
+import { useDb, users } from '../../db'
 
 const oauthHandler = defineOAuthDiscordEventHandler({
   config: {

@@ -1,5 +1,5 @@
 {
-  "id": "dd0e72a5-0adc-425c-a69f-9df2f2b274a4",
+  "id": "50e7855b-066c-4292-95d8-05e177f223fd",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -10,19 +10,20 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "user_id": {
           "name": "user_id",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
         "game_id": {
           "name": "game_id",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -108,7 +109,17 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "user_game_archetype_name_unique": {
+          "name": "user_game_archetype_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "user_id",
+            "game_id",
+            "name"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -119,9 +130,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "name": {
           "name": "name",
@@ -160,6 +172,13 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
+        "games_name_unique": {
+          "name": "games_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name"
+          ]
+        },
         "games_slug_unique": {
           "name": "games_slug_unique",
           "nullsNotDistinct": false,
@@ -178,31 +197,32 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "user_id": {
           "name": "user_id",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
         "game_id": {
           "name": "game_id",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
-        "user_archetype_id": {
-          "name": "user_archetype_id",
-          "type": "integer",
+        "my_archetype_id": {
+          "name": "my_archetype_id",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
         "opponent_archetype_id": {
           "name": "opponent_archetype_id",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -262,12 +282,12 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "matches_user_archetype_id_archetypes_id_fk": {
-          "name": "matches_user_archetype_id_archetypes_id_fk",
+        "matches_my_archetype_id_archetypes_id_fk": {
+          "name": "matches_my_archetype_id_archetypes_id_fk",
           "tableFrom": "matches",
           "tableTo": "archetypes",
           "columnsFrom": [
-            "user_archetype_id"
+            "my_archetype_id"
           ],
           "columnsTo": [
             "id"
@@ -301,13 +321,13 @@
       "columns": {
         "user_id": {
           "name": "user_id",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
         "game_id": {
           "name": "game_id",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -368,9 +388,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "discord_id": {
           "name": "discord_id",
@@ -383,12 +404,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
-        },
-        "global_name": {
-          "name": "global_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
         },
         "avatar": {
           "name": "avatar",
@@ -442,7 +457,8 @@
       "schema": "public",
       "values": [
         "win",
-        "loss"
+        "loss",
+        "draw"
       ]
     },
     "public.user_role": {

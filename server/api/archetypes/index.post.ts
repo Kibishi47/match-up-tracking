@@ -1,4 +1,4 @@
-import { useDb, archetypes } from '../../database'
+import { useDb, archetypes } from '../../db'
 import { requireAuthUser } from '../../utils/auth'
 
 export default defineEventHandler(async (event) => {
@@ -12,8 +12,8 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const gameId = parseInt(body?.gameId, 10)
-  if (isNaN(gameId)) {
+  const gameId = body?.gameId ? String(body.gameId) : null
+  if (!gameId) {
     throw createError({
       statusCode: 400,
       statusMessage: 'Le jeu associé est obligatoire'

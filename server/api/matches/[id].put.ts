@@ -1,16 +1,15 @@
 import { and, eq } from 'drizzle-orm'
-import { useDb, matches } from '../../database'
+import { useDb, matches } from '../../db'
 import { requireAuthUser } from '../../utils/auth'
 
 export default defineEventHandler(async (event) => {
   const user = await requireAuthUser(event)
-  const idParam = getRouterParam(event, 'id')
-  const matchId = parseInt(idParam || '', 10)
+  const matchId = getRouterParam(event, 'id')
 
-  if (isNaN(matchId)) {
+  if (!matchId) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'ID de match invalide'
+      statusMessage: 'ID de match requis'
     })
   }
 
@@ -20,8 +19,8 @@ export default defineEventHandler(async (event) => {
   const updateData: Record<string, any> = {}
 
   if (body.result !== undefined) {
-    if (body.result !== 'win' && body.result !== 'loss') {
-      throw createError({ statusCode: 400, statusMessage: "Le résultat doit être 'win' ou 'loss'" })
+    if (body.result !== 'win' && body.result !== 'loss' && body.result !== 'draw') {
+      throw createError({ statusCode: 400, statusMessage: "Le résultat doit être 'win', 'loss' ou 'draw'" })
     }
     updateData.result = body.result
   }

@@ -1,48 +1,45 @@
-import { pgTable, serial, text, timestamp, boolean, integer, primaryKey, pgEnum } from 'drizzle-orm/pg-core'
+import { pgTable, uuid, text, timestamp, boolean, primaryKey, pgEnum, unique } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 
-// Rôles utilisateurs
+// Énumérations
 export const roleEnum = pgEnum('user_role', ['admin', 'user'])
+export const matchResultEnum = pgEnum('match_result', ['win', 'loss', 'draw'])
 
-// Résultat du match
-export const matchResultEnum = pgEnum('match_result', ['win', 'loss'])
-
-// Table Utilisateurs
+// 1. Table Utilisateurs
 export const users = pgTable('users', {
-  id: serial('id').primaryKey(),
+  id: uuid('id').defaultRandom().primaryKey(),
   discordId: text('discord_id').notNull().unique(),
   username: text('username').notNull(),
-  globalName: text('global_name'),
   avatar: text('avatar'),
   role: roleEnum('role').default('user').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()
 })
 
-// Table Jeux (Global & géré par Admin)
+// 2. Table Jeux (Catalogue global)
 export const games = pgTable('games', {
-  id: serial('id').primaryKey(),
-  name: text('name').notNull(),
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: text('name').notNull().unique(),
   slug: text('slug').notNull().unique(),
   logoUrl: text('logo_url'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()
 })
 
-// Table pivot Utilisateur <-> Jeux pratiqués
+// 3. Table pivot Utilisateur <-> Jeux
 export const userGames = pgTable('user_games', {
-  userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  gameId: integer('game_id').references(() => games.id, { onDelete: 'cascade' }).notNull(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  gameId: uuid('game_id').references(() => games.id, { onDelete: 'cascade' }).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull()
 }, (table) => [
   primaryKey({ columns: [table.userId, table.gameId] })
 ])
 
-// Table Archétypes (100% isolés par utilisateur et par jeu)
+// 4. Table Archétypes (100% isolés par utilisateur et par jeu, avec contrainte unique)
 export const archetypes = pgTable('archetypes', {
-  id: serial('id').primaryKey(),
-  userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  gameId: integer('game_id').references(() => games.id, { onDelete: 'cascade' }).notNull(),
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  gameId: uuid('game_id').references(() => games.id, { onDelete: 'cascade' }).notNull(),
   name: text('name').notNull(),
   card1Name: text('card1_name'),
   card1ImageUrl: text('card1_image_url'),
@@ -51,22 +48,24 @@ export const archetypes = pgTable('archetypes', {
   isArchived: boolean('is_archived').default(false).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()
-})
+}, (table) => [
+  unique('user_game_archetype_name_unique').on(table.userId, table.gameId, table.name)
+])
 
-// Table Matchs (Enregistrement des parties)
+// 5. Table Matchs (Enregistrement avec my_archetype_id et opponent_archetype_id)
 export const matches = pgTable('matches', {
-  id: serial('id').primaryKey(),
-  userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  gameId: integer('game_id').references(() => games.id, { onDelete: 'cascade' }).notNull(),
-  userArchetypeId: integer('user_archetype_id').references(() => archetypes.id, { onDelete: 'cascade' }).notNull(),
-  opponentArchetypeId: integer('opponent_archetype_id').references(() => archetypes.id, { onDelete: 'cascade' }).notNull(),
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  gameId: uuid('game_id').references(() => games.id, { onDelete: 'cascade' }).notNull(),
+  myArchetypeId: uuid('my_archetype_id').references(() => archetypes.id, { onDelete: 'cascade' }).notNull(),
+  opponentArchetypeId: uuid('opponent_archetype_id').references(() => archetypes.id, { onDelete: 'cascade' }).notNull(),
   result: matchResultEnum('result').notNull(),
   notes: text('notes'),
   playedAt: timestamp('played_at').defaultNow().notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull()
 })
 
-// Relations Drizzle pour faciliter les requêtes relationnelles
+// Relations Drizzle
 export const usersRelations = relations(users, ({ many }) => ({
   userGames: many(userGames),
   archetypes: many(archetypes),
@@ -99,8 +98,8 @@ export const archetypesRelations = relations(archetypes, ({ one, many }) => ({
     fields: [archetypes.gameId],
     references: [games.id]
   }),
-  matchesAsUser: many(matches, { relationName: 'userMatches' }),
-  matchesAsOpponent: many(matches, { relationName: 'opponentMatches' })
+  myMatches: many(matches, { relationName: 'myMatches' }),
+  opponentMatches: many(matches, { relationName: 'opponentMatches' })
 }))
 
 export const matchesRelations = relations(matches, ({ one }) => ({
@@ -112,10 +111,10 @@ export const matchesRelations = relations(matches, ({ one }) => ({
     fields: [matches.gameId],
     references: [games.id]
   }),
-  userArchetype: one(archetypes, {
-    fields: [matches.userArchetypeId],
+  myArchetype: one(archetypes, {
+    fields: [matches.myArchetypeId],
     references: [archetypes.id],
-    relationName: 'userMatches'
+    relationName: 'myMatches'
   }),
   opponentArchetype: one(archetypes, {
     fields: [matches.opponentArchetypeId],
@@ -124,7 +123,7 @@ export const matchesRelations = relations(matches, ({ one }) => ({
   })
 }))
 
-// Types TypeScript déduits
+// Types déduits
 export type User = typeof users.$inferSelect
 export type NewUser = typeof users.$inferInsert
 export type Game = typeof games.$inferSelect

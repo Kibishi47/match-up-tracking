@@ -1,18 +1,18 @@
 import { and, eq } from 'drizzle-orm'
-import { useDb, userGames } from '../../database'
+import { useDb, userGames } from '../../db'
 import { requireAuthUser } from '../../utils/auth'
 
 export default defineEventHandler(async (event) => {
   const user = await requireAuthUser(event)
   const body = await readBody(event)
 
-  const gameId = parseInt(body?.gameId, 10)
+  const gameId = body?.gameId ? String(body.gameId) : null
   const isSelected = Boolean(body?.selected)
 
-  if (isNaN(gameId)) {
+  if (!gameId) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'gameId invalide'
+      statusMessage: 'gameId requis'
     })
   }
 

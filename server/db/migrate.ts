@@ -1,6 +1,7 @@
 import { drizzle } from 'drizzle-orm/postgres-js'
 import { migrate } from 'drizzle-orm/postgres-js/migrator'
 import postgres from 'postgres'
+import path from 'node:path'
 
 async function runMigrations() {
   const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/matchup_tracking'
@@ -9,8 +10,9 @@ async function runMigrations() {
   const migrationClient = postgres(connectionString, { max: 1 })
   const db = drizzle(migrationClient)
 
-  console.log('Running Drizzle migrations from server/database/migrations...')
-  await migrate(db, { migrationsFolder: './server/database/migrations' })
+  const migrationsFolder = path.resolve(process.cwd(), 'server/db/migrations')
+  console.log(`Running Drizzle migrations from ${migrationsFolder}...`)
+  await migrate(db, { migrationsFolder })
 
   console.log('Migrations applied successfully!')
   await migrationClient.end()

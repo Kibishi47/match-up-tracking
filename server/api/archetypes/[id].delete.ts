@@ -1,16 +1,15 @@
 import { and, eq } from 'drizzle-orm'
-import { useDb, archetypes } from '../../database'
+import { useDb, archetypes } from '../../db'
 import { requireAuthUser } from '../../utils/auth'
 
 export default defineEventHandler(async (event) => {
   const user = await requireAuthUser(event)
-  const idParam = getRouterParam(event, 'id')
-  const archetypeId = parseInt(idParam || '', 10)
+  const archetypeId = getRouterParam(event, 'id')
 
-  if (isNaN(archetypeId)) {
+  if (!archetypeId) {
     throw createError({
       statusCode: 400,
-      statusMessage: "ID d'archétype invalide"
+      statusMessage: "ID d'archétype requis"
     })
   }
 

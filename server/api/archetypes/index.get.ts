@@ -1,17 +1,17 @@
 import { and, asc, eq } from 'drizzle-orm'
-import { useDb, archetypes } from '../../database'
+import { useDb, archetypes } from '../../db'
 import { requireAuthUser } from '../../utils/auth'
 
 export default defineEventHandler(async (event) => {
   const user = await requireAuthUser(event)
   const query = getQuery(event)
-  const gameId = query.gameId ? parseInt(query.gameId as string, 10) : undefined
+  const gameId = query.gameId ? String(query.gameId) : undefined
   const includeArchived = query.includeArchived === 'true'
 
   const db = useDb()
 
   const conditions = [eq(archetypes.userId, user.id)]
-  if (gameId !== undefined && !isNaN(gameId)) {
+  if (gameId) {
     conditions.push(eq(archetypes.gameId, gameId))
   }
   if (!includeArchived) {

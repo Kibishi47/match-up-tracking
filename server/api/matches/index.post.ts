@@ -1,37 +1,37 @@
 import { and, eq } from 'drizzle-orm'
-import { useDb, matches, archetypes } from '../../database'
+import { useDb, matches, archetypes } from '../../db'
 import { requireAuthUser } from '../../utils/auth'
 
 export default defineEventHandler(async (event) => {
   const user = await requireAuthUser(event)
   const body = await readBody(event)
 
-  const gameId = parseInt(body?.gameId, 10)
-  const userArchetypeId = parseInt(body?.userArchetypeId, 10)
-  const opponentArchetypeId = parseInt(body?.opponentArchetypeId, 10)
+  const gameId = body?.gameId ? String(body.gameId) : null
+  const myArchetypeId = body?.myArchetypeId ? String(body.myArchetypeId) : (body?.userArchetypeId ? String(body.userArchetypeId) : null)
+  const opponentArchetypeId = body?.opponentArchetypeId ? String(body.opponentArchetypeId) : null
   const result = body?.result
 
-  if (isNaN(gameId) || isNaN(userArchetypeId) || isNaN(opponentArchetypeId)) {
+  if (!gameId || !myArchetypeId || !opponentArchetypeId) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'gameId, userArchetypeId et opponentArchetypeId sont requis'
+      statusMessage: 'gameId, myArchetypeId et opponentArchetypeId sont requis'
     })
   }
 
-  if (result !== 'win' && result !== 'loss') {
+  if (result !== 'win' && result !== 'loss' && result !== 'draw') {
     throw createError({
       statusCode: 400,
-      statusMessage: "Le résultat doit être 'win' ou 'loss'"
+      statusMessage: "Le résultat doit être 'win', 'loss' ou 'draw'"
     })
   }
 
   const db = useDb()
 
   // S'assurer que les archétypes appartiennent bien à l'utilisateur
-  const userDecks = await db
+  const myDecks = await db
     .select()
     .from(archetypes)
-    .where(and(eq(archetypes.id, userArchetypeId), eq(archetypes.userId, user.id)))
+    .where(and(eq(archetypes.id, myArchetypeId), eq(archetypes.userId, user.id)))
     .limit(1)
 
   const opponentDecks = await db
@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
     .where(and(eq(archetypes.id, opponentArchetypeId), eq(archetypes.userId, user.id)))
     .limit(1)
 
-  if (userDecks.length === 0 || opponentDecks.length === 0) {
+  if (myDecks.length === 0 || opponentDecks.length === 0) {
     throw createError({
       statusCode: 404,
       statusMessage: 'Archétype non trouvé ou non autorisé'
@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
     .values({
       userId: user.id,
       gameId,
-      userArchetypeId,
+      myArchetypeId,
       opponentArchetypeId,
       result,
       notes: body.notes ? String(body.notes).trim() : null,
@@ -62,7 +62,7 @@ export default defineEventHandler(async (event) => {
 
   return {
     ...newMatch,
-    userArchetype: userDecks[0],
+    myArchetype: myDecks[0],
     opponentArchetype: opponentDecks[0]
   }
 })

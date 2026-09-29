@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm'
-import { useDb, userGames, games } from '../../database'
+import { useDb, userGames, games } from '../../db'
 import { requireAuthUser } from '../../utils/auth'
 
 export default defineEventHandler(async (event) => {
