@@ -27,8 +27,8 @@ export function useGameSession() {
   const activeDeckId = useState<string | null>('tcg_active_deck_id', () => initialDeckId)
   const isSessionReady = useState<boolean>('tcg_session_ready', () => false)
 
-  // Récupération de la liste des jeux disponibles
-  const { data: games, refresh: refreshGames, status: gamesStatus } = useFetch<Game[]>('/api/games')
+  // Récupération de la liste des jeux disponibles dans la collection de l'utilisateur
+  const { data: games, refresh: refreshGames, status: gamesStatus } = useFetch<Game[]>('/api/user/games')
 
   const isLoadingGames = computed(() => gamesStatus.value === 'pending')
 
