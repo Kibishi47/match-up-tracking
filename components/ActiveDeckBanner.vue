@@ -22,8 +22,7 @@ const deckOptions = computed(() => {
   return props.allDecks.map(d => ({
     value: d.id,
     label: d.name,
-    iconUrl: d.card1ImageUrl,
-    iconText: d.card1ImageUrl ? undefined : '🎴'
+    iconUrl: d.card1ImageUrl
   }))
 })
 </script>
@@ -37,8 +36,12 @@ const deckOptions = computed(() => {
     </div>
 
     <div v-if="!deck" class="text-center py-6">
-      <div class="w-14 h-14 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto text-2xl mb-3 shadow-inner">
-        🎴
+      <div class="w-14 h-14 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto text-emerald-400 mb-3 shadow-inner">
+        <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <rect width="14" height="18" x="3" y="3" rx="2" />
+          <path d="M7 3v18" />
+          <path d="M10 7.5h4" />
+        </svg>
       </div>
       <h3 class="text-lg font-bold text-white">Aucun deck actif sélectionné</h3>
       <p class="text-sm text-slate-400 mt-1 max-w-md mx-auto">
@@ -116,10 +119,6 @@ const deckOptions = computed(() => {
               button-class="px-2.5 py-1 text-xs"
               @change="emit('change-deck', $event)"
             />
-
-            <NuxtLink to="/archetypes" class="text-xs text-slate-400 hover:text-white transition ml-1" title="Gérer tous mes decks">
-              ⚙️
-            </NuxtLink>
           </div>
         </div>
       </div>

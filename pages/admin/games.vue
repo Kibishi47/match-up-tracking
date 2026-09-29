@@ -236,8 +236,11 @@ const deleteGame = async (game: Game) => {
             </div>
 
             <div v-else-if="!gamesList || gamesList.length === 0" class="py-12 text-center">
-              <div class="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto text-slate-600 mb-3">
-                🎮
+              <div class="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto text-purple-400 mb-3 shadow-inner">
+                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect width="20" height="12" x="2" y="6" rx="6" />
+                  <path d="M6 12h4m-2-2v4m9-2h.01m3 0h.01" />
+                </svg>
               </div>
               <p class="text-slate-400 text-sm">Aucun jeu TCG n'a encore été créé.</p>
               <p class="text-slate-500 text-xs mt-1">Utilisez le formulaire ci-contre pour créer le premier jeu.</p>

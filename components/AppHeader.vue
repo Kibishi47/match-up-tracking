@@ -8,11 +8,13 @@ const { games, activeGameId, activeGame, setActiveGame, isSessionReady } = useGa
 const isManageGamesOpen = ref(false)
 
 const gameOptions = computed(() => {
-  return (games.value || []).map(g => ({
+  const sorted = [...(games.value || [])].sort((a, b) =>
+    a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' })
+  )
+  return sorted.map(g => ({
     value: g.id,
     label: g.name,
-    iconUrl: g.logoUrl,
-    iconText: g.logoUrl ? undefined : '🎮'
+    iconUrl: g.logoUrl
   }))
 })
 
@@ -70,7 +72,10 @@ const logout = async () => {
               class="w-full h-full flex items-center justify-between text-xs text-slate-400 hover:text-emerald-400 bg-slate-900/60 hover:bg-slate-900 rounded-xl border border-slate-800 hover:border-slate-700 px-3 transition cursor-pointer"
             >
               <span>+ Gérer mes jeux</span>
-              <span class="text-emerald-400 font-bold text-xs">🎮</span>
+              <svg class="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect width="20" height="12" x="2" y="6" rx="6" />
+                <path d="M6 12h4m-2-2v4m9-2h.01m3 0h.01" />
+              </svg>
             </button>
           </div>
         </div>

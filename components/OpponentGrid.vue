@@ -24,8 +24,12 @@ const emit = defineEmits<{
   <div>
     <!-- État 0 archétype dans le jeu -->
     <div v-if="opponents.length === 0" class="glass-panel p-12 rounded-3xl border border-slate-800 text-center">
-      <div class="w-14 h-14 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto text-2xl mb-3 shadow-inner">
-        🃏
+      <div class="w-14 h-14 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto text-emerald-400 mb-3 shadow-inner">
+        <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <rect width="14" height="18" x="3" y="3" rx="2" />
+          <path d="M7 3v18" />
+          <path d="M10 7.5h4" />
+        </svg>
       </div>
       <h4 class="text-lg font-bold text-white">Aucun archétype adverse enregistré</h4>
       <p class="text-sm text-slate-400 mt-1 max-w-md mx-auto">

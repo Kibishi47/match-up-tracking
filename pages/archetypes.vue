@@ -1,22 +1,12 @@
 <script setup lang="ts">
 import type { Archetype } from '~/server/db/schema'
-import AppDropdown from '~/components/ui/AppDropdown.vue'
 
 definePageMeta({
   middleware: 'auth'
 })
 
-// Utiliser la session de jeu partagée
-const { games: gamesList, activeGameId, setActiveGame } = useGameSession()
-
-const gameOptions = computed(() => {
-  return (gamesList.value || []).map(g => ({
-    value: g.id,
-    label: g.name,
-    iconUrl: g.logoUrl,
-    iconText: g.logoUrl ? undefined : '🎮'
-  }))
-})
+// Utiliser la session de jeu partagée (synchronisée avec le Header)
+const { activeGame, activeGameId } = useGameSession()
 
 // Charger les archétypes pour le jeu sélectionné
 const { data: archetypesList, refresh: refreshArchetypes, status: loadingArchetypes } = await useFetch<Archetype[]>('/api/archetypes', {
@@ -136,23 +126,18 @@ const archiveArchetype = async (arch: Archetype) => {
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <h1 class="text-3xl font-extrabold text-white">Mes Archétypes & Decks</h1>
+          <div class="flex items-center gap-3">
+            <h1 class="text-3xl font-extrabold text-white">Mes Archétypes & Decks</h1>
+            <span
+              v-if="activeGame"
+              class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+            >
+              {{ activeGame.name }}
+            </span>
+          </div>
           <p class="text-slate-400 text-sm mt-1">
             Gérez vos decks personnels et les archétypes du metagame que vous affrontez.
           </p>
-        </div>
-
-        <!-- Sélecteur de Jeu -->
-        <div class="flex items-center gap-3">
-          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Jeu :</span>
-          <AppDropdown
-            :model-value="activeGameId"
-            :options="gameOptions"
-            placeholder="Sélectionner un jeu..."
-            menu-width-class="w-60"
-            button-class="w-52 sm:w-60"
-            @change="setActiveGame"
-          />
         </div>
       </div>
 
@@ -277,8 +262,12 @@ const archiveArchetype = async (arch: Archetype) => {
             </div>
 
             <div v-else-if="!archetypesList || archetypesList.length === 0" class="py-12 text-center">
-              <div class="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto text-2xl mb-3">
-                🃏
+              <div class="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto text-emerald-400 mb-3 shadow-inner">
+                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect width="14" height="18" x="3" y="3" rx="2" />
+                  <path d="M7 3v18" />
+                  <path d="M10 7.5h4" />
+                </svg>
               </div>
               <p class="text-slate-400 text-sm">Aucun archétype enregistré pour ce jeu.</p>
               <p class="text-slate-500 text-xs mt-1">Créez votre deck ou les archétypes adverses pour commencer le suivi.</p>
