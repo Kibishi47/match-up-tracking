@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { Match, Archetype } from '~/server/database/schema'
+import type { Match, Archetype } from '~/server/db/schema'
 
 interface MatchWithRelations extends Match {
-  userArchetype?: Archetype
+  myArchetype?: Archetype
   opponentArchetype?: Archetype
 }
 
@@ -15,7 +15,7 @@ const emit = defineEmits<{
   (e: 'updated', match: Match): void
 }>()
 
-const result = ref<'win' | 'loss'>('win')
+const result = ref<'win' | 'loss' | 'draw'>('win')
 const notes = ref('')
 const isSubmitting = ref(false)
 const errorMessage = ref<string | null>(null)
@@ -61,7 +61,7 @@ const saveMatch = async () => {
 
       <div class="mb-4 p-3 bg-slate-900/60 rounded-xl border border-slate-800 text-sm">
         <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
-          <span>Deck : <strong class="text-white">{{ match.userArchetype?.name || 'Mon Deck' }}</strong></span>
+          <span>Deck : <strong class="text-white">{{ match.myArchetype?.name || 'Mon Deck' }}</strong></span>
           <span>vs</span>
           <span>Adversaire : <strong class="text-white">{{ match.opponentArchetype?.name || 'Adversaire' }}</strong></span>
         </div>
@@ -72,31 +72,44 @@ const saveMatch = async () => {
           <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
             Résultat
           </label>
-          <div class="grid grid-cols-2 gap-3">
+          <div class="grid grid-cols-3 gap-2">
             <button
               type="button"
               @click="result = 'win'"
               :class="[
-                'py-2.5 rounded-xl font-bold text-sm transition border flex items-center justify-center gap-2',
+                'py-2.5 rounded-xl font-bold text-xs sm:text-sm transition border flex items-center justify-center gap-1',
                 result === 'win'
                   ? 'bg-emerald-600 text-white border-emerald-500 shadow-lg shadow-emerald-600/30'
                   : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'
               ]"
             >
-              <span>Victoire (W)</span>
+              <span>Victoire</span>
             </button>
 
             <button
               type="button"
               @click="result = 'loss'"
               :class="[
-                'py-2.5 rounded-xl font-bold text-sm transition border flex items-center justify-center gap-2',
+                'py-2.5 rounded-xl font-bold text-xs sm:text-sm transition border flex items-center justify-center gap-1',
                 result === 'loss'
                   ? 'bg-red-600 text-white border-red-500 shadow-lg shadow-red-600/30'
                   : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'
               ]"
             >
-              <span>Défaite (L)</span>
+              <span>Défaite</span>
+            </button>
+
+            <button
+              type="button"
+              @click="result = 'draw'"
+              :class="[
+                'py-2.5 rounded-xl font-bold text-xs sm:text-sm transition border flex items-center justify-center gap-1',
+                result === 'draw'
+                  ? 'bg-amber-600 text-white border-amber-500 shadow-lg shadow-amber-600/30'
+                  : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'
+              ]"
+            >
+              <span>Nul</span>
             </button>
           </div>
         </div>

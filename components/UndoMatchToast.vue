@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { Match, Archetype } from '~/server/database/schema'
+import type { Match, Archetype } from '~/server/db/schema'
 
 interface MatchWithRelations extends Match {
-  userArchetype?: Archetype
+  myArchetype?: Archetype
   opponentArchetype?: Archetype
 }
 
@@ -12,7 +12,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'undo', matchId: number): void
+  (e: 'undo', matchId: string): void
   (e: 'edit', match: MatchWithRelations): void
   (e: 'dismiss'): void
 }>()
@@ -90,16 +90,16 @@ const handleEdit = () => {
 
       <div class="flex items-center justify-between gap-3 mt-1">
         <div class="flex items-center gap-3 min-w-0">
-          <!-- Badge Victoire ou Défaite -->
+          <!-- Badge Victoire, Défaite ou Nul -->
           <div
             :class="[
               'w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shadow-md flex-shrink-0',
               match.result === 'win'
                 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-                : 'bg-red-500/20 text-red-400 border border-red-500/40'
+                : (match.result === 'loss' ? 'bg-red-500/20 text-red-400 border border-red-500/40' : 'bg-amber-500/20 text-amber-400 border border-amber-500/40')
             ]"
           >
-            {{ match.result === 'win' ? 'W' : 'L' }}
+            {{ match.result === 'win' ? 'W' : (match.result === 'loss' ? 'L' : 'D') }}
           </div>
 
           <div class="min-w-0">
