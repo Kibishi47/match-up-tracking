@@ -1,7 +1,7 @@
 import { eq, sql } from 'drizzle-orm'
 import { useDb, users } from '../../database'
 
-export default defineOAuthDiscordEventHandler({
+const oauthHandler = defineOAuthDiscordEventHandler({
   config: {
     email: false
   },
@@ -79,4 +79,15 @@ export default defineOAuthDiscordEventHandler({
     console.error('Discord OAuth error:', error)
     return sendRedirect(event, '/login?error=oauth_error')
   }
+})
+
+export default defineEventHandler(async (event) => {
+  const clientId = process.env.NUXT_OAUTH_DISCORD_CLIENT_ID
+  const clientSecret = process.env.NUXT_OAUTH_DISCORD_CLIENT_SECRET
+
+  if (!clientId || !clientSecret || clientId.trim() === '' || clientSecret.trim() === '') {
+    return sendRedirect(event, '/login?error=missing_credentials')
+  }
+
+  return oauthHandler(event)
 })

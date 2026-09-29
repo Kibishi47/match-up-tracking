@@ -22,6 +22,7 @@ ENV PORT=3000
 
 # Copy Nuxt Nitro standalone server bundle
 COPY --from=builder /app/.output ./.output
+COPY --from=builder /app/server/database/migrations ./server/database/migrations
 
 EXPOSE 3000
 

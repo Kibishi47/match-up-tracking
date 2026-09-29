@@ -30,7 +30,12 @@ const error = computed(() => route.query.error as string | undefined)
         <p class="text-sm text-slate-400 mt-2">Suivez vos victoires et défaites par archétype en temps réel</p>
       </div>
 
-      <div v-if="error" class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+      <div v-if="error === 'missing_credentials'" class="mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs space-y-1">
+        <p class="font-bold">⚠️ Identifiants Discord manquants</p>
+        <p>Veuillez renseigner <code class="bg-black/30 px-1 py-0.5 rounded font-mono">NUXT_OAUTH_DISCORD_CLIENT_ID</code> et <code class="bg-black/30 px-1 py-0.5 rounded font-mono">NUXT_OAUTH_DISCORD_CLIENT_SECRET</code> dans votre fichier <code class="font-mono">.env</code>.</p>
+      </div>
+
+      <div v-else-if="error" class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
         <span class="font-medium">Échec de la connexion :</span> Une erreur est survenue lors de l'authentification avec Discord.
       </div>
 
