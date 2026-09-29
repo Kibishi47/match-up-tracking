@@ -2,7 +2,7 @@
 import AppDropdown from '~/components/ui/AppDropdown.vue'
 
 const { user, clear } = useUserSession()
-const { games, activeGameId, activeGame, setActiveGame, isLoadingGames } = useGameSession()
+const { games, activeGameId, activeGame, setActiveGame, isSessionReady } = useGameSession()
 
 const gameOptions = computed(() => {
   return (games.value || []).map(g => ({
@@ -39,20 +39,29 @@ const logout = async () => {
           </span>
         </NuxtLink>
 
-        <!-- Sélecteur Global de TCG dans le Header -->
-        <div v-if="user" class="flex items-center">
-          <div v-if="isLoadingGames && !games?.length" class="h-9 w-44 bg-slate-800 animate-pulse rounded-xl" />
-          <div v-else-if="games && games.length > 0">
+        <!-- Sélecteur Global de TCG dans le Header (Gabarit fixe w-52 h-9 anti-CLS) -->
+        <div v-if="user" class="w-52 h-9 flex-shrink-0 flex items-center">
+          <!-- Skeleton 1:1 pendant le chargement initial -->
+          <div
+            v-if="!isSessionReady"
+            class="w-full h-full bg-slate-800/80 animate-pulse rounded-xl border border-slate-700/60"
+          />
+          <!-- Dropdown des jeux disponibles -->
+          <div v-else-if="games && games.length > 0" class="w-full h-full">
             <AppDropdown
               :model-value="activeGameId"
               :options="gameOptions"
               placeholder="Choisir un TCG..."
               menu-width-class="w-56"
-              button-class="w-44 sm:w-52"
+              button-class="w-52 h-9"
               @change="setActiveGame"
             />
           </div>
-          <div v-else class="text-xs text-slate-500 italic px-2 py-1 bg-slate-900/60 rounded-lg border border-slate-800">
+          <!-- État 0 jeu en base : gabarit fixe sans saut -->
+          <div
+            v-else
+            class="w-full h-full flex items-center justify-center text-xs text-slate-500 italic bg-slate-900/60 rounded-xl border border-slate-800 px-3"
+          >
             Aucun jeu configuré
           </div>
         </div>
