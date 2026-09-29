@@ -1,0 +1,17 @@
+declare module '#auth-utils' {
+  interface User {
+    id: number
+    discordId: string
+    username: string
+    globalName?: string | null
+    avatar?: string | null
+    role: 'admin' | 'user'
+  }
+
+  interface UserSession {
+    user: User
+    loggedInAt?: number
+  }
+}
+
+export {}
