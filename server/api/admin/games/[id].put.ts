@@ -1,7 +1,7 @@
 import { and, eq, ne } from 'drizzle-orm'
-import { useDb, games } from '../../../../database'
-import { requireAdminUser } from '../../../../utils/auth'
-import { slugify } from '../../../../utils/slug'
+import { useDb, games } from '../../../database'
+import { requireAdminUser } from '../../../utils/auth'
+import { slugify } from '../../../utils/slug'
 
 export default defineEventHandler(async (event) => {
   await requireAdminUser(event)

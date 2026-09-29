@@ -1,6 +1,6 @@
 import { and, asc, eq } from 'drizzle-orm'
-import { useDb, archetypes } from '../../../database'
-import { requireAuthUser } from '../../../utils/auth'
+import { useDb, archetypes } from '../../database'
+import { requireAuthUser } from '../../utils/auth'
 
 export default defineEventHandler(async (event) => {
   const user = await requireAuthUser(event)
