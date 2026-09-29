@@ -61,10 +61,12 @@ const pendingUndoMatch = ref<MatchWithRelations | null>(null)
 // Modale de modification
 const editingMatch = ref<MatchWithRelations | null>(null)
 
+const { toast, confirmAction } = useNotify()
+
 // Enregistrement rapide d'un match (W ou L)
 const logMatch = async (opponentId: string, result: 'win' | 'loss') => {
   if (!activeGameId.value || !activeDeckId.value) {
-    alert('Veuillez d’abord sélectionner un jeu et votre deck actif.')
+    toast.warning('Veuillez d’abord sélectionner un jeu et votre deck actif.')
     return
   }
 
@@ -85,7 +87,7 @@ const logMatch = async (opponentId: string, result: 'win' | 'loss') => {
     // Rafraîchir les stats consolidées en arrière-plan sans flash
     await refreshDashboard()
   } catch (err: any) {
-    alert(err?.data?.statusMessage || 'Erreur lors de l’enregistrement du match')
+    toast.error(err?.data?.statusMessage || 'Erreur lors de l’enregistrement du match')
   }
 }
 
@@ -94,9 +96,10 @@ const handleUndoMatch = async (matchId: string) => {
   try {
     await $fetch(`/api/matches/${matchId}`, { method: 'DELETE' })
     pendingUndoMatch.value = null
+    toast.info('Match annulé')
     await refreshDashboard()
   } catch (err: any) {
-    alert(err?.data?.statusMessage || 'Erreur lors de l’annulation')
+    toast.error(err?.data?.statusMessage || 'Erreur lors de l’annulation')
   }
 }
 
@@ -108,15 +111,23 @@ const handleEditFromToast = (match: MatchWithRelations) => {
 
 // Supprimer un match depuis l'historique
 const deleteMatchFromHistory = async (matchId: string) => {
-  if (!confirm('Supprimer ce match de l’historique ?')) return
+  const confirmed = await confirmAction({
+    title: 'Supprimer ce match ?',
+    message: 'Cette action supprimera définitivement le match de votre historique et recalculera vos statistiques.',
+    confirmText: 'Supprimer',
+    isDestructive: true
+  })
+  if (!confirmed) return
+
   try {
     await $fetch(`/api/matches/${matchId}`, { method: 'DELETE' })
     if (pendingUndoMatch.value?.id === matchId) {
       pendingUndoMatch.value = null
     }
+    toast.success('Match supprimé avec succès')
     await refreshDashboard()
   } catch (err: any) {
-    alert(err?.data?.statusMessage || 'Erreur lors de la suppression')
+    toast.error(err?.data?.statusMessage || 'Erreur lors de la suppression')
   }
 }
 

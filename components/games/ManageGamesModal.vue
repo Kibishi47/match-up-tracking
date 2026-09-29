@@ -29,6 +29,8 @@ const isGameActive = (gameId: string) => {
   return (userGames.value || []).some(g => g.id === gameId)
 }
 
+const { toast } = useNotify()
+
 const toggleGame = async (game: Game) => {
   loadingToggleId.value = game.id
   try {
@@ -39,7 +41,7 @@ const toggleGame = async (game: Game) => {
     await refreshGames()
     emit('updated')
   } catch (err: any) {
-    alert(err?.data?.statusMessage || 'Erreur lors de la mise à jour du jeu')
+    toast.error(err?.data?.statusMessage || 'Erreur lors de la mise à jour du jeu')
   } finally {
     loadingToggleId.value = null
   }

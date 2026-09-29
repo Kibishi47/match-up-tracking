@@ -94,18 +94,23 @@ const submitForm = async () => {
   }
 }
 
+const { toast, confirmAction } = useNotify()
+
 const deleteGame = async (game: Game) => {
-  if (!confirm(`Supprimer définitivement le jeu "${game.name}" ainsi que tous les archétypes et matchs associés ?`)) {
-    return
-  }
+  const confirmed = await confirmAction({
+    title: `Supprimer "${game.name}" ?`,
+    message: `Cette action est irréversible. Tous les archétypes et matchs associés à ce jeu seront définitivement supprimés.`,
+    confirmText: 'Supprimer définitivement',
+    isDestructive: true
+  })
+  if (!confirmed) return
 
   try {
     await $fetch(`/api/admin/games/${game.id}`, { method: 'DELETE' })
-    successMessage.value = `Le jeu "${game.name}" a été supprimé.`
+    toast.success(`Le jeu "${game.name}" a été supprimé`)
     await refreshGames()
-    setTimeout(() => { successMessage.value = null }, 3500)
   } catch (err: any) {
-    alert(err?.data?.statusMessage || 'Erreur lors de la suppression')
+    toast.error(err?.data?.statusMessage || 'Erreur lors de la suppression')
   }
 }
 </script>

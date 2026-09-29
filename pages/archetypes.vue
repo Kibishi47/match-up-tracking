@@ -105,16 +105,23 @@ const submitForm = async () => {
   }
 }
 
+const { toast, confirmAction } = useNotify()
+
 const archiveArchetype = async (arch: Archetype) => {
-  if (!confirm(`Archiver l'archétype "${arch.name}" ? Il ne sera plus proposé pour les nouveaux matchs.`)) {
-    return
-  }
+  const confirmed = await confirmAction({
+    title: `Archiver l'archétype "${arch.name}" ?`,
+    message: `Il ne sera plus proposé pour enregistrer de nouveaux matchs, mais l'historique et les statistiques associées seront préservés.`,
+    confirmText: 'Archiver',
+    isDestructive: false
+  })
+  if (!confirmed) return
 
   try {
     await $fetch(`/api/archetypes/${arch.id}`, { method: 'DELETE' })
+    toast.success(`Archétype "${arch.name}" archivé`)
     await refreshArchetypes()
   } catch (err: any) {
-    alert(err?.data?.statusMessage || "Erreur lors de l'archivage")
+    toast.error(err?.data?.statusMessage || "Erreur lors de l'archivage")
   }
 }
 </script>
