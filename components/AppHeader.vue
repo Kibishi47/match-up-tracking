@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import AppDropdown from '~/components/ui/AppDropdown.vue'
+import ManageGamesModal from '~/components/games/ManageGamesModal.vue'
 
 const { user, clear } = useUserSession()
 const { games, activeGameId, activeGame, setActiveGame, isSessionReady } = useGameSession()
+
+const isManageGamesOpen = ref(false)
 
 const gameOptions = computed(() => {
   return (games.value || []).map(g => ({
@@ -52,17 +55,23 @@ const logout = async () => {
               :model-value="activeGameId"
               :options="gameOptions"
               placeholder="Choisir un TCG..."
-              menu-width-class="w-56"
+              menu-width-class="w-64"
               button-class="w-52 h-9"
+              footer-action-label="Gérer mes jeux"
+              @footer-click="isManageGamesOpen = true"
               @change="setActiveGame"
             />
           </div>
-          <!-- État 0 jeu en base : gabarit fixe sans saut -->
-          <div
-            v-else
-            class="w-full h-full flex items-center justify-center text-xs text-slate-500 italic bg-slate-900/60 rounded-xl border border-slate-800 px-3"
-          >
-            Aucun jeu configuré
+          <!-- État 0 jeu en collection : bouton pour ouvrir la modale sans décaler -->
+          <div v-else class="w-full h-full">
+            <button
+              type="button"
+              @click="isManageGamesOpen = true"
+              class="w-full h-full flex items-center justify-between text-xs text-slate-400 hover:text-emerald-400 bg-slate-900/60 hover:bg-slate-900 rounded-xl border border-slate-800 hover:border-slate-700 px-3 transition cursor-pointer"
+            >
+              <span>+ Gérer mes jeux</span>
+              <span class="text-emerald-400 font-bold text-xs">🎮</span>
+            </button>
           </div>
         </div>
 
@@ -151,5 +160,10 @@ const logout = async () => {
         </NuxtLink>
       </div>
     </div>
+    <!-- Modale de gestion des jeux de l'utilisateur -->
+    <ManageGamesModal
+      :is-open="isManageGamesOpen"
+      @close="isManageGamesOpen = false"
+    />
   </header>
 </template>
