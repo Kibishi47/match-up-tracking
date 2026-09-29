@@ -137,7 +137,7 @@ const formatDate = (dateStr: string | Date) => {
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       <!-- 1. Bannière « Deck Actif » (Hero section) avec Skeleton 1:1 strict -->
-      <section>
+      <section class="relative z-20">
         <ActiveDeckSkeleton v-if="isInitialLoading" />
         <ActiveDeckBanner
           v-else

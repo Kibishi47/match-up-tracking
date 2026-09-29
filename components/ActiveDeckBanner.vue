@@ -29,10 +29,12 @@ const deckOptions = computed(() => {
 </script>
 
 <template>
-  <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 shadow-2xl relative overflow-hidden bg-gradient-to-r from-slate-900/90 via-slate-900/70 to-slate-950 min-h-[188px] flex flex-col justify-center">
-    <!-- Ambient glow behind cards -->
-    <div class="absolute -left-12 -top-12 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-    <div class="absolute -right-12 -bottom-12 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+  <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 shadow-2xl relative bg-gradient-to-r from-slate-900/90 via-slate-900/70 to-slate-950 min-h-[188px] flex flex-col justify-center">
+    <!-- Ambient glow behind cards (isolé dans son propre conteneur clippé) -->
+    <div class="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
+      <div class="absolute -left-12 -top-12 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div class="absolute -right-12 -bottom-12 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+    </div>
 
     <div v-if="!deck" class="text-center py-6">
       <div class="w-14 h-14 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto text-2xl mb-3 shadow-inner">

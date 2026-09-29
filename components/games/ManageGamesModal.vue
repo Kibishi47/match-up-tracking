@@ -40,14 +40,18 @@ const toggleGame = async (game: Game) => {
 </script>
 
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
+  <div
+    v-if="isOpen"
+    class="fixed inset-0 z-50 overflow-y-auto p-4 flex min-h-full items-center justify-center bg-slate-950/80 backdrop-blur-sm animate-fade-in"
+    @click.self="emit('close')"
+  >
     <div
-      class="w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-6 overflow-hidden flex flex-col max-h-[85vh]"
+      class="relative w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-6 flex flex-col max-h-[85vh] my-auto"
       role="dialog"
       aria-modal="true"
     >
-      <!-- En-tête -->
-      <div class="flex items-center justify-between pb-4 border-b border-slate-800/80">
+      <!-- En-tête fixe -->
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800/80 flex-shrink-0">
         <div>
           <h3 class="text-lg font-bold text-white flex items-center gap-2">
             <span>🎮</span>
@@ -69,8 +73,8 @@ const toggleGame = async (game: Game) => {
         </button>
       </div>
 
-      <!-- Corps : Liste des jeux du catalogue -->
-      <div class="py-4 overflow-y-auto space-y-2 flex-1 divide-y divide-slate-800/40">
+      <!-- Corps : Liste des jeux du catalogue (scrollable avec min-h-0) -->
+      <div class="py-4 overflow-y-auto space-y-2.5 flex-1 min-h-0 pr-1">
         <div v-if="catalogStatus === 'pending'" class="py-8 text-center text-xs text-slate-400">
           Chargement du catalogue...
         </div>
@@ -83,16 +87,16 @@ const toggleGame = async (game: Game) => {
           v-else
           v-for="game in allCatalogGames"
           :key="game.id"
-          class="pt-2 first:pt-0 flex items-center justify-between gap-3 p-2.5 rounded-xl hover:bg-slate-800/40 transition"
+          class="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-900/70 border border-slate-800 hover:border-slate-700 transition"
         >
           <!-- Info jeu -->
           <div class="flex items-center gap-3 min-w-0">
-            <div class="w-9 h-9 rounded-lg bg-slate-800 border border-slate-700/80 overflow-hidden flex items-center justify-center flex-shrink-0">
+            <div class="w-10 h-10 rounded-lg bg-slate-800 border border-slate-700/80 overflow-hidden flex items-center justify-center flex-shrink-0">
               <img
                 v-if="game.logoUrl"
                 :src="game.logoUrl"
                 :alt="game.name"
-                class="w-full h-full object-contain"
+                class="w-full h-full object-contain p-1"
               />
               <span v-else class="text-base">🃏</span>
             </div>
@@ -108,20 +112,20 @@ const toggleGame = async (game: Game) => {
             :disabled="loadingToggleId === game.id"
             @click="toggleGame(game)"
             :class="[
-              'px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50',
+              'px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50 select-none',
               isGameActive(game.id)
                 ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 hover:bg-red-500/15 hover:text-red-400 hover:border-red-500/30'
                 : 'bg-slate-800 text-slate-300 border border-slate-700 hover:bg-emerald-500/20 hover:text-emerald-300 hover:border-emerald-500/30'
             ]"
           >
             <span v-if="loadingToggleId === game.id" class="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
-            <span>{{ isGameActive(game.id) ? 'Actif' : 'Ajouter' }}</span>
+            <span>{{ isGameActive(game.id) ? 'Actif ✓' : '+ Ajouter' }}</span>
           </button>
         </div>
       </div>
 
-      <!-- Pied de modale -->
-      <div class="pt-4 border-t border-slate-800 flex justify-end">
+      <!-- Pied de modale fixe -->
+      <div class="pt-4 border-t border-slate-800 flex justify-end flex-shrink-0">
         <button
           type="button"
           @click="emit('close')"
