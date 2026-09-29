@@ -1,0 +1,42 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: matchup_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: matchup_tracking
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d matchup_tracking"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: matchup_app_dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/matchup_tracking
+      - NUXT_SESSION_PASSWORD=${NUXT_SESSION_PASSWORD:-dev_secret_session_key_32_characters_long_min}
+      - NUXT_OAUTH_DISCORD_CLIENT_ID=${NUXT_OAUTH_DISCORD_CLIENT_ID}
+      - NUXT_OAUTH_DISCORD_CLIENT_SECRET=${NUXT_OAUTH_DISCORD_CLIENT_SECRET}
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.nuxt
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
