@@ -52,7 +52,8 @@ const saveMatch = async () => {
 </script>
 
 <template>
-  <div v-if="match" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+  <Teleport to="body">
+    <div v-if="match" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
     <div class="glass-panel max-w-md w-full p-6 rounded-2xl border border-slate-800 shadow-2xl relative">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-lg font-bold text-white">Modifier le Match</h3>
@@ -149,4 +150,5 @@ const saveMatch = async () => {
       </form>
     </div>
   </div>
+  </Teleport>
 </template>

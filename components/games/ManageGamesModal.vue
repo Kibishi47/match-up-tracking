@@ -40,11 +40,12 @@ const toggleGame = async (game: Game) => {
 </script>
 
 <template>
-  <div
-    v-if="isOpen"
-    class="fixed inset-0 z-50 overflow-y-auto p-4 flex min-h-full items-center justify-center bg-slate-950/80 backdrop-blur-sm animate-fade-in"
-    @click.self="emit('close')"
-  >
+  <Teleport to="body">
+    <div
+      v-if="isOpen"
+      class="fixed inset-0 z-50 overflow-y-auto p-4 flex min-h-full items-center justify-center bg-slate-950/80 backdrop-blur-sm animate-fade-in"
+      @click.self="emit('close')"
+    >
     <div
       class="relative w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-6 flex flex-col max-h-[85vh] my-auto"
       role="dialog"
@@ -136,4 +137,5 @@ const toggleGame = async (game: Game) => {
       </div>
     </div>
   </div>
+  </Teleport>
 </template>
