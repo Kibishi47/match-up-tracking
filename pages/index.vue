@@ -25,33 +25,31 @@ interface DashboardApiResponse {
   recentMatches: MatchWithRelations[]
 }
 
-// 1. Session de Jeu globale (Header, SSR Cookie & LocalStorage)
-const { activeGameId, activeDeckId, setActiveDeck, isSessionReady } = useGameSession()
+// 1. Session de Jeu globale (Header & LocalStorage)
+const { activeGameId, activeDeckId, setActiveDeck, isSessionReady, selectDefaultDeckIfNone } = useGameSession()
 
-// 2. Dashboard consolidé (archétypes, stats WR/SR et historique en 1 seule requête)
+// 2. Dashboard consolidé (archétypes, stats WR/SR et historique en 1 seule requête réactive)
 const {
   data: dashboardData,
-  refresh: refreshDashboard,
-  status: dashboardStatus
+  pending,
+  refresh: refreshDashboard
 } = await useFetch<DashboardApiResponse>('/api/dashboard', {
   query: computed(() => ({
-    gameId: activeGameId.value || undefined,
-    myArchetypeId: activeDeckId.value || undefined
+    gameId: activeGameId.value,
+    myDeckId: activeDeckId.value
   })),
   watch: [activeGameId, activeDeckId]
 })
 
 // Détection de l'état de chargement initial (anti ghost skeleton & anti CLS)
 const isInitialLoading = computed(() => {
-  return !isSessionReady.value || (dashboardStatus.value === 'pending' && !dashboardData.value)
+  return !isSessionReady.value || (pending.value && !dashboardData.value)
 })
 
 // Auto-sélection du premier deck si aucun deck mémorisé ou si le deck n'existe plus
-watch([() => dashboardData.value?.archetypes, activeDeckId], ([decks, currentDeckId]) => {
+watch([() => dashboardData.value?.archetypes, activeDeckId], ([decks]) => {
   if (decks && decks.length > 0) {
-    if (!currentDeckId || !decks.some(d => d.id === currentDeckId)) {
-      setActiveDeck(decks[0].id)
-    }
+    selectDefaultDeckIfNone(decks)
   } else if (decks && decks.length === 0) {
     setActiveDeck(null)
   }

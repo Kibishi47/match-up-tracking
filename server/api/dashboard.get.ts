@@ -7,13 +7,24 @@ export default defineEventHandler(async (event) => {
   const query = getQuery(event)
 
   const gameId = query.gameId ? String(query.gameId) : null
-  const myArchetypeId = query.myArchetypeId ? String(query.myArchetypeId) : null
+  const myArchetypeId = query.myArchetypeId 
+    ? String(query.myArchetypeId) 
+    : (query.myDeckId ? String(query.myDeckId) : null)
 
   if (!gameId) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'gameId est requis'
-    })
+    return {
+      archetypes: [],
+      activeDeck: null,
+      stats: {
+        total: 0,
+        wins: 0,
+        losses: 0,
+        draws: 0,
+        winrate: 0
+      },
+      statsByOpponent: {},
+      recentMatches: []
+    }
   }
 
   const db = useDb()
