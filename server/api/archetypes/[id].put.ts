@@ -31,6 +31,7 @@ export default defineEventHandler(async (event) => {
   if (body.card1ImageUrl !== undefined) updateData.card1ImageUrl = body.card1ImageUrl ? String(body.card1ImageUrl).trim() : null
   if (body.card2Name !== undefined) updateData.card2Name = body.card2Name ? String(body.card2Name).trim() : null
   if (body.card2ImageUrl !== undefined) updateData.card2ImageUrl = body.card2ImageUrl ? String(body.card2ImageUrl).trim() : null
+  if (body.metaId !== undefined) updateData.metaId = body.metaId ? String(body.metaId) : null
   if (body.isArchived !== undefined) updateData.isArchived = Boolean(body.isArchived)
 
   const [updated] = await db

@@ -20,6 +20,8 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  const metaId = body?.metaId ? String(body.metaId) : null
+
   const db = useDb()
 
   const [newArchetype] = await db
@@ -27,6 +29,7 @@ export default defineEventHandler(async (event) => {
     .values({
       userId: user.id,
       gameId,
+      metaId,
       name: body.name.trim(),
       card1Name: body.card1Name ? String(body.card1Name).trim() : null,
       card1ImageUrl: body.card1ImageUrl ? String(body.card1ImageUrl).trim() : null,

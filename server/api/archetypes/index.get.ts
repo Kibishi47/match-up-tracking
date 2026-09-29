@@ -6,6 +6,7 @@ export default defineEventHandler(async (event) => {
   const user = await requireAuthUser(event)
   const query = getQuery(event)
   const gameId = query.gameId ? String(query.gameId) : undefined
+  const metaId = query.metaId ? String(query.metaId) : undefined
   const includeArchived = query.includeArchived === 'true'
 
   const db = useDb()
@@ -13,6 +14,9 @@ export default defineEventHandler(async (event) => {
   const conditions = [eq(archetypes.userId, user.id)]
   if (gameId) {
     conditions.push(eq(archetypes.gameId, gameId))
+  }
+  if (metaId) {
+    conditions.push(eq(archetypes.metaId, metaId))
   }
   if (!includeArchived) {
     conditions.push(eq(archetypes.isArchived, false))
