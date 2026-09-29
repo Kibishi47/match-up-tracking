@@ -5,6 +5,7 @@ const props = defineProps<{
   isOpen: boolean
   gameId: string | null
   gameName?: string
+  sourceMetaId?: string | null
 }>()
 
 const emit = defineEmits<{
@@ -45,11 +46,12 @@ const handleCreate = async () => {
       method: 'POST',
       body: {
         gameId: props.gameId,
-        name: trimmed
+        name: trimmed,
+        sourceMetaId: props.sourceMetaId || undefined
       }
     })
 
-    toast.success(`Méta "${trimmed}" créée avec succès !`)
+    toast.success(`Méta "${trimmed}" créée avec succès (archétypes dupliqués) !`)
     emit('created', newMeta)
     emit('close')
   } catch (err: any) {
@@ -110,6 +112,13 @@ const handleCreate = async () => {
             <p class="text-[11px] text-slate-500 mt-1">
               Permet de regrouper vos archétypes et statistiques par extension ou saison compétitive.
             </p>
+            <div class="mt-3 p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center gap-2.5 text-xs text-slate-300">
+              <svg class="w-4 h-4 text-emerald-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+                <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+              </svg>
+              <span>Tous vos archétypes existants seront automatiquement dupliqués dans ce nouveau format.</span>
+            </div>
           </div>
 
           <div class="pt-2 flex items-center justify-end gap-3 border-t border-slate-800/80">

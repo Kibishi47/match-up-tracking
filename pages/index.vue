@@ -148,48 +148,7 @@ const formatDate = (dateStr: string | Date) => {
   <div class="min-h-screen bg-slate-950 pb-28">
     <AppHeader />
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-      <!-- Sélecteur de Méta / Format sur le Dashboard -->
-      <div
-        v-if="metas && metas.length > 0"
-        class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-sm shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-      >
-        <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polygon points="12 2 2 7 12 12 22 7 12 2"/>
-              <polyline points="2 17 12 22 22 17"/>
-              <polyline points="2 12 12 17 22 12"/>
-            </svg>
-          </div>
-          <div>
-            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Format & Extension :</span>
-            <span class="text-xs font-semibold text-white ml-1.5">{{ activeMeta?.name }}</span>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-          <button
-            v-for="meta in metas"
-            :key="meta.id"
-            type="button"
-            @click="setActiveMeta(meta.id)"
-            :class="[
-              'px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 border cursor-pointer',
-              activeMetaId === meta.id
-                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50 shadow-sm shadow-emerald-950/40 ring-1 ring-emerald-500/30'
-                : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-slate-200'
-            ]"
-          >
-            <span>{{ meta.name }}</span>
-            <span
-              v-if="activeMetaId === meta.id"
-              class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400"
-            />
-          </button>
-        </div>
-      </div>
-
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       <!-- 1. Bannière « Deck Actif » (Hero section) avec Skeleton 1:1 strict -->
       <section class="relative z-20">
         <ActiveDeckSkeleton v-if="isInitialLoading" />

@@ -1,0 +1,2 @@
+ALTER TABLE "archetypes" DROP CONSTRAINT "user_game_archetype_name_unique";--> statement-breakpoint
+ALTER TABLE "archetypes" ADD CONSTRAINT "user_game_meta_archetype_name_unique" UNIQUE("user_id","game_id","meta_id","name");

@@ -62,7 +62,7 @@ export const archetypes = pgTable('archetypes', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()
 }, (table) => [
-  unique('user_game_archetype_name_unique').on(table.userId, table.gameId, table.name)
+  unique('user_game_meta_archetype_name_unique').on(table.userId, table.gameId, table.metaId, table.name)
 ])
 
 // 6. Table Matchs (Enregistrement avec my_archetype_id et opponent_archetype_id)

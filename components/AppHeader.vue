@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import AppDropdown from '~/components/ui/AppDropdown.vue'
 import ManageGamesModal from '~/components/games/ManageGamesModal.vue'
+import CreateMetaModal from '~/components/metas/CreateMetaModal.vue'
 
 const { user, clear } = useUserSession()
 const { games, activeGameId, activeGame, setActiveGame, isSessionReady } = useGameSession()
+const { metas, activeMetaId, activeMeta, setActiveMeta, refreshMetas } = useMetaSession()
 
 const isManageGamesOpen = ref(false)
+const isCreateMetaOpen = ref(false)
 
 const gameOptions = computed(() => {
   const sorted = [...(games.value || [])].sort((a, b) =>
@@ -17,6 +20,18 @@ const gameOptions = computed(() => {
     iconUrl: g.logoUrl
   }))
 })
+
+const metaOptions = computed(() => {
+  return (metas.value || []).map(m => ({
+    value: m.id,
+    label: m.name
+  }))
+})
+
+const handleMetaCreated = async (newMeta: any) => {
+  await refreshMetas()
+  setActiveMeta(newMeta.id)
+}
 
 const logout = async () => {
   await clear()
@@ -78,6 +93,20 @@ const logout = async () => {
               </svg>
             </button>
           </div>
+        </div>
+
+        <!-- Sélecteur Global de Méta / Format (Gabarit w-44 h-9) -->
+        <div v-if="user && activeGameId && metas && metas.length > 0" class="w-44 h-9 flex-shrink-0 flex items-center">
+          <AppDropdown
+            :model-value="activeMetaId"
+            :options="metaOptions"
+            placeholder="Méta / Format..."
+            menu-width-class="w-56"
+            button-class="w-44 h-9"
+            footer-action-label="+ Nouvelle méta"
+            @footer-click="isCreateMetaOpen = true"
+            @change="setActiveMeta"
+          />
         </div>
 
         <!-- Liens de navigation -->
@@ -169,6 +198,16 @@ const logout = async () => {
     <ManageGamesModal
       :is-open="isManageGamesOpen"
       @close="isManageGamesOpen = false"
+    />
+
+    <!-- Modale de création d'une nouvelle méta -->
+    <CreateMetaModal
+      :is-open="isCreateMetaOpen"
+      :game-id="activeGameId"
+      :game-name="activeGame?.name"
+      :source-meta-id="activeMetaId"
+      @close="isCreateMetaOpen = false"
+      @created="handleMetaCreated"
     />
   </header>
 </template>
