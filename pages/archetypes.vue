@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { Archetype } from '~/server/db/schema'
+import type { Archetype, Meta } from '~/server/db/schema'
+import CreateMetaModal from '~/components/metas/CreateMetaModal.vue'
 
 definePageMeta({
   middleware: 'auth'
@@ -8,13 +9,19 @@ definePageMeta({
 // Utiliser la session de jeu partagée (synchronisée avec le Header)
 const { activeGame, activeGameId } = useGameSession()
 
-// Charger les archétypes pour le jeu sélectionné
+// Utiliser la session de méta active
+const { metas, activeMeta, activeMetaId, refreshMetas, setActiveMeta, isLoadingMetas } = useMetaSession()
+
+const isCreateMetaModalOpen = ref(false)
+
+// Charger les archétypes pour le jeu et la méta sélectionnés
 const { data: archetypesList, refresh: refreshArchetypes, status: loadingArchetypes } = await useFetch<Archetype[]>('/api/archetypes', {
   query: computed(() => ({
     gameId: activeGameId.value || undefined,
+    metaId: activeMetaId.value || undefined,
     includeArchived: false
   })),
-  watch: [activeGameId]
+  watch: [activeGameId, activeMetaId]
 })
 
 const isSubmitting = ref(false)
@@ -24,6 +31,7 @@ const successMessage = ref<string | null>(null)
 // Formulaire
 const form = reactive({
   id: null as string | null,
+  metaId: null as string | null,
   name: '',
   card1Name: '',
   card1ImageUrl: '',
@@ -35,6 +43,7 @@ const isEditing = computed(() => form.id !== null)
 
 const resetForm = () => {
   form.id = null
+  form.metaId = activeMetaId.value
   form.name = ''
   form.card1Name = ''
   form.card1ImageUrl = ''
@@ -43,8 +52,16 @@ const resetForm = () => {
   errorMessage.value = null
 }
 
+// Synchroniser le formulaire avec la méta active par défaut
+watch(activeMetaId, (newMetaId) => {
+  if (!isEditing.value) {
+    form.metaId = newMetaId
+  }
+})
+
 const editArchetype = (arch: Archetype) => {
   form.id = arch.id
+  form.metaId = arch.metaId
   form.name = arch.name
   form.card1Name = arch.card1Name || ''
   form.card1ImageUrl = arch.card1ImageUrl || ''
@@ -69,11 +86,14 @@ const submitForm = async () => {
   successMessage.value = null
 
   try {
+    const targetMetaId = form.metaId || activeMetaId.value || null
+
     if (isEditing.value) {
       await $fetch(`/api/archetypes/${form.id}`, {
         method: 'PUT',
         body: {
           name: form.name,
+          metaId: targetMetaId,
           card1Name: form.card1Name,
           card1ImageUrl: form.card1ImageUrl,
           card2Name: form.card2Name,
@@ -86,6 +106,7 @@ const submitForm = async () => {
         method: 'POST',
         body: {
           gameId: activeGameId.value,
+          metaId: targetMetaId,
           name: form.name,
           card1Name: form.card1Name,
           card1ImageUrl: form.card1ImageUrl,
@@ -124,6 +145,12 @@ const archiveArchetype = async (arch: Archetype) => {
     toast.error(err?.data?.statusMessage || "Erreur lors de l'archivage")
   }
 }
+
+const handleMetaCreated = async (newMeta: Meta) => {
+  await refreshMetas()
+  setActiveMeta(newMeta.id)
+  await refreshArchetypes()
+}
 </script>
 
 <template>
@@ -131,7 +158,7 @@ const archiveArchetype = async (arch: Archetype) => {
     <AppHeader />
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
           <div class="flex items-center gap-3">
             <h1 class="text-3xl font-extrabold text-white">Mes Archétypes & Decks</h1>
@@ -145,6 +172,61 @@ const archiveArchetype = async (arch: Archetype) => {
           <p class="text-slate-400 text-sm mt-1">
             Gérez vos decks personnels et les archétypes du metagame que vous affrontez.
           </p>
+        </div>
+      </div>
+
+      <!-- Bandeau Méta / Extension -->
+      <div class="mb-8 p-4 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-sm shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+              <polyline points="2 17 12 22 22 17"/>
+              <polyline points="2 12 12 17 22 12"/>
+            </svg>
+          </div>
+          <div>
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Format & Extension</div>
+            <div class="text-sm font-semibold text-white">
+              {{ activeMeta ? activeMeta.name : 'Aucun format sélectionné' }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Onglets horizontaux à défilement fluide -->
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+          <button
+            v-for="meta in metas"
+            :key="meta.id"
+            type="button"
+            @click="setActiveMeta(meta.id)"
+            :class="[
+              'px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-2 border cursor-pointer',
+              activeMetaId === meta.id
+                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50 shadow-sm shadow-emerald-950/40 ring-1 ring-emerald-500/30'
+                : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-slate-200'
+            ]"
+          >
+            <span>{{ meta.name }}</span>
+            <span
+              v-if="activeMetaId === meta.id"
+              class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400"
+            />
+          </button>
+
+          <!-- Bouton Nouvelle méta -->
+          <button
+            type="button"
+            @click="isCreateMetaModalOpen = true"
+            class="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-300 bg-slate-800/80 hover:bg-slate-700 border border-slate-700/80 hover:border-slate-600 transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer shadow-sm ml-1"
+            title="Ajouter une nouvelle méta ou extension"
+          >
+            <svg class="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            <span>Nouvelle méta</span>
+          </button>
         </div>
       </div>
 
@@ -169,6 +251,24 @@ const archiveArchetype = async (arch: Archetype) => {
             </h2>
 
             <form @submit.prevent="submitForm" class="space-y-4">
+              <!-- Méta associée -->
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                  Méta / Format associé *
+                </label>
+                <select
+                  v-model="form.metaId"
+                  class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-white focus:outline-none focus:border-emerald-500 transition text-sm cursor-pointer"
+                >
+                  <option v-for="m in metas" :key="m.id" :value="m.id">
+                    {{ m.name }}
+                  </option>
+                </select>
+                <p v-if="activeMeta" class="text-[11px] text-slate-500 mt-1">
+                  Par défaut rattaché au format actif : <span class="text-emerald-400">{{ activeMeta.name }}</span>
+                </p>
+              </div>
+
               <div>
                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">
                   Nom de l'archétype *
@@ -254,11 +354,11 @@ const archiveArchetype = async (arch: Archetype) => {
           <div class="glass-panel p-6 rounded-2xl border border-slate-800">
             <div class="flex items-center justify-between mb-4">
               <h2 class="text-lg font-bold text-white">
-                Archétypes enregistrés ({{ archetypesList?.length || 0 }})
+                Archétypes {{ activeMeta ? `(${activeMeta.name})` : '' }} ({{ archetypesList?.length || 0 }})
               </h2>
               <button
                 @click="refreshArchetypes()"
-                class="text-xs text-slate-400 hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-800 transition"
+                class="text-xs text-slate-400 hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-800 transition cursor-pointer"
               >
                 Actualiser
               </button>
@@ -276,8 +376,10 @@ const archiveArchetype = async (arch: Archetype) => {
                   <path d="M10 7.5h4" />
                 </svg>
               </div>
-              <p class="text-slate-400 text-sm">Aucun archétype enregistré pour ce jeu.</p>
-              <p class="text-slate-500 text-xs mt-1">Créez votre deck ou les archétypes adverses pour commencer le suivi.</p>
+              <p class="text-slate-400 text-sm">
+                Aucun archétype enregistré pour la méta {{ activeMeta ? `« ${activeMeta.name} »` : 'actuelle' }}.
+              </p>
+              <p class="text-slate-500 text-xs mt-1">Créez votre deck ou les archétypes adverses pour ce format.</p>
             </div>
 
             <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -348,5 +450,14 @@ const archiveArchetype = async (arch: Archetype) => {
         </div>
       </div>
     </main>
+
+    <!-- Modale de création de méta -->
+    <CreateMetaModal
+      :is-open="isCreateMetaModalOpen"
+      :game-id="activeGameId"
+      :game-name="activeGame?.name"
+      @close="isCreateMetaModalOpen = false"
+      @created="handleMetaCreated"
+    />
   </div>
 </template>
