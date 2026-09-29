@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Archetype, Match } from '~/server/db/schema'
+import type { OpponentStats } from '~/components/OpponentGrid.vue'
 
 definePageMeta({
   middleware: 'auth'
@@ -10,8 +11,9 @@ interface MatchWithRelations extends Match {
   opponentArchetype?: Archetype
 }
 
-interface MatchesApiResponse {
-  recentMatches: MatchWithRelations[]
+interface DashboardApiResponse {
+  archetypes: Archetype[]
+  activeDeck: Archetype | null
   stats: {
     total: number
     wins: number
@@ -19,48 +21,19 @@ interface MatchesApiResponse {
     draws: number
     winrate: number
   }
-  statsByOpponent: Record<string, { wins: number; losses: number; draws: number; total: number; winrate: number }>
+  statsByOpponent: Record<string, OpponentStats>
+  recentMatches: MatchWithRelations[]
 }
 
-// 1. Session de Jeu globale (Header & LocalStorage)
-const { activeGameId, activeDeckId, setActiveDeck, isLoadingGames } = useGameSession()
+// 1. Session de Jeu globale (Header, SSR Cookie & LocalStorage)
+const { activeGameId, activeDeckId, setActiveDeck, isSessionReady } = useGameSession()
 
-// 2. Archétypes de l'utilisateur pour le jeu actif
+// 2. Dashboard consolidé (archétypes, stats WR/SR et historique en 1 seule requête)
 const {
-  data: userArchetypes,
-  refresh: refreshArchetypes,
-  status: archetypesStatus
-} = await useFetch<Archetype[]>('/api/archetypes', {
-  query: computed(() => ({
-    gameId: activeGameId.value || undefined,
-    includeArchived: false
-  })),
-  watch: [activeGameId]
-})
-
-const isLoadingArchetypes = computed(() => archetypesStatus.value === 'pending')
-
-// Sélection automatique du deck actif par défaut si non mémorisé
-watch([userArchetypes, activeDeckId], ([newDecks, currentDeckId]) => {
-  if (newDecks && newDecks.length > 0) {
-    if (!currentDeckId || !newDecks.some(d => d.id === currentDeckId)) {
-      setActiveDeck(newDecks[0].id)
-    }
-  } else {
-    setActiveDeck(null)
-  }
-}, { immediate: true })
-
-const activeDeck = computed(() => {
-  return userArchetypes.value?.find(d => d.id === activeDeckId.value) || null
-})
-
-// 3. Matchs & Statistiques de matchup
-const {
-  data: matchesData,
-  refresh: refreshMatches,
-  status: matchesStatus
-} = await useFetch<MatchesApiResponse>('/api/matches', {
+  data: dashboardData,
+  refresh: refreshDashboard,
+  status: dashboardStatus
+} = await useFetch<DashboardApiResponse>('/api/dashboard', {
   query: computed(() => ({
     gameId: activeGameId.value || undefined,
     myArchetypeId: activeDeckId.value || undefined
@@ -68,20 +41,29 @@ const {
   watch: [activeGameId, activeDeckId]
 })
 
-const isLoadingMatches = computed(() => matchesStatus.value === 'pending')
-
-// Décks adverses (tous les archétypes configurés par l'utilisateur pour ce jeu)
-const opponentArchetypes = computed(() => {
-  return userArchetypes.value || []
+// Détection de l'état de chargement initial (anti ghost skeleton & anti CLS)
+const isInitialLoading = computed(() => {
+  return !isSessionReady.value || (dashboardStatus.value === 'pending' && !dashboardData.value)
 })
+
+// Auto-sélection du premier deck si aucun deck mémorisé ou si le deck n'existe plus
+watch([() => dashboardData.value?.archetypes, activeDeckId], ([decks, currentDeckId]) => {
+  if (decks && decks.length > 0) {
+    if (!currentDeckId || !decks.some(d => d.id === currentDeckId)) {
+      setActiveDeck(decks[0].id)
+    }
+  } else if (decks && decks.length === 0) {
+    setActiveDeck(null)
+  }
+}, { immediate: true })
 
 // Toast temporaire anti miss-clic (10s)
 const pendingUndoMatch = ref<MatchWithRelations | null>(null)
 
-// Modale d'édition
+// Modale de modification
 const editingMatch = ref<MatchWithRelations | null>(null)
 
-// Actions rapides : enregistrer une partie
+// Enregistrement rapide d'un match (W ou L)
 const logMatch = async (opponentId: string, result: 'win' | 'loss') => {
   if (!activeGameId.value || !activeDeckId.value) {
     alert('Veuillez d’abord sélectionner un jeu et votre deck actif.')
@@ -102,8 +84,8 @@ const logMatch = async (opponentId: string, result: 'win' | 'loss') => {
     // Déclencher le toast anti miss-clic de 10s
     pendingUndoMatch.value = newMatch
 
-    // Rafraîchir les statistiques et l'historique
-    await refreshMatches()
+    // Rafraîchir les stats consolidées en arrière-plan sans flash
+    await refreshDashboard()
   } catch (err: any) {
     alert(err?.data?.statusMessage || 'Erreur lors de l’enregistrement du match')
   }
@@ -114,7 +96,7 @@ const handleUndoMatch = async (matchId: string) => {
   try {
     await $fetch(`/api/matches/${matchId}`, { method: 'DELETE' })
     pendingUndoMatch.value = null
-    await refreshMatches()
+    await refreshDashboard()
   } catch (err: any) {
     alert(err?.data?.statusMessage || 'Erreur lors de l’annulation')
   }
@@ -134,7 +116,7 @@ const deleteMatchFromHistory = async (matchId: string) => {
     if (pendingUndoMatch.value?.id === matchId) {
       pendingUndoMatch.value = null
     }
-    await refreshMatches()
+    await refreshDashboard()
   } catch (err: any) {
     alert(err?.data?.statusMessage || 'Erreur lors de la suppression')
   }
@@ -156,19 +138,19 @@ const formatDate = (dateStr: string | Date) => {
     <AppHeader />
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      <!-- 1. Bannière « Deck Actif » (Hero section) avec Skeleton anti CLS -->
+      <!-- 1. Bannière « Deck Actif » (Hero section) avec Skeleton 1:1 strict -->
       <section>
-        <ActiveDeckSkeleton v-if="isLoadingGames || isLoadingArchetypes" />
+        <ActiveDeckSkeleton v-if="isInitialLoading" />
         <ActiveDeckBanner
           v-else
-          :deck="activeDeck"
-          :all-decks="userArchetypes || []"
-          :stats="matchesData?.stats || { total: 0, wins: 0, losses: 0, draws: 0, winrate: 0 }"
+          :deck="dashboardData?.activeDeck || null"
+          :all-decks="dashboardData?.archetypes || []"
+          :stats="dashboardData?.stats || { total: 0, wins: 0, losses: 0, draws: 0, winrate: 0 }"
           @change-deck="setActiveDeck"
         />
       </section>
 
-      <!-- 2. Grille des Matchups Rapides avec Skeleton anti CLS -->
+      <!-- 2. Grille des Matchups Rapides (Win Rate & Show Rate) avec Skeleton 1:1 strict -->
       <section>
         <div class="flex items-center justify-between mb-4">
           <div>
@@ -179,36 +161,36 @@ const formatDate = (dateStr: string | Date) => {
               </span>
             </h3>
             <p class="text-xs text-slate-400 mt-1">
-              Cliquez sur Victoire (W) ou Défaite (L) face à chaque archétype adverse pour journaliser instantanément vos manches.
+              WR (Win Rate) : votre taux de victoire face à l'archétype. SR (Show Rate) : part de l'archétype dans vos confrontations.
             </p>
           </div>
         </div>
 
-        <OpponentGridSkeleton v-if="isLoadingArchetypes || isLoadingMatches" />
+        <OpponentGridSkeleton v-if="isInitialLoading" />
         <OpponentGrid
           v-else
-          :opponents="opponentArchetypes"
-          :stats-by-opponent="matchesData?.statsByOpponent || {}"
+          :opponents="dashboardData?.archetypes || []"
+          :stats-by-opponent="dashboardData?.statsByOpponent || {}"
           @log-match="logMatch"
         />
       </section>
 
-      <!-- 3. Historique Récent Éditable avec Skeleton anti CLS -->
+      <!-- 3. Historique Récent Éditable avec Skeleton 1:1 strict -->
       <section>
-        <MatchHistorySkeleton v-if="isLoadingMatches" />
+        <MatchHistorySkeleton v-if="isInitialLoading" />
         
         <div v-else class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 shadow-xl">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-bold text-white flex items-center gap-2">
               <span>Historique Récent</span>
               <span class="text-xs text-slate-400 font-normal">
-                ({{ matchesData?.recentMatches?.length || 0 }} derniers matchs)
+                ({{ dashboardData?.recentMatches?.length || 0 }} derniers matchs)
               </span>
             </h3>
 
             <button
-              @click="refreshMatches()"
-              class="text-xs text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition flex items-center gap-1.5"
+              @click="refreshDashboard()"
+              class="text-xs text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition flex items-center gap-1.5 cursor-pointer"
             >
               <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
@@ -217,13 +199,13 @@ const formatDate = (dateStr: string | Date) => {
             </button>
           </div>
 
-          <div v-if="!matchesData?.recentMatches || matchesData.recentMatches.length === 0" class="py-8 text-center text-slate-500 text-sm">
+          <div v-if="!dashboardData?.recentMatches || dashboardData.recentMatches.length === 0" class="py-8 text-center text-slate-500 text-sm">
             Aucun match enregistré pour ce deck.
           </div>
 
           <div v-else class="divide-y divide-slate-800/80">
             <div
-              v-for="m in matchesData.recentMatches"
+              v-for="m in dashboardData.recentMatches"
               :key="m.id"
               class="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 group hover:bg-slate-900/30 px-3 rounded-xl transition"
             >
@@ -256,13 +238,13 @@ const formatDate = (dateStr: string | Date) => {
               <div class="flex items-center gap-2 self-end sm:self-center">
                 <button
                   @click="editingMatch = m"
-                  class="px-3 py-1 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 transition"
+                  class="px-3 py-1 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 transition cursor-pointer"
                 >
                   Éditer
                 </button>
                 <button
                   @click="deleteMatchFromHistory(m.id)"
-                  class="px-3 py-1 rounded-lg text-xs font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition"
+                  class="px-3 py-1 rounded-lg text-xs font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition cursor-pointer"
                   title="Supprimer ce match"
                 >
                   Supprimer
@@ -286,7 +268,7 @@ const formatDate = (dateStr: string | Date) => {
     <EditMatchModal
       :match="editingMatch"
       @close="editingMatch = null"
-      @updated="() => { refreshMatches(); editingMatch = null; }"
+      @updated="() => { refreshDashboard(); editingMatch = null; }"
     />
   </div>
 </template>
