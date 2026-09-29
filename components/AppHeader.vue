@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const { user, clear } = useUserSession()
+const { games, activeGameId, activeGame, setActiveGame, isLoadingGames } = useGameSession()
 
 const logout = async () => {
   await clear()
@@ -9,11 +10,11 @@ const logout = async () => {
 </script>
 
 <template>
-  <header class="glass-panel border-b border-slate-800/80 sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+  <header class="glass-panel border-b border-slate-800/80 sticky top-0 z-40 bg-slate-950/85 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
       <!-- Logo & Navigation -->
-      <div class="flex items-center gap-8">
-        <NuxtLink to="/" class="flex items-center gap-2.5 font-bold text-lg text-white group">
+      <div class="flex items-center gap-6 sm:gap-8">
+        <NuxtLink to="/" class="flex items-center gap-2.5 font-bold text-lg text-white group flex-shrink-0">
           <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-500 to-indigo-600 flex items-center justify-center shadow-md shadow-emerald-500/20 group-hover:scale-105 transition">
             <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <rect width="18" height="18" x="3" y="3" rx="2" />
@@ -22,40 +23,66 @@ const logout = async () => {
               <path d="M7 17h10" />
             </svg>
           </div>
-          <span class="tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
+          <span class="hidden sm:inline tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
             TCG Tracker
           </span>
         </NuxtLink>
 
-        <nav class="hidden md:flex items-center gap-1">
+        <!-- Sélecteur Global de TCG dans le Header -->
+        <div v-if="user" class="flex items-center">
+          <div v-if="isLoadingGames && !games?.length" class="h-9 w-36 bg-slate-800 animate-pulse rounded-xl" />
+          <div v-else-if="games && games.length > 0" class="relative flex items-center">
+            <label for="header-game-select" class="sr-only">TCG Actif</label>
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700/80 hover:border-slate-600 focus-within:border-emerald-500 transition shadow-inner">
+              <div v-if="activeGame?.logoUrl" class="w-5 h-5 rounded-md overflow-hidden flex-shrink-0 bg-slate-800">
+                <img :src="activeGame.logoUrl" :alt="activeGame.name" class="w-full h-full object-contain" />
+              </div>
+              <span v-else class="text-xs">🎮</span>
+              
+              <select
+                id="header-game-select"
+                :value="activeGameId"
+                @change="setActiveGame(($event.target as HTMLSelectElement).value)"
+                class="bg-transparent text-white font-semibold text-xs sm:text-sm focus:outline-none cursor-pointer pr-2"
+              >
+                <option v-for="g in games" :key="g.id" :value="g.id" class="bg-slate-900 text-white py-1">
+                  {{ g.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Liens de navigation -->
+        <nav class="hidden lg:flex items-center gap-1">
           <NuxtLink
             to="/"
-            class="px-3.5 py-1.5 rounded-lg text-sm font-medium transition text-slate-300 hover:text-white hover:bg-slate-800/60"
+            class="px-3 py-1.5 rounded-lg text-sm font-medium transition text-slate-300 hover:text-white hover:bg-slate-800/60"
             active-class="!text-emerald-400 !bg-emerald-500/10"
           >
-            Dashboard & Matchs
+            Dashboard
           </NuxtLink>
           <NuxtLink
             to="/archetypes"
-            class="px-3.5 py-1.5 rounded-lg text-sm font-medium transition text-slate-300 hover:text-white hover:bg-slate-800/60"
+            class="px-3 py-1.5 rounded-lg text-sm font-medium transition text-slate-300 hover:text-white hover:bg-slate-800/60"
             active-class="!text-emerald-400 !bg-emerald-500/10"
           >
-            Mes Archétypes
+            Archétypes
           </NuxtLink>
           <NuxtLink
             v-if="user?.role === 'admin'"
             to="/admin/games"
-            class="px-3.5 py-1.5 rounded-lg text-sm font-medium transition text-purple-300 hover:text-white hover:bg-purple-500/10"
+            class="px-3 py-1.5 rounded-lg text-sm font-medium transition text-purple-300 hover:text-white hover:bg-purple-500/10"
             active-class="!text-purple-400 !bg-purple-500/20"
           >
-            Administration Jeux
+            Admin Jeux
           </NuxtLink>
         </nav>
       </div>
 
-      <!-- User Profile & Action -->
-      <div v-if="user" class="flex items-center gap-4">
-        <div class="flex items-center gap-3">
+      <!-- Profil Utilisateur & Déconnexion -->
+      <div v-if="user" class="flex items-center gap-3">
+        <div class="flex items-center gap-2.5">
           <img
             v-if="user.avatar"
             :src="user.avatar"
@@ -69,7 +96,7 @@ const logout = async () => {
             {{ user.username?.slice(0, 2).toUpperCase() }}
           </div>
           <div class="hidden sm:block text-left text-xs">
-            <div class="font-medium text-slate-200 leading-tight">
+            <div class="font-medium text-slate-200 leading-tight truncate max-w-[120px]">
               {{ user.username }}
             </div>
             <div class="flex items-center gap-1.5 mt-0.5">
