@@ -16,19 +16,22 @@ const props = withDefaults(
     buttonClass?: string
     menuWidthClass?: string
     align?: 'left' | 'right'
+    footerActionLabel?: string
   }>(),
   {
     placeholder: 'Sélectionner...',
     disabled: false,
     buttonClass: '',
     menuWidthClass: 'w-56',
-    align: 'left'
+    align: 'left',
+    footerActionLabel: undefined
   }
 )
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: T): void
   (e: 'change', value: T): void
+  (e: 'footer-click'): void
 }>()
 
 const isOpen = ref(false)
@@ -47,6 +50,11 @@ const selectOption = (option: DropdownOption<T>) => {
   emit('update:modelValue', option.value)
   emit('change', option.value)
   isOpen.value = false
+}
+
+const handleFooterClick = () => {
+  isOpen.value = false
+  emit('footer-click')
 }
 
 // Gestion de la fermeture au clic extérieur et touche Echap
@@ -81,15 +89,15 @@ onUnmounted(() => {
       @click="toggleDropdown"
       :disabled="disabled"
       :class="[
-        'flex items-center justify-between gap-2.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700/80 hover:border-slate-600 focus:outline-none focus:border-emerald-500/80 transition-all text-sm font-semibold shadow-inner select-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group',
+        'flex items-center justify-between gap-2.5 px-3.5 py-2 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 focus:outline-none focus:border-emerald-500/80 transition-all text-sm font-semibold select-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group',
         buttonClass
       ]"
       aria-haspopup="listbox"
       :aria-expanded="isOpen"
     >
-      <div class="flex items-center gap-2 min-w-0">
+      <div class="flex items-center gap-2.5 min-w-0">
         <!-- Option Icon (image or text icon) -->
-        <div v-if="selectedOption?.iconUrl" class="w-5 h-5 rounded-md overflow-hidden flex-shrink-0 bg-slate-800">
+        <div v-if="selectedOption?.iconUrl" class="w-5 h-5 rounded-md overflow-hidden flex-shrink-0 bg-slate-800 border border-slate-700/60">
           <img :src="selectedOption.iconUrl" :alt="selectedOption.label" class="w-full h-full object-contain" />
         </div>
         <span v-else-if="selectedOption?.iconText" class="text-xs flex-shrink-0">
@@ -131,13 +139,13 @@ onUnmounted(() => {
       <div
         v-if="isOpen"
         :class="[
-          'absolute z-50 mt-1.5 rounded-2xl bg-slate-900/95 backdrop-blur-xl border border-slate-700/80 shadow-2xl py-1.5 max-h-64 overflow-y-auto focus:outline-none',
+          'absolute z-50 mt-2 rounded-xl bg-slate-900/95 backdrop-blur-md border border-slate-800 p-1.5 shadow-2xl space-y-1 max-h-64 overflow-y-auto focus:outline-none',
           menuWidthClass,
           align === 'right' ? 'right-0' : 'left-0'
         ]"
         role="listbox"
       >
-        <div v-if="options.length === 0" class="px-4 py-3 text-xs text-slate-400 text-center italic">
+        <div v-if="options.length === 0" class="px-3 py-2 text-xs text-slate-400 text-center italic">
           Aucune option disponible
         </div>
 
@@ -147,10 +155,10 @@ onUnmounted(() => {
           type="button"
           @click="selectOption(option)"
           :class="[
-            'w-full text-left px-3.5 py-2 text-xs sm:text-sm font-medium flex items-center justify-between gap-2.5 transition-colors cursor-pointer group',
+            'w-full text-left px-3 py-2 rounded-lg text-sm transition-all flex items-center justify-between cursor-pointer group',
             option.value === modelValue
-              ? 'bg-emerald-500/15 text-emerald-400 font-semibold'
-              : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+              ? 'bg-emerald-500/10 text-emerald-400 font-semibold'
+              : 'text-slate-300 hover:text-white hover:bg-slate-800/70'
           ]"
           role="option"
           :aria-selected="option.value === modelValue"
@@ -186,6 +194,20 @@ onUnmounted(() => {
             <polyline points="20 6 9 17 4 12" />
           </svg>
         </button>
+
+        <!-- Footer Action (ex: + Gérer mes jeux) -->
+        <div v-if="$slots.footer || footerActionLabel" class="pt-1.5 mt-1 border-t border-slate-800/80">
+          <slot name="footer">
+            <button
+              type="button"
+              @click="handleFooterClick"
+              class="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 transition-all flex items-center gap-2 cursor-pointer"
+            >
+              <span>+</span>
+              <span>{{ footerActionLabel }}</span>
+            </button>
+          </slot>
+        </div>
       </div>
     </Transition>
   </div>
