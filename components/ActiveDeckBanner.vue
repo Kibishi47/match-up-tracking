@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Archetype } from '~/server/db/schema'
+import AppDropdown from '~/components/ui/AppDropdown.vue'
 
 const props = defineProps<{
   deck: Archetype | null
@@ -16,6 +17,15 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'change-deck', deckId: string): void
 }>()
+
+const deckOptions = computed(() => {
+  return props.allDecks.map(d => ({
+    value: d.id,
+    label: d.name,
+    iconUrl: d.card1ImageUrl,
+    iconText: d.card1ImageUrl ? undefined : '🎴'
+  }))
+})
 </script>
 
 <template>
@@ -95,17 +105,15 @@ const emit = defineEmits<{
 
           <!-- Sélecteur rapide de deck alternatif -->
           <div class="mt-2.5 flex items-center gap-2">
-            <label for="deck-quick-switch" class="text-xs text-slate-400 font-medium">Permuter :</label>
-            <select
-              id="deck-quick-switch"
-              :value="deck.id"
-              @change="emit('change-deck', ($event.target as HTMLSelectElement).value)"
-              class="px-3 py-1 rounded-lg bg-slate-800/90 border border-slate-700 text-white text-xs font-semibold focus:outline-none focus:border-emerald-500 cursor-pointer"
-            >
-              <option v-for="d in allDecks" :key="d.id" :value="d.id">
-                {{ d.name }}
-              </option>
-            </select>
+            <span class="text-xs text-slate-400 font-medium">Permuter :</span>
+            <AppDropdown
+              :model-value="deck.id"
+              :options="deckOptions"
+              placeholder="Changer de deck..."
+              menu-width-class="w-64"
+              button-class="px-2.5 py-1 text-xs"
+              @change="emit('change-deck', $event)"
+            />
 
             <NuxtLink to="/archetypes" class="text-xs text-slate-400 hover:text-white transition ml-1" title="Gérer tous mes decks">
               ⚙️

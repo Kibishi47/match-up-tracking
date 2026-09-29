@@ -1,6 +1,17 @@
 <script setup lang="ts">
+import AppDropdown from '~/components/ui/AppDropdown.vue'
+
 const { user, clear } = useUserSession()
 const { games, activeGameId, activeGame, setActiveGame, isLoadingGames } = useGameSession()
+
+const gameOptions = computed(() => {
+  return (games.value || []).map(g => ({
+    value: g.id,
+    label: g.name,
+    iconUrl: g.logoUrl,
+    iconText: g.logoUrl ? undefined : '🎮'
+  }))
+})
 
 const logout = async () => {
   await clear()
@@ -30,26 +41,19 @@ const logout = async () => {
 
         <!-- Sélecteur Global de TCG dans le Header -->
         <div v-if="user" class="flex items-center">
-          <div v-if="isLoadingGames && !games?.length" class="h-9 w-36 bg-slate-800 animate-pulse rounded-xl" />
-          <div v-else-if="games && games.length > 0" class="relative flex items-center">
-            <label for="header-game-select" class="sr-only">TCG Actif</label>
-            <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700/80 hover:border-slate-600 focus-within:border-emerald-500 transition shadow-inner">
-              <div v-if="activeGame?.logoUrl" class="w-5 h-5 rounded-md overflow-hidden flex-shrink-0 bg-slate-800">
-                <img :src="activeGame.logoUrl" :alt="activeGame.name" class="w-full h-full object-contain" />
-              </div>
-              <span v-else class="text-xs">🎮</span>
-              
-              <select
-                id="header-game-select"
-                :value="activeGameId"
-                @change="setActiveGame(($event.target as HTMLSelectElement).value)"
-                class="bg-transparent text-white font-semibold text-xs sm:text-sm focus:outline-none cursor-pointer pr-2"
-              >
-                <option v-for="g in games" :key="g.id" :value="g.id" class="bg-slate-900 text-white py-1">
-                  {{ g.name }}
-                </option>
-              </select>
-            </div>
+          <div v-if="isLoadingGames && !games?.length" class="h-9 w-44 bg-slate-800 animate-pulse rounded-xl" />
+          <div v-else-if="games && games.length > 0">
+            <AppDropdown
+              :model-value="activeGameId"
+              :options="gameOptions"
+              placeholder="Choisir un TCG..."
+              menu-width-class="w-56"
+              button-class="w-44 sm:w-52"
+              @change="setActiveGame"
+            />
+          </div>
+          <div v-else class="text-xs text-slate-500 italic px-2 py-1 bg-slate-900/60 rounded-lg border border-slate-800">
+            Aucun jeu configuré
           </div>
         </div>
 

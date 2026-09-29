@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Archetype } from '~/server/db/schema'
+import AppDropdown from '~/components/ui/AppDropdown.vue'
 
 definePageMeta({
   middleware: 'auth'
@@ -7,6 +8,15 @@ definePageMeta({
 
 // Utiliser la session de jeu partagée
 const { games: gamesList, activeGameId, setActiveGame } = useGameSession()
+
+const gameOptions = computed(() => {
+  return (gamesList.value || []).map(g => ({
+    value: g.id,
+    label: g.name,
+    iconUrl: g.logoUrl,
+    iconText: g.logoUrl ? undefined : '🎮'
+  }))
+})
 
 // Charger les archétypes pour le jeu sélectionné
 const { data: archetypesList, refresh: refreshArchetypes, status: loadingArchetypes } = await useFetch<Archetype[]>('/api/archetypes', {
@@ -134,16 +144,15 @@ const archiveArchetype = async (arch: Archetype) => {
 
         <!-- Sélecteur de Jeu -->
         <div class="flex items-center gap-3">
-          <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Jeu :</label>
-          <select
-            :value="activeGameId"
-            @change="setActiveGame(($event.target as HTMLSelectElement).value)"
-            class="px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-emerald-500 font-medium"
-          >
-            <option v-for="g in gamesList" :key="g.id" :value="g.id">
-              {{ g.name }}
-            </option>
-          </select>
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Jeu :</span>
+          <AppDropdown
+            :model-value="activeGameId"
+            :options="gameOptions"
+            placeholder="Sélectionner un jeu..."
+            menu-width-class="w-60"
+            button-class="w-52 sm:w-60"
+            @change="setActiveGame"
+          />
         </div>
       </div>
 
