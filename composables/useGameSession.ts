@@ -1,21 +1,34 @@
 import type { Game } from '~/server/db/schema'
 
 export function useGameSession() {
-  // Cookie partagé serveur/client pour éviter tout saut d'hydratation (SSR + Client)
-  const gameCookie = useCookie<string | null>('tcg_active_game', {
-    default: () => null,
-    maxAge: 60 * 60 * 24 * 365,
-    sameSite: 'lax'
-  })
+  const getStored = (key: string): string | null => {
+    try {
+      return localStorage.getItem(key)
+    } catch {
+      return null
+    }
+  }
 
-  const activeGameId = useState<string | null>('tcg_active_game_id', () => gameCookie.value)
-  const activeDeckId = useState<string | null>('tcg_active_deck_id', () => null)
+  const setStored = (key: string, value: string | null) => {
+    try {
+      if (value !== null) {
+        localStorage.setItem(key, value)
+      } else {
+        localStorage.removeItem(key)
+      }
+    } catch {}
+  }
+
+  // Initialisation immédiate depuis le localStorage dès l'instanciation (SPA pur)
+  const initialGameId = getStored('tcg_active_game')
+  const initialDeckId = initialGameId ? getStored(`tcg_deck_${initialGameId}`) : null
+
+  const activeGameId = useState<string | null>('tcg_active_game_id', () => initialGameId)
+  const activeDeckId = useState<string | null>('tcg_active_deck_id', () => initialDeckId)
   const isSessionReady = useState<boolean>('tcg_session_ready', () => false)
 
   // Récupération de la liste des jeux disponibles
-  const { data: games, refresh: refreshGames, status: gamesStatus } = useFetch<Game[]>('/api/games', {
-    lazy: false
-  })
+  const { data: games, refresh: refreshGames, status: gamesStatus } = useFetch<Game[]>('/api/games')
 
   const isLoadingGames = computed(() => gamesStatus.value === 'pending')
 
@@ -23,53 +36,35 @@ export function useGameSession() {
     return games.value?.find(g => g.id === activeGameId.value) || null
   })
 
-  // Synchronisation stable et sans clignotement
+  // Synchronisation avec la liste des jeux reçus
   const syncSession = () => {
     if (!games.value) return
 
     if (games.value.length === 0) {
       activeGameId.value = null
       activeDeckId.value = null
-      gameCookie.value = null
+      setStored('tcg_active_game', null)
       isSessionReady.value = true
       return
     }
 
-    // Récupérer depuis cookie ou localStorage
-    let targetGameId = activeGameId.value || gameCookie.value
-
-    if (import.meta.client && !targetGameId) {
-      try {
-        targetGameId = localStorage.getItem('tcg_active_game')
-      } catch (e) {
-        // Ignorer si inaccessible
-      }
-    }
+    let targetGameId = activeGameId.value || getStored('tcg_active_game')
 
     // Si le jeu ciblé existe dans la liste
     if (targetGameId && games.value.some(g => g.id === targetGameId)) {
       activeGameId.value = targetGameId
-      gameCookie.value = targetGameId
+      setStored('tcg_active_game', targetGameId)
     } else {
       // Sinon prendre le premier par défaut
       const firstGameId = games.value[0].id
       activeGameId.value = firstGameId
-      gameCookie.value = firstGameId
-      if (import.meta.client) {
-        try {
-          localStorage.setItem('tcg_active_game', firstGameId)
-        } catch (e) {}
-      }
+      setStored('tcg_active_game', firstGameId)
     }
 
     // Restaurer le deck mémorisé pour ce jeu
-    if (import.meta.client && activeGameId.value) {
-      try {
-        const storedDeckId = localStorage.getItem(`tcg_deck_${activeGameId.value}`)
-        if (storedDeckId) {
-          activeDeckId.value = storedDeckId
-        }
-      } catch (e) {}
+    if (activeGameId.value) {
+      const storedDeckId = getStored(`tcg_deck_${activeGameId.value}`)
+      activeDeckId.value = storedDeckId || null
     }
 
     isSessionReady.value = true
@@ -85,29 +80,29 @@ export function useGameSession() {
     if (activeGameId.value === gameId) return
 
     activeGameId.value = gameId
-    gameCookie.value = gameId
+    setStored('tcg_active_game', gameId)
 
-    if (import.meta.client) {
-      try {
-        localStorage.setItem('tcg_active_game', gameId)
-        // Restaurer le deck actif spécifique à ce jeu s'il existe
-        const storedDeckId = localStorage.getItem(`tcg_deck_${gameId}`)
-        activeDeckId.value = storedDeckId || null
-      } catch (e) {}
-    }
+    // Restaurer le deck actif spécifique à ce jeu s'il existe
+    const storedDeckId = getStored(`tcg_deck_${gameId}`)
+    activeDeckId.value = storedDeckId || null
   }
 
   // Définir le deck actif pour le jeu en cours
   const setActiveDeck = (deckId: string | null) => {
     activeDeckId.value = deckId
-    if (import.meta.client && activeGameId.value) {
-      try {
-        if (deckId) {
-          localStorage.setItem(`tcg_deck_${activeGameId.value}`, deckId)
-        } else {
-          localStorage.removeItem(`tcg_deck_${activeGameId.value}`)
-        }
-      } catch (e) {}
+    if (activeGameId.value) {
+      setStored(`tcg_deck_${activeGameId.value}`, deckId)
+    }
+  }
+
+  // Sélectionner par défaut le premier archétype si aucun deck n'est mémorisé
+  const selectDefaultDeckIfNone = (availableDecks: { id: string }[]) => {
+    if (!availableDecks || availableDecks.length === 0) {
+      setActiveDeck(null)
+      return
+    }
+    if (!activeDeckId.value || !availableDecks.some(d => d.id === activeDeckId.value)) {
+      setActiveDeck(availableDecks[0].id)
     }
   }
 
@@ -120,6 +115,7 @@ export function useGameSession() {
     isLoadingGames,
     refreshGames,
     setActiveGame,
-    setActiveDeck
+    setActiveDeck,
+    selectDefaultDeckIfNone
   }
 }
