@@ -70,7 +70,7 @@ const logout = async () => {
           </div>
           <div class="hidden sm:block text-left text-xs">
             <div class="font-medium text-slate-200 leading-tight">
-              {{ user.globalName || user.username }}
+              {{ user.username }}
             </div>
             <div class="flex items-center gap-1.5 mt-0.5">
               <span

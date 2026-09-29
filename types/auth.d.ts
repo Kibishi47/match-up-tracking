@@ -3,7 +3,6 @@ declare module '#auth-utils' {
     id: string
     discordId: string
     username: string
-    globalName?: string | null
     avatar?: string | null
     role: 'admin' | 'user'
   }

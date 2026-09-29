@@ -37,7 +37,6 @@ const oauthHandler = defineOAuthDiscordEventHandler({
         .values({
           discordId,
           username,
-          globalName,
           avatar: avatarUrl,
           role: assignedRole
         })
@@ -50,7 +49,6 @@ const oauthHandler = defineOAuthDiscordEventHandler({
         .update(users)
         .set({
           username,
-          globalName,
           avatar: avatarUrl,
           updatedAt: new Date()
         })
@@ -66,7 +64,6 @@ const oauthHandler = defineOAuthDiscordEventHandler({
         id: dbUser.id,
         discordId: dbUser.discordId,
         username: dbUser.username,
-        globalName: dbUser.globalName,
         avatar: dbUser.avatar,
         role: dbUser.role
       },
