@@ -54,7 +54,7 @@ const logout = async () => {
     <!-- Trigger Button -->
     <button
       type="button"
-      @click="toggleDropdown"
+      @click.stop="toggleDropdown"
       :aria-expanded="isOpen"
       aria-haspopup="true"
       class="flex items-center gap-2.5 p-1.5 sm:px-3 sm:py-1.5 rounded-2xl border border-transparent hover:border-slate-200 dark:hover:border-slate-800 hover:bg-slate-200/60 dark:hover:bg-slate-900/60 transition cursor-pointer group"

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ManageGamesModal from '~/components/games/ManageGamesModal.vue'
 import GameMetaModal from '~/components/modal/GameMetaModal.vue'
+import ProfileDropdown from '~/components/ui/ProfileDropdown.vue'
 
 const { user, clear } = useUserSession()
 const { games, activeGameId, activeGame, setActiveGame, isSessionReady } = useGameSession()
@@ -125,11 +126,11 @@ const isGameMetaModalOpen = ref(false)
       </div>
 
       <!-- Menu Déroulant du Profil Utilisateur -->
-      <div v-if="user">
+      <div v-if="user" class="flex-shrink-0">
         <ProfileDropdown />
       </div>
 
-      <div v-else>
+      <div v-else class="flex-shrink-0">
         <NuxtLink
           to="/login"
           class="px-4 py-2 rounded-xl text-sm font-medium bg-emerald-600 hover:bg-emerald-500 text-white transition shadow-sm"
