@@ -427,10 +427,9 @@ const handleMetaCreated = async (newMeta: Meta) => {
                       <h3 class="font-bold text-slate-900 dark:text-white text-base group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition truncate">
                         {{ arch.name }}
                       </h3>
-                      <div class="text-xs text-slate-500 dark:text-slate-400 mt-1 space-y-0.5">
-                        <p v-if="arch.card1Name" class="truncate">• {{ arch.card1Name }}</p>
-                        <p v-if="arch.card2Name" class="truncate">• {{ arch.card2Name }}</p>
-                      </div>
+                      <p v-if="arch.card1Name || arch.card2Name" class="text-xs text-slate-500 dark:text-slate-400 mt-1 truncate" :title="[arch.card1Name, arch.card2Name].filter(Boolean).join(' // ')">
+                        {{ [arch.card1Name, arch.card2Name].filter(Boolean).join(' // ') }}
+                      </p>
                     </div>
                   </div>
                 </div>

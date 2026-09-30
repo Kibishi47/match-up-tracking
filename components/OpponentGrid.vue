@@ -107,11 +107,10 @@ const emit = defineEmits<{
                 </button>
               </div>
 
-              <!-- Nom des 2 cartes de l'archétype -->
-              <div v-if="opp.card1Name || opp.card2Name" class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 space-y-0.5 leading-tight">
-                <p v-if="opp.card1Name" class="truncate" :title="opp.card1Name">• {{ opp.card1Name }}</p>
-                <p v-if="opp.card2Name" class="truncate" :title="opp.card2Name">• {{ opp.card2Name }}</p>
-              </div>
+              <!-- Nom des 2 cartes de l'archétype (séparateur //) -->
+              <p v-if="opp.card1Name || opp.card2Name" class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate" :title="[opp.card1Name, opp.card2Name].filter(Boolean).join(' // ')">
+                {{ [opp.card1Name, opp.card2Name].filter(Boolean).join(' // ') }}
+              </p>
 
               <!-- Métriques : Win Rate (WR) & Show Rate (SR) -->
               <div class="mt-1.5 flex flex-wrap items-center gap-1.5">

@@ -10,10 +10,7 @@
 
         <div class="min-w-0 flex-1 space-y-1.5">
           <div class="h-4 bg-slate-300 dark:bg-slate-700 rounded-md w-3/4" />
-          <div class="space-y-1">
-            <div class="h-2.5 bg-slate-200 dark:bg-slate-800 rounded w-1/2" />
-            <div class="h-2.5 bg-slate-200 dark:bg-slate-800 rounded w-2/5" />
-          </div>
+          <div class="h-3 bg-slate-200 dark:bg-slate-800 rounded w-1/2" />
           <div class="flex items-center gap-1.5 pt-0.5">
             <div class="h-4 w-14 bg-slate-200 dark:bg-slate-800 rounded-md" />
             <div class="h-4 w-12 bg-slate-200 dark:bg-slate-800/80 rounded-md" />
