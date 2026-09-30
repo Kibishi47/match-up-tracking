@@ -54,7 +54,7 @@ const emit = defineEmits<{
       >
         <!-- Visuel et infos de l'adversaire -->
         <div>
-          <div class="flex items-center gap-2.5 mb-2.5">
+          <div class="flex items-start gap-2.5 mb-2.5">
             <!-- Vignette Carte 1 -->
             <div class="w-12 h-16 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden flex-shrink-0 flex items-center justify-center shadow-sm">
               <img
@@ -105,6 +105,12 @@ const emit = defineEmits<{
                     <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
                   </svg>
                 </button>
+              </div>
+
+              <!-- Nom des 2 cartes de l'archétype -->
+              <div v-if="opp.card1Name || opp.card2Name" class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 space-y-0.5 leading-tight">
+                <p v-if="opp.card1Name" class="truncate" :title="opp.card1Name">• {{ opp.card1Name }}</p>
+                <p v-if="opp.card2Name" class="truncate" :title="opp.card2Name">• {{ opp.card2Name }}</p>
               </div>
 
               <!-- Métriques : Win Rate (WR) & Show Rate (SR) -->
