@@ -1,13 +1,3 @@
-<script setup lang="ts">
-interface Props {
-  showBadge?: boolean
-}
-
-withDefaults(defineProps<Props>(), {
-  showBadge: true
-})
-</script>
-
 <template>
   <NuxtLink
     to="/"
@@ -76,17 +66,9 @@ withDefaults(defineProps<Props>(), {
       </svg>
     </div>
 
-    <!-- Brand Typography & Descriptor Badge -->
-    <div class="flex items-center gap-1.5">
-      <span class="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white transition-colors">
-        Metadex
-      </span>
-      <span
-        v-if="showBadge"
-        class="text-[10px] font-semibold tracking-wider uppercase px-1.5 py-0.5 rounded text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20"
-      >
-        TCG
-      </span>
-    </div>
+    <!-- Brand Typography -->
+    <span class="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white transition-colors">
+      Metadex
+    </span>
   </NuxtLink>
 </template>
