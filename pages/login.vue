@@ -57,10 +57,6 @@ const error = computed(() => route.query.error as string | undefined)
           </svg>
           <span>Se connecter avec Discord</span>
         </a>
-
-        <p class="text-xs text-center text-slate-500 mt-4">
-          Le premier utilisateur connecté se verra attribuer automatiquement le rôle Administrateur.
-        </p>
       </div>
     </div>
   </div>
