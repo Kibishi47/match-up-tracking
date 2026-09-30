@@ -31,7 +31,14 @@ const error = computed(() => route.query.error as string | undefined)
       </div>
 
       <div v-if="error === 'missing_credentials'" class="mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs space-y-1">
-        <p class="font-bold">⚠️ Identifiants Discord manquants</p>
+        <p class="font-bold flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-amber-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <span>Identifiants Discord manquants</span>
+        </p>
         <p>Veuillez renseigner <code class="bg-black/30 px-1 py-0.5 rounded font-mono">NUXT_OAUTH_DISCORD_CLIENT_ID</code> et <code class="bg-black/30 px-1 py-0.5 rounded font-mono">NUXT_OAUTH_DISCORD_CLIENT_SECRET</code> dans votre fichier <code class="font-mono">.env</code>.</p>
       </div>
 

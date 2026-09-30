@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Archetype, Match } from '~/server/db/schema'
 import type { OpponentStats } from '~/components/OpponentGrid.vue'
+import MatchupNotesModal from '~/components/modal/MatchupNotesModal.vue'
 
 definePageMeta({
   middleware: 'auth'
@@ -62,6 +63,24 @@ const pendingUndoMatch = ref<MatchWithRelations | null>(null)
 
 // Modale de modification
 const editingMatch = ref<MatchWithRelations | null>(null)
+
+// Modale de notes de matchup
+const selectedNotesOpponent = ref<Archetype | null>(null)
+const isMatchupNotesModalOpen = ref(false)
+
+const handleOpenNotes = (opponent: Archetype) => {
+  selectedNotesOpponent.value = opponent
+  isMatchupNotesModalOpen.value = true
+}
+
+const handleNotesSaved = (newNotes: string) => {
+  if (selectedNotesOpponent.value && dashboardData.value?.statsByOpponent) {
+    if (dashboardData.value.statsByOpponent[selectedNotesOpponent.value.id]) {
+      dashboardData.value.statsByOpponent[selectedNotesOpponent.value.id].notes = newNotes
+    }
+  }
+  refreshDashboard()
+}
 
 const { toast, confirmAction } = useNotify()
 
@@ -165,14 +184,11 @@ const formatDate = (dateStr: string | Date) => {
       <section>
         <div class="flex items-center justify-between mb-4">
           <div>
-            <h3 class="text-xl font-black text-white flex items-center gap-2 tracking-tight">
-              <span>Saisie Rapide des Matchups</span>
-              <span class="text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
-                1 clic = Enregistré
-              </span>
+            <h3 class="text-xl font-bold text-white tracking-tight">
+              Matchups
             </h3>
             <p class="text-xs text-slate-400 mt-1">
-              WR (Win Rate) : votre taux de victoire face à l'archétype. SR (Show Rate) : part de l'archétype dans vos confrontations.
+              Taux de victoire (WR) et taux de présence (SR) face aux archétypes adverses
             </p>
           </div>
         </div>
@@ -183,6 +199,7 @@ const formatDate = (dateStr: string | Date) => {
           :opponents="dashboardData?.archetypes || []"
           :stats-by-opponent="dashboardData?.statsByOpponent || {}"
           @log-match="logMatch"
+          @open-notes="handleOpenNotes"
         />
       </section>
 
@@ -280,6 +297,16 @@ const formatDate = (dateStr: string | Date) => {
       :match="editingMatch"
       @close="editingMatch = null"
       @updated="() => { refreshDashboard(); editingMatch = null; }"
+    />
+
+    <!-- Modale d'édition des notes de Matchup (Partagées pour le duel) -->
+    <MatchupNotesModal
+      :is-open="isMatchupNotesModalOpen"
+      :my-archetype="dashboardData?.activeDeck || null"
+      :opponent-archetype="selectedNotesOpponent"
+      :initial-notes="selectedNotesOpponent ? dashboardData?.statsByOpponent?.[selectedNotesOpponent.id]?.notes : ''"
+      @close="isMatchupNotesModalOpen = false"
+      @saved="handleNotesSaved"
     />
   </div>
 </template>

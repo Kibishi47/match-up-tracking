@@ -138,8 +138,11 @@ const handleCreateMeta = async () => {
         <!-- Header de la Modale -->
         <div class="px-6 py-5 border-b border-slate-800/80 flex items-center justify-between bg-slate-950/50">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-              <span class="text-xl">🎮</span>
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 text-white">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="20" height="12" x="2" y="6" rx="6" />
+                <path d="M6 12h4m-2-2v4m9-2h.01m3 0h.01" />
+              </svg>
             </div>
             <div>
               <h3 class="text-lg font-bold text-white tracking-tight">
@@ -269,8 +272,12 @@ const handleCreateMeta = async () => {
               v-else-if="localMetas.length === 0"
               class="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-center space-y-3"
             >
-              <div class="w-10 h-10 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto text-lg">
-                ⚠️
+              <div class="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mx-auto">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
               </div>
               <div>
                 <h4 class="text-sm font-bold text-amber-300">Aucune méta configurée</h4>

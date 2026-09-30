@@ -21,6 +21,12 @@ export default defineEventHandler(async (event) => {
   }
 
   const metaId = body?.metaId ? String(body.metaId) : null
+  if (!metaId) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Le format / méta associé est obligatoire pour créer un archétype'
+    })
+  }
 
   const db = useDb()
 

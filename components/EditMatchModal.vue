@@ -37,10 +37,24 @@ const saveMatch = async () => {
     const updated = await $fetch<Match>(`/api/matches/${props.match.id}`, {
       method: 'PUT',
       body: {
-        result: result.value,
-        notes: notes.value
+        result: result.value
       }
     })
+
+    const myArchId = (props.match as any).myArchetypeId || props.match.myArchetype?.id
+    const oppArchId = (props.match as any).opponentArchetypeId || props.match.opponentArchetype?.id
+
+    if (myArchId && oppArchId && notes.value !== (props.match.notes || '')) {
+      await $fetch('/api/matchups/notes', {
+        method: 'PUT',
+        body: {
+          myArchetypeId: myArchId,
+          opponentArchetypeId: oppArchId,
+          notes: notes.value
+        }
+      }).catch(() => {})
+    }
+
     emit('updated', updated)
     emit('close')
   } catch (err: any) {
@@ -57,7 +71,15 @@ const saveMatch = async () => {
     <div class="glass-panel max-w-md w-full p-6 rounded-2xl border border-slate-800 shadow-2xl relative">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-lg font-bold text-white">Modifier le Match</h3>
-        <button @click="emit('close')" class="text-slate-400 hover:text-white p-1 rounded-lg">✕</button>
+        <button
+          type="button"
+          @click="emit('close')"
+          class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800/80 transition"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
       </div>
 
       <div class="mb-4 p-3 bg-slate-900/60 rounded-xl border border-slate-800 text-sm">

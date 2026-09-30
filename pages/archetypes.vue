@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import type { Archetype, Meta } from '~/server/db/schema'
+import GameMetaModal from '~/components/modal/GameMetaModal.vue'
 
 definePageMeta({
   middleware: 'auth'
 })
+
+const isGameMetaModalOpen = ref(false)
 
 // Utiliser la session de jeu partagée (synchronisée avec le Header)
 const { activeGame, activeGameId } = useGameSession()
@@ -69,8 +72,8 @@ const editArchetype = (arch: Archetype) => {
 }
 
 const submitForm = async () => {
-  if (!activeGameId.value) {
-    errorMessage.value = 'Veuillez sélectionner un jeu TCG'
+  if (!activeGameId.value || !activeMetaId.value) {
+    errorMessage.value = 'Veuillez sélectionner un jeu et une méta avant de créer un archétype'
     return
   }
   if (!form.name.trim()) {
@@ -83,7 +86,7 @@ const submitForm = async () => {
   successMessage.value = null
 
   try {
-    const targetMetaId = form.metaId || activeMetaId.value || null
+    const targetMetaId = form.metaId || activeMetaId.value
 
     if (isEditing.value) {
       await $fetch(`/api/archetypes/${form.id}`, {
@@ -181,24 +184,70 @@ const handleMetaCreated = async (newMeta: Meta) => {
       <!-- Messages de feedback -->
       <div v-if="successMessage" class="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm flex items-center justify-between">
         <span>{{ successMessage }}</span>
-        <button @click="successMessage = null" class="text-emerald-400">✕</button>
+        <button
+          type="button"
+          @click="successMessage = null"
+          class="text-emerald-400 hover:text-emerald-300 p-1 rounded-lg transition"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
       </div>
 
       <div v-if="errorMessage" class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm flex items-center justify-between">
         <span>{{ errorMessage }}</span>
-        <button @click="errorMessage = null" class="text-red-400">✕</button>
+        <button
+          type="button"
+          @click="errorMessage = null"
+          class="text-red-400 hover:text-red-300 p-1 rounded-lg transition"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Formulaire de création / édition -->
+        <!-- Formulaire de création / édition OU invitation à sélectionner jeu & méta -->
         <div class="lg:col-span-1">
-          <div class="glass-panel p-6 rounded-2xl border border-slate-800 sticky top-24">
+          <!-- État bloqué : aucun jeu ou aucune méta active -->
+          <div
+            v-if="!activeGameId || !activeMetaId"
+            class="glass-panel p-6 rounded-2xl border border-slate-800 text-center space-y-4 sticky top-24"
+          >
+            <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto shadow-inner">
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="20" height="12" x="2" y="6" rx="6" />
+                <path d="M6 12h4m-2-2v4m9-2h.01m3 0h.01" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-white">Sélection Jeu & Méta requise</h3>
+              <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">
+                Un archétype doit obligatoirement être rattaché à un jeu et à une extension / méta active.
+              </p>
+            </div>
+            <button
+              type="button"
+              @click="isGameMetaModalOpen = true"
+              class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition shadow-md shadow-indigo-950/40 flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>Choisir Jeu & Format</span>
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14m-7-7 7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Formulaire actif -->
+          <div v-else class="glass-panel p-6 rounded-2xl border border-slate-800 sticky top-24">
             <div class="flex items-center justify-between mb-4">
               <h2 class="text-lg font-bold text-white flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                 {{ isEditing ? "Modifier l'archétype" : 'Nouvel Archétype' }}
               </h2>
-              <span v-if="activeMeta" class="text-[11px] font-medium text-slate-400 bg-slate-900 px-2 py-0.5 rounded-md border border-slate-800">
+              <span v-if="activeMeta" class="text-[11px] font-medium text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
                 {{ activeMeta.name }}
               </span>
             </div>
@@ -385,5 +434,10 @@ const handleMetaCreated = async (newMeta: Meta) => {
         </div>
       </div>
     </main>
+
+    <GameMetaModal
+      :is-open="isGameMetaModalOpen"
+      @close="isGameMetaModalOpen = false"
+    />
   </div>
 </template>

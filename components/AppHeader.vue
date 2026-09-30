@@ -35,7 +35,7 @@ const logout = async () => {
           </span>
         </NuxtLink>
 
-        <!-- Sélecteur Unifié Permanent [ 🎮 JEU — META ] (Jamais masqué) -->
+        <!-- Sélecteur Unifié Permanent [ JEU — META ] (Jamais masqué) -->
         <div v-if="user" class="flex-shrink-0 flex items-center">
           <!-- Skeleton anti-CLS pendant le chargement initial -->
           <div
@@ -51,8 +51,26 @@ const logout = async () => {
             class="h-9 max-w-[280px] sm:max-w-[340px] px-3.5 rounded-xl bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-emerald-500/60 text-slate-200 hover:text-white transition duration-200 flex items-center gap-2 shadow-sm cursor-pointer group"
             title="Changer de jeu ou de format/méta"
           >
-            <!-- Logo du jeu ou icône générique -->
-            <span class="text-base flex-shrink-0 leading-none">🎮</span>
+            <!-- Logo du jeu ou icône SVG professionnelle -->
+            <img
+              v-if="activeGame?.logoUrl"
+              :src="activeGame.logoUrl"
+              :alt="activeGame.name"
+              class="w-4 h-4 rounded object-cover flex-shrink-0"
+            />
+            <svg
+              v-else
+              class="w-4 h-4 text-emerald-400 flex-shrink-0"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect width="20" height="12" x="2" y="6" rx="6" />
+              <path d="M6 12h4m-2-2v4m9-2h.01m3 0h.01" />
+            </svg>
 
             <!-- Nom du Jeu — Méta -->
             <div class="flex items-center gap-1.5 text-xs truncate">

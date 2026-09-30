@@ -134,7 +134,15 @@ const toggleGame = async (game: Game) => {
               ]"
             >
               <span v-if="loadingToggleId === game.id" class="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
-              <span>{{ isGameActive(game.id) ? 'Actif ✓' : '+ Ajouter' }}</span>
+              <template v-else-if="isGameActive(game.id)">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <span>Actif</span>
+              </template>
+              <template v-else>
+                <span>+ Ajouter</span>
+              </template>
             </button>
           </div>
         </div>

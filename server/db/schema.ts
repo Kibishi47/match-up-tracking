@@ -52,7 +52,7 @@ export const archetypes = pgTable('archetypes', {
   id: uuid('id').defaultRandom().primaryKey(),
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   gameId: uuid('game_id').references(() => games.id, { onDelete: 'cascade' }).notNull(),
-  metaId: uuid('meta_id').references(() => metas.id, { onDelete: 'cascade' }),
+  metaId: uuid('meta_id').references(() => metas.id, { onDelete: 'cascade' }).notNull(),
   name: text('name').notNull(),
   card1Name: text('card1_name'),
   card1ImageUrl: text('card1_image_url'),

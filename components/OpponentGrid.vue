@@ -8,6 +8,7 @@ export interface OpponentStats {
   total: number
   winrate: number
   showRate: number
+  notes?: string
 }
 
 const props = defineProps<{
@@ -17,6 +18,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'log-match', opponentId: string, result: 'win' | 'loss' | 'draw'): void
+  (e: 'open-notes', opponent: Archetype): void
 }>()
 </script>
 
@@ -81,9 +83,29 @@ const emit = defineEmits<{
             </div>
 
             <div class="min-w-0 flex-1 ml-0.5">
-              <h4 class="font-bold text-white text-sm sm:text-base truncate group-hover:text-emerald-400 transition" :title="opp.name">
-                {{ opp.name }}
-              </h4>
+              <div class="flex items-start justify-between gap-1">
+                <h4 class="font-bold text-white text-sm sm:text-base truncate group-hover:text-emerald-400 transition" :title="opp.name">
+                  {{ opp.name }}
+                </h4>
+
+                <!-- Bouton Note de Matchup discrète -->
+                <button
+                  type="button"
+                  @click.stop="emit('open-notes', opp)"
+                  :class="[
+                    'p-1.5 rounded-lg transition duration-200 cursor-pointer flex-shrink-0 -mt-1 -mr-1',
+                    statsByOpponent?.[opp.id]?.notes
+                      ? 'text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30'
+                      : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/80'
+                  ]"
+                  :title="statsByOpponent?.[opp.id]?.notes ? `Note : ${statsByOpponent[opp.id].notes}` : 'Ajouter une note de matchup'"
+                >
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 20h9"/>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                  </svg>
+                </button>
+              </div>
 
               <!-- Métriques : Win Rate (WR) & Show Rate (SR) -->
               <div class="mt-1.5 flex flex-wrap items-center gap-1.5">
