@@ -282,7 +282,7 @@ const handleMetaCreated = async (newMeta: Meta) => {
                   v-model="form.name"
                   type="text"
                   required
-                  placeholder="Ex: Ruby / Amethyst Bounce, Charizard ex..."
+                  placeholder="Nom de l'archétype..."
                   class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition text-sm"
                 />
               </div>
@@ -295,13 +295,13 @@ const handleMetaCreated = async (newMeta: Meta) => {
                 <input
                   v-model="form.card1Name"
                   type="text"
-                  placeholder="Nom de la carte (ex: Elsa - Spirit of Winter)"
+                  placeholder="Nom de la carte..."
                   class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500"
                 />
                 <input
                   v-model="form.card1ImageUrl"
                   type="url"
-                  placeholder="URL illustration (https://...)"
+                  placeholder="https://..."
                   class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500"
                 />
                 <div v-if="form.card1ImageUrl" class="mt-1 flex items-center gap-2">
@@ -318,13 +318,13 @@ const handleMetaCreated = async (newMeta: Meta) => {
                 <input
                   v-model="form.card2Name"
                   type="text"
-                  placeholder="Nom de la carte 2"
+                  placeholder="Nom de la carte..."
                   class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500"
                 />
                 <input
                   v-model="form.card2ImageUrl"
                   type="url"
-                  placeholder="URL illustration 2 (https://...)"
+                  placeholder="https://..."
                   class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500"
                 />
                 <div v-if="form.card2ImageUrl" class="mt-1 flex items-center gap-2">

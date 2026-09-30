@@ -291,7 +291,7 @@ const handleCreateMeta = async () => {
                 <input
                   v-model="newMetaName"
                   type="text"
-                  placeholder="Ex: Set 1, OP-07, Bloc 2026..."
+                  placeholder="Nom du set / format..."
                   required
                   class="flex-1 px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500"
                 />
@@ -356,7 +356,7 @@ const handleCreateMeta = async () => {
                   <input
                     v-model="newMetaName"
                     type="text"
-                    placeholder="Nouveau set / format (ex: OP-08, Bloc 2026...)"
+                    placeholder="Nouveau set / format..."
                     maxlength="100"
                     class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500 shadow-inner"
                   />

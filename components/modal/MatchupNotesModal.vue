@@ -145,7 +145,6 @@ const handleBlur = () => {
               rows="6"
               maxlength="2000"
               @blur="handleBlur"
-              placeholder="Ex: Garder l'accélérateur en main de départ. Attention à son tour 4 létal. Ne pas trop over-extend sur le board..."
               class="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-slate-700/80 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-amber-500/80 focus:ring-1 focus:ring-amber-500/40 shadow-inner resize-y transition"
             ></textarea>
           </div>

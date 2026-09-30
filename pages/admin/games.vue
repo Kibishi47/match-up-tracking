@@ -180,7 +180,7 @@ const deleteGame = async (game: Game) => {
                   @input="handleNameChange"
                   type="text"
                   required
-                  placeholder="Ex: Disney Lorcana, Magic, One Piece..."
+                  placeholder="Ex: One piece"
                   class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition text-sm"
                 />
               </div>
@@ -192,7 +192,7 @@ const deleteGame = async (game: Game) => {
                 <input
                   v-model="form.slug"
                   type="text"
-                  placeholder="ex: disney-lorcana"
+                  placeholder="ex: one-piece"
                   class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition text-sm font-mono"
                 />
               </div>
