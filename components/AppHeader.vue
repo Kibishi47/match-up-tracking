@@ -1,37 +1,13 @@
 <script setup lang="ts">
-import AppDropdown from '~/components/ui/AppDropdown.vue'
 import ManageGamesModal from '~/components/games/ManageGamesModal.vue'
-import CreateMetaModal from '~/components/metas/CreateMetaModal.vue'
+import GameMetaModal from '~/components/modal/GameMetaModal.vue'
 
 const { user, clear } = useUserSession()
 const { games, activeGameId, activeGame, setActiveGame, isSessionReady } = useGameSession()
 const { metas, activeMetaId, activeMeta, setActiveMeta, refreshMetas } = useMetaSession()
 
 const isManageGamesOpen = ref(false)
-const isCreateMetaOpen = ref(false)
-
-const gameOptions = computed(() => {
-  const sorted = [...(games.value || [])].sort((a, b) =>
-    a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' })
-  )
-  return sorted.map(g => ({
-    value: g.id,
-    label: g.name,
-    iconUrl: g.logoUrl
-  }))
-})
-
-const metaOptions = computed(() => {
-  return (metas.value || []).map(m => ({
-    value: m.id,
-    label: m.name
-  }))
-})
-
-const handleMetaCreated = async (newMeta: any) => {
-  await refreshMetas()
-  setActiveMeta(newMeta.id)
-}
+const isGameMetaModalOpen = ref(false)
 
 const logout = async () => {
   await clear()
@@ -44,7 +20,7 @@ const logout = async () => {
   <header class="glass-panel border-b border-slate-800/80 sticky top-0 z-40 bg-slate-950/85 backdrop-blur-md">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
       <!-- Logo & Navigation -->
-      <div class="flex items-center gap-6 sm:gap-8">
+      <div class="flex items-center gap-4 sm:gap-6">
         <NuxtLink to="/" class="flex items-center gap-2.5 font-bold text-lg text-white group flex-shrink-0">
           <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-500 to-indigo-600 flex items-center justify-center shadow-md shadow-emerald-500/20 group-hover:scale-105 transition">
             <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -59,54 +35,54 @@ const logout = async () => {
           </span>
         </NuxtLink>
 
-        <!-- Sélecteur Global de TCG dans le Header (Gabarit fixe w-52 h-9 anti-CLS) -->
-        <div v-if="user" class="w-52 h-9 flex-shrink-0 flex items-center">
-          <!-- Skeleton 1:1 pendant le chargement initial -->
+        <!-- Sélecteur Unifié Permanent [ 🎮 JEU — META ] (Jamais masqué) -->
+        <div v-if="user" class="flex-shrink-0 flex items-center">
+          <!-- Skeleton anti-CLS pendant le chargement initial -->
           <div
             v-if="!isSessionReady"
-            class="w-full h-full bg-slate-800/80 animate-pulse rounded-xl border border-slate-700/60"
+            class="h-9 w-48 bg-slate-800/80 animate-pulse rounded-xl border border-slate-700/60"
           />
-          <!-- Dropdown des jeux disponibles -->
-          <div v-else-if="games && games.length > 0" class="w-full h-full">
-            <AppDropdown
-              :model-value="activeGameId"
-              :options="gameOptions"
-              placeholder="Choisir un TCG..."
-              menu-width-class="w-64"
-              button-class="w-52 h-9"
-              footer-action-label="Gérer mes jeux"
-              @footer-click="isManageGamesOpen = true"
-              @change="setActiveGame"
-            />
-          </div>
-          <!-- État 0 jeu en collection : bouton pour ouvrir la modale sans décaler -->
-          <div v-else class="w-full h-full">
-            <button
-              type="button"
-              @click="isManageGamesOpen = true"
-              class="w-full h-full flex items-center justify-between text-xs text-slate-400 hover:text-emerald-400 bg-slate-900/60 hover:bg-slate-900 rounded-xl border border-slate-800 hover:border-slate-700 px-3 transition cursor-pointer"
-            >
-              <span>+ Gérer mes jeux</span>
-              <svg class="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect width="20" height="12" x="2" y="6" rx="6" />
-                <path d="M6 12h4m-2-2v4m9-2h.01m3 0h.01" />
-              </svg>
-            </button>
-          </div>
-        </div>
 
-        <!-- Sélecteur Global de Méta / Format (Gabarit w-44 h-9) -->
-        <div v-if="user && activeGameId && metas && metas.length > 0" class="w-44 h-9 flex-shrink-0 flex items-center">
-          <AppDropdown
-            :model-value="activeMetaId"
-            :options="metaOptions"
-            placeholder="Méta / Format..."
-            menu-width-class="w-56"
-            button-class="w-44 h-9"
-            footer-action-label="+ Nouvelle méta"
-            @footer-click="isCreateMetaOpen = true"
-            @change="setActiveMeta"
-          />
+          <!-- Badge cliquable unifié permanent -->
+          <button
+            v-else
+            type="button"
+            @click="isGameMetaModalOpen = true"
+            class="h-9 max-w-[280px] sm:max-w-[340px] px-3.5 rounded-xl bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-emerald-500/60 text-slate-200 hover:text-white transition duration-200 flex items-center gap-2 shadow-sm cursor-pointer group"
+            title="Changer de jeu ou de format/méta"
+          >
+            <!-- Logo du jeu ou icône générique -->
+            <span class="text-base flex-shrink-0 leading-none">🎮</span>
+
+            <!-- Nom du Jeu — Méta -->
+            <div class="flex items-center gap-1.5 text-xs truncate">
+              <span class="font-bold text-white truncate">
+                {{ activeGame?.name || 'Aucun jeu' }}
+              </span>
+              <span class="text-slate-500 font-semibold">—</span>
+              <span
+                :class="[
+                  'truncate font-medium',
+                  activeMeta ? 'text-emerald-400' : 'text-amber-400/90 italic'
+                ]"
+              >
+                {{ activeMeta?.name || 'Aucune méta' }}
+              </span>
+            </div>
+
+            <!-- Chevron indicateur -->
+            <svg
+              class="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-400 group-hover:translate-y-0.5 transition flex-shrink-0 ml-0.5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
         </div>
 
         <!-- Liens de navigation -->
@@ -200,14 +176,11 @@ const logout = async () => {
       @close="isManageGamesOpen = false"
     />
 
-    <!-- Modale de création d'une nouvelle méta -->
-    <CreateMetaModal
-      :is-open="isCreateMetaOpen"
-      :game-id="activeGameId"
-      :game-name="activeGame?.name"
-      :source-meta-id="activeMetaId"
-      @close="isCreateMetaOpen = false"
-      @created="handleMetaCreated"
+    <!-- Modale unifiée Jeu & Méta -->
+    <GameMetaModal
+      :is-open="isGameMetaModalOpen"
+      @close="isGameMetaModalOpen = false"
+      @open-manage-games="isManageGamesOpen = true; isGameMetaModalOpen = false"
     />
   </header>
 </template>
