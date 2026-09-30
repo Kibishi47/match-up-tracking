@@ -54,9 +54,13 @@ Renseignez vos identifiants d'application Discord :
 ### 2. Démarrage avec Docker Compose (recommandé en dev)
 Lance l'application avec rechargement à chaud (hot-reload) et le conteneur PostgreSQL :
 ```bash
+npm run dev:docker:build
+# ou directement :
 docker compose up --build
 ```
-L'application est accessible sur : `http://localhost:3000`
+L'adresse IP locale de votre machine (ex: `192.168.4.80`) est automatiquement détectée et injectée dans Nuxt pour afficher le bon QR Code et permettre l'accès direct depuis votre smartphone / iPhone sur le même réseau Wi-Fi.
+
+L'application est accessible sur : `http://localhost:3000` et sur votre réseau local via `http://<VOTRE_IP_LOCALE>:3000`.
 
 ### 3. Migrations de base de données
 Appliquer les migrations SQL Drizzle :

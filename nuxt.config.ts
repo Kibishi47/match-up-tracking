@@ -3,6 +3,10 @@ export default defineNuxtConfig({
   ssr: false,
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
+  devServer: {
+    host: '0.0.0.0',
+    port: 3000
+  },
   components: [
     {
       path: '~/components',

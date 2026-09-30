@@ -30,6 +30,8 @@ services:
       - NUXT_SESSION_PASSWORD=${NUXT_SESSION_PASSWORD:-dev_secret_session_key_32_characters_long_min}
       - NUXT_OAUTH_DISCORD_CLIENT_ID=${NUXT_OAUTH_DISCORD_CLIENT_ID}
       - NUXT_OAUTH_DISCORD_CLIENT_SECRET=${NUXT_OAUTH_DISCORD_CLIENT_SECRET}
+      - HOST_IP=${HOST_IP}
+      - PUBLIC_URL=${PUBLIC_URL}
     volumes:
       - .:/app
       - /app/node_modules

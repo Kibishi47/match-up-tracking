@@ -16,4 +16,4 @@ COPY . .
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "npm install && (npx tsx server/db/migrate.ts || true) && npm run dev -- --host 0.0.0.0"]
+CMD ["sh", "-c", "npm install && (npx tsx server/db/migrate.ts || true) && PUBLIC_FLAG=\"\" && if [ -n \"$PUBLIC_URL\" ]; then PUBLIC_FLAG=\"--publicURL $PUBLIC_URL\"; elif [ -n \"$HOST_IP\" ]; then PUBLIC_FLAG=\"--publicURL http://$HOST_IP:3000\"; fi && npm run dev -- --host 0.0.0.0 $PUBLIC_FLAG"]
