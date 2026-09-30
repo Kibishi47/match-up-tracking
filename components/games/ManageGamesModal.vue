@@ -56,28 +56,28 @@ const toggleGame = async (game: Game) => {
       @click.self="emit('close')"
     >
       <div
-        class="relative w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-6 flex flex-col max-h-[85vh] my-auto"
+        class="relative w-full max-w-lg rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-6 flex flex-col max-h-[85vh] my-auto"
         role="dialog"
         aria-modal="true"
       >
         <!-- En-tête fixe -->
-        <div class="flex items-center justify-between pb-4 border-b border-slate-800/80 flex-shrink-0">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800/80 flex-shrink-0">
           <div>
-            <h3 class="text-lg font-bold text-white flex items-center gap-2">
-              <svg class="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <svg class="w-5 h-5 text-emerald-500 dark:text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect width="20" height="12" x="2" y="6" rx="6" />
                 <path d="M6 12h4m-2-2v4m9-2h.01m3 0h.01" />
               </svg>
               <span>Gérer ma collection de jeux</span>
             </h3>
-            <p class="text-xs text-slate-400 mt-0.5">
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Activez les jeux auxquels vous jouez pour les afficher dans votre sélecteur.
             </p>
           </div>
           <button
             type="button"
             @click="emit('close')"
-            class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+            class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
           >
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -88,11 +88,11 @@ const toggleGame = async (game: Game) => {
 
         <!-- Corps : Liste des jeux du catalogue triée alphabétiquement -->
         <div class="py-4 overflow-y-auto space-y-2.5 flex-1 min-h-0 pr-1">
-          <div v-if="catalogStatus === 'pending'" class="py-8 text-center text-xs text-slate-400">
+          <div v-if="catalogStatus === 'pending'" class="py-8 text-center text-xs text-slate-400 dark:text-slate-500">
             Chargement du catalogue...
           </div>
 
-          <div v-else-if="!sortedCatalogGames || sortedCatalogGames.length === 0" class="py-8 text-center text-xs text-slate-500">
+          <div v-else-if="!sortedCatalogGames || sortedCatalogGames.length === 0" class="py-8 text-center text-xs text-slate-400 dark:text-slate-500">
             Aucun jeu disponible dans le catalogue global.
           </div>
 
@@ -100,24 +100,24 @@ const toggleGame = async (game: Game) => {
             v-else
             v-for="game in sortedCatalogGames"
             :key="game.id"
-            class="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-900/70 border border-slate-800 hover:border-slate-700 transition"
+            class="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition"
           >
             <!-- Info jeu -->
             <div class="flex items-center gap-3 min-w-0">
-              <div class="w-10 h-10 rounded-lg bg-slate-800 border border-slate-700/80 overflow-hidden flex items-center justify-center flex-shrink-0">
+              <div class="w-10 h-10 rounded-lg bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700/80 overflow-hidden flex items-center justify-center flex-shrink-0">
                 <img
                   v-if="game.logoUrl"
                   :src="game.logoUrl"
                   :alt="game.name"
                   class="w-full h-full object-contain p-1"
                 />
-                <svg v-else class="w-5 h-5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg v-else class="w-5 h-5 text-slate-400 dark:text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect width="14" height="18" x="5" y="3" rx="2" />
                   <path d="M9 7h6" />
                 </svg>
               </div>
               <div class="truncate">
-                <p class="text-sm font-semibold text-white truncate">{{ game.name }}</p>
+                <p class="text-sm font-semibold text-slate-900 dark:text-white truncate">{{ game.name }}</p>
               </div>
             </div>
 
@@ -129,8 +129,8 @@ const toggleGame = async (game: Game) => {
               :class="[
                 'px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50 select-none',
                 isGameActive(game.id)
-                  ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 hover:bg-red-500/15 hover:text-red-400 hover:border-red-500/30'
-                  : 'bg-slate-800 text-slate-300 border border-slate-700 hover:bg-emerald-500/20 hover:text-emerald-300 hover:border-emerald-500/30'
+                  ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 hover:bg-red-500/15 hover:text-red-700 dark:hover:text-red-400 hover:border-red-500/30'
+                  : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 hover:bg-emerald-500/20 hover:text-emerald-700 dark:hover:text-emerald-300 hover:border-emerald-500/30'
               ]"
             >
               <span v-if="loadingToggleId === game.id" class="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
@@ -148,11 +148,11 @@ const toggleGame = async (game: Game) => {
         </div>
 
         <!-- Pied de modale fixe -->
-        <div class="pt-4 border-t border-slate-800 flex justify-end flex-shrink-0">
+        <div class="pt-4 border-t border-slate-200 dark:border-slate-800 flex justify-end flex-shrink-0">
           <button
             type="button"
             @click="emit('close')"
-            class="px-4 py-2 rounded-xl text-sm font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 transition cursor-pointer"
+            class="px-4 py-2 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer"
           >
             Fermer
           </button>

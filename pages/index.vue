@@ -164,10 +164,10 @@ const formatDate = (dateStr: string | Date) => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-950 pb-28">
+  <div class="min-h-screen bg-slate-100 dark:bg-slate-950 pb-28 transition-colors">
     <AppHeader />
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-24 md:pb-12 space-y-6 sm:space-y-8">
       <!-- 1. Bannière « Deck Actif » (Hero section) avec Skeleton 1:1 strict -->
       <section class="relative z-20">
         <ActiveDeckSkeleton v-if="isInitialLoading" />
@@ -184,10 +184,10 @@ const formatDate = (dateStr: string | Date) => {
       <section>
         <div class="flex items-center justify-between mb-4">
           <div>
-            <h3 class="text-xl font-bold text-white tracking-tight">
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
               Matchups
             </h3>
-            <p class="text-xs text-slate-400 mt-1">
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
               Taux de victoire (WR) et taux de présence (SR) face aux archétypes adverses
             </p>
           </div>
@@ -207,18 +207,18 @@ const formatDate = (dateStr: string | Date) => {
       <section>
         <MatchHistorySkeleton v-if="isInitialLoading" />
         
-        <div v-else class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 shadow-xl">
+        <div v-else class="glass-panel p-4 sm:p-6 lg:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900/60">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <span>Historique Récent</span>
-              <span class="text-xs text-slate-400 font-normal">
+              <span class="text-xs text-slate-400 dark:text-slate-500 font-normal">
                 ({{ dashboardData?.recentMatches?.length || 0 }} derniers matchs)
               </span>
             </h3>
 
             <button
               @click="refreshDashboard()"
-              class="text-xs text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition flex items-center gap-1.5 cursor-pointer"
+              class="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-1.5 cursor-pointer"
             >
               <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
@@ -227,15 +227,15 @@ const formatDate = (dateStr: string | Date) => {
             </button>
           </div>
 
-          <div v-if="!dashboardData?.recentMatches || dashboardData.recentMatches.length === 0" class="py-8 text-center text-slate-500 text-sm">
+          <div v-if="!dashboardData?.recentMatches || dashboardData.recentMatches.length === 0" class="py-8 text-center text-slate-400 dark:text-slate-500 text-sm">
             Aucun match enregistré pour ce deck.
           </div>
 
-          <div v-else class="divide-y divide-slate-800/80">
+          <div v-else class="divide-y divide-slate-100 dark:divide-slate-800/80">
             <div
               v-for="m in dashboardData.recentMatches"
               :key="m.id"
-              class="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 group hover:bg-slate-900/30 px-3 rounded-xl transition"
+              class="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 group hover:bg-slate-50 dark:hover:bg-slate-900/40 px-3 rounded-xl transition"
             >
               <!-- Info Match -->
               <div class="flex items-center gap-3.5">
@@ -243,21 +243,21 @@ const formatDate = (dateStr: string | Date) => {
                   :class="[
                     'w-12 h-8 rounded-lg flex items-center justify-center font-black text-xs uppercase flex-shrink-0 shadow-sm tracking-wide',
                     m.result === 'win'
-                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                      : (m.result === 'loss' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30')
+                      ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30'
+                      : (m.result === 'loss' ? 'bg-red-500/20 text-red-700 dark:text-red-400 border border-red-500/30' : 'bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30')
                   ]"
                 >
                   {{ m.result === 'win' ? 'WIN' : (m.result === 'loss' ? 'LOSS' : 'DRAW') }}
                 </span>
 
                 <div>
-                  <div class="text-sm font-semibold text-white">
+                  <div class="text-sm font-semibold text-slate-900 dark:text-white">
                     vs {{ m.opponentArchetype?.name || 'Adversaire inconnu' }}
-                    <span class="text-xs font-normal text-slate-400 ml-2">avec {{ m.myArchetype?.name }}</span>
+                    <span class="text-xs font-normal text-slate-500 dark:text-slate-400 ml-2">avec {{ m.myArchetype?.name }}</span>
                   </div>
-                  <div class="flex items-center gap-3 text-xs text-slate-500 mt-0.5">
+                  <div class="flex items-center gap-3 text-xs text-slate-400 dark:text-slate-500 mt-0.5">
                     <span>{{ formatDate(m.createdAt) }}</span>
-                    <span v-if="m.notes" class="text-slate-400 italic">"{{ m.notes }}"</span>
+                    <span v-if="m.notes" class="text-slate-600 dark:text-slate-400 italic">"{{ m.notes }}"</span>
                   </div>
                 </div>
               </div>
@@ -266,13 +266,13 @@ const formatDate = (dateStr: string | Date) => {
               <div class="flex items-center gap-2 self-end sm:self-center">
                 <button
                   @click="editingMatch = m"
-                  class="px-3 py-1 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 transition cursor-pointer"
+                  class="px-3 py-1 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer"
                 >
                   Éditer
                 </button>
                 <button
                   @click="deleteMatchFromHistory(m.id)"
-                  class="px-3 py-1 rounded-lg text-xs font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition cursor-pointer"
+                  class="px-3 py-1 rounded-lg text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-500/10 transition cursor-pointer"
                   title="Supprimer ce match"
                 >
                   Supprimer

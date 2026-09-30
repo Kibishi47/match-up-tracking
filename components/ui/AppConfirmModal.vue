@@ -24,7 +24,7 @@ onUnmounted(() => {
       @click.self="resolveConfirm(false)"
     >
       <div
-        class="relative w-full max-w-md rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-6 my-auto"
+        class="relative w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-6 my-auto"
         role="alertdialog"
         aria-modal="true"
       >
@@ -34,8 +34,8 @@ onUnmounted(() => {
             :class="[
               'w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0',
               confirmState.isDestructive
-                ? 'bg-red-500/15 text-red-400 border border-red-500/30'
-                : 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                ? 'bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/30'
+                : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
             ]"
           >
             <!-- Destructive SVG -->
@@ -53,21 +53,21 @@ onUnmounted(() => {
           </div>
 
           <div class="flex-1 min-w-0">
-            <h3 class="text-base font-bold text-white leading-tight">
+            <h3 class="text-base font-bold text-slate-900 dark:text-white leading-tight">
               {{ confirmState.title }}
             </h3>
-            <p class="text-sm text-slate-300 mt-2 leading-relaxed">
+            <p class="text-sm text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">
               {{ confirmState.message }}
             </p>
           </div>
         </div>
 
         <!-- Boutons d'action -->
-        <div class="mt-6 flex items-center justify-end gap-3 pt-4 border-t border-slate-800/80">
+        <div class="mt-6 flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800/80">
           <button
             type="button"
             @click="resolveConfirm(false)"
-            class="px-4 py-2 rounded-xl text-sm font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 transition cursor-pointer"
+            class="px-4 py-2 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer"
           >
             {{ confirmState.cancelText }}
           </button>

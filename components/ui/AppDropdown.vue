@@ -89,7 +89,7 @@ onUnmounted(() => {
       @click="toggleDropdown"
       :disabled="disabled"
       :class="[
-        'flex items-center justify-between gap-2.5 px-3.5 py-2 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 focus:outline-none focus:border-emerald-500/80 transition-all text-sm font-semibold select-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group',
+        'flex items-center justify-between gap-2.5 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-700 focus:outline-none focus:border-emerald-500/80 transition-all text-sm font-semibold select-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group',
         buttonClass
       ]"
       aria-haspopup="listbox"
@@ -97,7 +97,7 @@ onUnmounted(() => {
     >
       <div class="flex items-center gap-2.5 min-w-0">
         <!-- Option Icon (image or text icon) -->
-        <div v-if="selectedOption?.iconUrl" class="w-5 h-5 rounded-md overflow-hidden flex-shrink-0 bg-slate-800 border border-slate-700/60">
+        <div v-if="selectedOption?.iconUrl" class="w-5 h-5 rounded-md overflow-hidden flex-shrink-0 bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700/60">
           <img :src="selectedOption.iconUrl" :alt="selectedOption.label" class="w-full h-full object-contain" />
         </div>
         <span v-else-if="selectedOption?.iconText" class="text-xs flex-shrink-0">
@@ -105,7 +105,7 @@ onUnmounted(() => {
         </span>
 
         <!-- Label -->
-        <span :class="['truncate', selectedOption ? 'text-white' : 'text-slate-400']">
+        <span :class="['truncate', selectedOption ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400']">
           {{ selectedOption ? selectedOption.label : placeholder }}
         </span>
       </div>
@@ -113,8 +113,8 @@ onUnmounted(() => {
       <!-- Animated Chevron -->
       <svg
         :class="[
-          'w-4 h-4 text-slate-400 group-hover:text-slate-200 transition-transform duration-200 flex-shrink-0',
-          isOpen ? 'rotate-180 text-emerald-400 group-hover:text-emerald-300' : ''
+          'w-4 h-4 text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200 transition-transform duration-200 flex-shrink-0',
+          isOpen ? 'rotate-180 text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-500 dark:group-hover:text-emerald-300' : ''
         ]"
         viewBox="0 0 24 24"
         fill="none"
@@ -139,7 +139,7 @@ onUnmounted(() => {
       <div
         v-if="isOpen"
         :class="[
-          'absolute z-50 mt-2 rounded-xl bg-slate-900/95 backdrop-blur-md border border-slate-800 p-1.5 shadow-2xl space-y-1 max-h-64 overflow-y-auto focus:outline-none',
+          'absolute z-50 mt-2 rounded-xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 p-1.5 shadow-2xl space-y-1 max-h-64 overflow-y-auto focus:outline-none',
           menuWidthClass,
           align === 'right' ? 'right-0' : 'left-0'
         ]"
@@ -157,15 +157,15 @@ onUnmounted(() => {
           :class="[
             'w-full text-left px-3 py-2 rounded-lg text-sm transition-all flex items-center justify-between cursor-pointer group',
             option.value === modelValue
-              ? 'bg-emerald-500/10 text-emerald-400 font-semibold'
-              : 'text-slate-300 hover:text-white hover:bg-slate-800/70'
+              ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold'
+              : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/70'
           ]"
           role="option"
           :aria-selected="option.value === modelValue"
         >
           <div class="flex items-center gap-2.5 min-w-0">
             <!-- Icon -->
-            <div v-if="option.iconUrl" class="w-5 h-5 rounded-md overflow-hidden flex-shrink-0 bg-slate-800 border border-slate-700">
+            <div v-if="option.iconUrl" class="w-5 h-5 rounded-md overflow-hidden flex-shrink-0 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
               <img :src="option.iconUrl" :alt="option.label" class="w-full h-full object-contain" />
             </div>
             <span v-else-if="option.iconText" class="text-xs flex-shrink-0">
@@ -183,7 +183,7 @@ onUnmounted(() => {
           <!-- Active Checkmark Indicator -->
           <svg
             v-if="option.value === modelValue"
-            class="w-4 h-4 text-emerald-400 flex-shrink-0"
+            class="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -196,12 +196,12 @@ onUnmounted(() => {
         </button>
 
         <!-- Footer Action (ex: + Gérer mes jeux) -->
-        <div v-if="$slots.footer || footerActionLabel" class="pt-1.5 mt-1 border-t border-slate-800/80">
+        <div v-if="$slots.footer || footerActionLabel" class="pt-1.5 mt-1 border-t border-slate-100 dark:border-slate-800/80">
           <slot name="footer">
             <button
               type="button"
               @click="handleFooterClick"
-              class="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 transition-all flex items-center gap-2 cursor-pointer"
+              class="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 hover:bg-emerald-500/10 transition-all flex items-center gap-2 cursor-pointer"
             >
               <span>+</span>
               <span>{{ footerActionLabel }}</span>

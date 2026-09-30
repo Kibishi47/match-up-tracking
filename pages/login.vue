@@ -11,12 +11,12 @@ const error = computed(() => route.query.error as string | undefined)
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-slate-950 px-4 relative overflow-hidden">
+  <div class="min-h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-950 px-4 relative overflow-hidden transition-colors">
     <!-- Ambient glow background effects -->
     <div class="absolute -top-32 -left-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
     <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
 
-    <div class="max-w-md w-full glass-panel p-8 rounded-2xl shadow-2xl relative z-10 border border-slate-800">
+    <div class="max-w-md w-full glass-panel p-8 rounded-2xl shadow-2xl relative z-10 border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/80">
       <div class="text-center mb-8">
         <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-500 to-indigo-600 mb-4 shadow-lg shadow-emerald-500/20">
           <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -26,8 +26,8 @@ const error = computed(() => route.query.error as string | undefined)
             <path d="M7 17h10" />
           </svg>
         </div>
-        <h1 class="text-2xl font-bold tracking-tight text-white">TCG Matchup Tracking</h1>
-        <p class="text-sm text-slate-400 mt-2">Suivez vos victoires et défaites par archétype en temps réel</p>
+        <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">TCG Matchup Tracking</h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">Suivez vos victoires et défaites par archétype en temps réel</p>
       </div>
 
       <div v-if="error === 'missing_credentials'" class="mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs space-y-1">

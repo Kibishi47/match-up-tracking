@@ -240,12 +240,12 @@ const handleDeleteMeta = async (meta: Meta) => {
       @click.self="emit('close')"
     >
       <div
-        class="relative w-full max-w-2xl rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl overflow-hidden my-auto flex flex-col max-h-[90vh]"
+        class="relative w-full max-w-2xl rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden my-auto flex flex-col max-h-[90vh]"
         role="dialog"
         aria-modal="true"
       >
         <!-- Header de la Modale -->
-        <div class="px-6 py-5 border-b border-slate-800/80 flex items-center justify-between bg-slate-950/50">
+        <div class="px-6 py-5 border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between bg-slate-50 dark:bg-slate-950/50">
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 text-white">
               <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -254,10 +254,10 @@ const handleDeleteMeta = async (meta: Meta) => {
               </svg>
             </div>
             <div>
-              <h3 class="text-lg font-bold text-white tracking-tight">
+              <h3 class="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
                 Configuration Jeu & Méta
               </h3>
-              <p class="text-xs text-slate-400">
+              <p class="text-xs text-slate-500 dark:text-slate-400">
                 Sélectionnez le jeu et l'extension active pour vos matchs et statistiques
               </p>
             </div>
@@ -266,7 +266,7 @@ const handleDeleteMeta = async (meta: Meta) => {
           <button
             type="button"
             @click="emit('close')"
-            class="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800/80 transition"
+            class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition cursor-pointer"
           >
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M18 6 6 18M6 6l12 12" />
@@ -279,14 +279,14 @@ const handleDeleteMeta = async (meta: Meta) => {
           <!-- SECTION 1 : JEUX -->
           <div>
             <div class="flex items-center justify-between mb-3">
-              <label class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+              <label class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
                 1. Choisissez votre TCG
               </label>
               <button
                 type="button"
                 @click="emit('openManageGames')"
-                class="text-xs text-emerald-400 hover:text-emerald-300 font-medium flex items-center gap-1 hover:underline cursor-pointer"
+                class="text-xs text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium flex items-center gap-1 hover:underline cursor-pointer"
               >
                 <span>+ Gérer ma collection</span>
                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -305,18 +305,18 @@ const handleDeleteMeta = async (meta: Meta) => {
                 :class="[
                   'flex items-center gap-3 p-3 rounded-2xl border text-left transition-all duration-200 cursor-pointer',
                   selectedGameId === game.id
-                    ? 'bg-indigo-600/15 border-indigo-500 text-white shadow-lg shadow-indigo-500/10 ring-1 ring-indigo-500'
-                    : 'bg-slate-950/60 border-slate-800 text-slate-300 hover:bg-slate-800/50 hover:border-slate-700'
+                    ? 'bg-indigo-600/15 border-indigo-500 text-slate-900 dark:text-white shadow-lg shadow-indigo-500/10 ring-1 ring-indigo-500'
+                    : 'bg-slate-50 dark:bg-slate-950/60 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:border-slate-300 dark:hover:border-slate-700'
                 ]"
               >
-                <div class="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                <div class="w-10 h-10 rounded-xl bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 overflow-hidden flex-shrink-0 flex items-center justify-center">
                   <img
                     v-if="game.logoUrl"
                     :src="game.logoUrl"
                     :alt="game.name"
                     class="w-full h-full object-cover"
                   />
-                  <span v-else class="text-xs font-bold text-slate-400">
+                  <span v-else class="text-xs font-bold text-slate-500 dark:text-slate-400">
                     {{ game.name.slice(0, 2).toUpperCase() }}
                   </span>
                 </div>
@@ -325,12 +325,12 @@ const handleDeleteMeta = async (meta: Meta) => {
                     <span>{{ game.name }}</span>
                     <span
                       v-if="game.id === activeGameId"
-                      class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                      class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
                     >
                       En cours
                     </span>
                   </div>
-                  <span class="text-xs text-slate-400">{{ game.slug }}</span>
+                  <span class="text-xs text-slate-400 dark:text-slate-500">{{ game.slug }}</span>
                 </div>
                 <div v-if="selectedGameId === game.id" class="w-2.5 h-2.5 rounded-full bg-indigo-500 shadow-sm shadow-indigo-500/80"></div>
               </button>
@@ -339,28 +339,28 @@ const handleDeleteMeta = async (meta: Meta) => {
             <!-- Aucun jeu -->
             <div
               v-else
-              class="p-4 rounded-2xl bg-slate-950/60 border border-dashed border-slate-800 text-center space-y-2"
+              class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-dashed border-slate-200 dark:border-slate-800 text-center space-y-2"
             >
-              <p class="text-xs text-slate-400">Aucun jeu activé dans votre collection.</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Aucun jeu activé dans votre collection.</p>
               <button
                 type="button"
                 @click="emit('openManageGames')"
-                class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition"
+                class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition cursor-pointer"
               >
                 Sélectionner des jeux
               </button>
             </div>
           </div>
 
-          <div class="border-t border-slate-800/80"></div>
+          <div class="border-t border-slate-200 dark:border-slate-800/80"></div>
 
           <!-- SECTION 2 : MÉTAS DU JEU SÉLECTIONNÉ -->
           <div>
             <div class="flex items-center justify-between mb-3">
-              <label class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+              <label class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                 2. Formats & Métas
-                <span v-if="selectedGame" class="text-emerald-400 normal-case font-medium">
+                <span v-if="selectedGame" class="text-emerald-600 dark:text-emerald-400 normal-case font-medium">
                   ({{ selectedGame.name }})
                 </span>
               </label>
@@ -373,8 +373,8 @@ const handleDeleteMeta = async (meta: Meta) => {
                 :class="[
                   'text-xs px-2.5 py-1 rounded-lg font-medium transition flex items-center gap-1.5 cursor-pointer',
                   isEditMode
-                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                    ? 'bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/40 hover:bg-amber-500/30'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
                 ]"
               >
                 <svg v-if="!isEditMode" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -388,8 +388,8 @@ const handleDeleteMeta = async (meta: Meta) => {
             </div>
 
             <!-- Loading -->
-            <div v-if="isLoadingMetas" class="py-8 flex flex-col items-center justify-center gap-2 text-slate-400">
-              <svg class="w-5 h-5 animate-spin text-emerald-400" viewBox="0 0 24 24" fill="none">
+            <div v-if="isLoadingMetas" class="py-8 flex flex-col items-center justify-center gap-2 text-slate-500 dark:text-slate-400">
+              <svg class="w-5 h-5 animate-spin text-emerald-500" viewBox="0 0 24 24" fill="none">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
               </svg>
@@ -401,7 +401,7 @@ const handleDeleteMeta = async (meta: Meta) => {
               v-else-if="localMetas.length === 0"
               class="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-center space-y-3"
             >
-              <div class="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mx-auto">
+              <div class="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 dark:text-amber-400 flex items-center justify-center mx-auto">
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
                   <line x1="12" y1="9" x2="12" y2="13"/>
@@ -409,8 +409,8 @@ const handleDeleteMeta = async (meta: Meta) => {
                 </svg>
               </div>
               <div>
-                <h4 class="text-sm font-bold text-amber-300">Aucune méta configurée</h4>
-                <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+                <h4 class="text-sm font-bold text-amber-600 dark:text-amber-300">Aucune méta configurée</h4>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
                   Ce jeu ne possède pas encore de méta ou extension. Créez-en une directement pour commencer à suivre vos matchs.
                 </p>
               </div>
@@ -422,7 +422,7 @@ const handleDeleteMeta = async (meta: Meta) => {
                   type="text"
                   placeholder="Nom du set / format..."
                   required
-                  class="flex-1 px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500"
+                  class="flex-1 px-3.5 py-2 rounded-xl bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500"
                 />
                 <button
                   type="submit"
@@ -442,7 +442,7 @@ const handleDeleteMeta = async (meta: Meta) => {
                 <div
                   v-for="(meta, index) in localMetas"
                   :key="meta.id"
-                  class="flex items-center justify-between p-2.5 sm:p-3 rounded-2xl border bg-slate-950/80 border-slate-800 gap-2 hover:border-slate-700 transition"
+                  class="flex items-center justify-between p-2.5 sm:p-3 rounded-2xl border bg-slate-50 dark:bg-slate-950/80 border-slate-200 dark:border-slate-800 gap-2 hover:border-slate-300 dark:hover:border-slate-700 transition"
                 >
                   <!-- 1. Réordonner (Haut / Bas) -->
                   <div class="flex items-center gap-0.5 flex-shrink-0">
@@ -450,7 +450,7 @@ const handleDeleteMeta = async (meta: Meta) => {
                       type="button"
                       @click="moveMetaUp(index)"
                       :disabled="index === 0"
-                      class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 disabled:opacity-20 disabled:hover:bg-transparent transition cursor-pointer"
+                      class="p-1 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-20 disabled:hover:bg-transparent transition cursor-pointer"
                       title="Monter d'une position"
                     >
                       <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -461,7 +461,7 @@ const handleDeleteMeta = async (meta: Meta) => {
                       type="button"
                       @click="moveMetaDown(index)"
                       :disabled="index === localMetas.length - 1"
-                      class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 disabled:opacity-20 disabled:hover:bg-transparent transition cursor-pointer"
+                      class="p-1 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-20 disabled:hover:bg-transparent transition cursor-pointer"
                       title="Descendre d'une position"
                     >
                       <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -479,7 +479,7 @@ const handleDeleteMeta = async (meta: Meta) => {
                         maxlength="100"
                         @keyup.enter="saveRename(meta)"
                         @keyup.esc="cancelRename"
-                        class="w-full px-2.5 py-1.5 rounded-xl bg-slate-900 border border-emerald-500 text-white text-xs focus:outline-none"
+                        class="w-full px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-emerald-500 text-slate-900 dark:text-white text-xs focus:outline-none"
                       />
                       <button
                         type="button"
@@ -494,7 +494,7 @@ const handleDeleteMeta = async (meta: Meta) => {
                       <button
                         type="button"
                         @click="cancelRename"
-                        class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex-shrink-0 cursor-pointer"
+                        class="p-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition flex-shrink-0 cursor-pointer"
                         title="Annuler"
                       >
                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -504,10 +504,10 @@ const handleDeleteMeta = async (meta: Meta) => {
                       </button>
                     </div>
                     <div v-else class="flex items-center gap-2">
-                      <span class="text-xs sm:text-sm font-semibold text-white truncate">{{ meta.name }}</span>
+                      <span class="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white truncate">{{ meta.name }}</span>
                       <span
                         v-if="meta.id === activeMetaId && selectedGameId === activeGameId"
-                        class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex-shrink-0"
+                        class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex-shrink-0"
                       >
                         Actif
                       </span>
@@ -519,7 +519,7 @@ const handleDeleteMeta = async (meta: Meta) => {
                     <button
                       type="button"
                       @click="startRename(meta)"
-                      class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+                      class="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 transition cursor-pointer"
                       title="Renommer cette méta"
                     >
                       <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -529,7 +529,7 @@ const handleDeleteMeta = async (meta: Meta) => {
                     <button
                       type="button"
                       @click="handleDeleteMeta(meta)"
-                      class="p-1.5 rounded-lg text-red-400 hover:text-red-300 hover:bg-red-500/10 transition cursor-pointer"
+                      class="p-1.5 rounded-lg text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-500/10 transition cursor-pointer"
                       title="Supprimer définitivement cette méta"
                     >
                       <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -550,12 +550,12 @@ const handleDeleteMeta = async (meta: Meta) => {
                   :class="[
                     'flex items-center justify-between p-3 rounded-2xl border text-left transition-all duration-200 group cursor-pointer',
                     meta.id === activeMetaId && selectedGameId === activeGameId
-                      ? 'bg-emerald-500/15 border-emerald-500 text-white shadow-lg shadow-emerald-500/10 ring-1 ring-emerald-500'
-                      : 'bg-slate-950/60 border-slate-800 text-slate-300 hover:bg-slate-800/60 hover:border-slate-700'
+                      ? 'bg-emerald-500/15 border-emerald-500 text-slate-900 dark:text-white shadow-lg shadow-emerald-500/10 ring-1 ring-emerald-500'
+                      : 'bg-slate-50 dark:bg-slate-950/60 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:border-slate-300 dark:hover:border-slate-700'
                   ]"
                 >
                   <div class="min-w-0 pr-2">
-                    <div class="text-sm font-semibold truncate group-hover:text-emerald-300 transition">
+                    <div class="text-sm font-semibold truncate group-hover:text-emerald-600 dark:group-hover:text-emerald-300 transition">
                       {{ meta.name }}
                     </div>
                   </div>
@@ -563,13 +563,13 @@ const handleDeleteMeta = async (meta: Meta) => {
                   <div class="flex items-center gap-1.5 flex-shrink-0">
                     <span
                       v-if="meta.id === activeMetaId && selectedGameId === activeGameId"
-                      class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                      class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
                     >
                       Actif
                     </span>
                     <span
                       v-else
-                      class="text-xs text-slate-500 group-hover:text-emerald-400 opacity-0 group-hover:opacity-100 transition"
+                      class="text-xs text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 opacity-0 group-hover:opacity-100 transition"
                     >
                       Activer →
                     </span>
@@ -580,7 +580,7 @@ const handleDeleteMeta = async (meta: Meta) => {
               <!-- Formulaire compact en bas de section pour créer une nouvelle méta -->
               <form
                 @submit.prevent="handleCreateMeta"
-                class="pt-3 border-t border-slate-800/60 flex items-center gap-2"
+                class="pt-3 border-t border-slate-200 dark:border-slate-800/60 flex items-center gap-2"
               >
                 <div class="relative flex-1">
                   <input
@@ -588,13 +588,13 @@ const handleDeleteMeta = async (meta: Meta) => {
                     type="text"
                     placeholder="Nouveau set / format..."
                     maxlength="100"
-                    class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500 shadow-inner"
+                    class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500 shadow-inner"
                   />
                 </div>
                 <button
                   type="submit"
                   :disabled="isCreatingMeta || !newMetaName.trim()"
-                  class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold text-xs transition disabled:opacity-50 shadow-md shadow-emerald-950/40 cursor-pointer flex items-center gap-1.5 flex-shrink-0"
+                  class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold text-xs transition disabled:opacity-50 shadow-md shadow-emerald-950/20 cursor-pointer flex items-center gap-1.5 flex-shrink-0"
                 >
                   <span v-if="isCreatingMeta">Création...</span>
                   <span v-else>+ Créer</span>
@@ -605,14 +605,14 @@ const handleDeleteMeta = async (meta: Meta) => {
         </div>
 
         <!-- Footer -->
-        <div class="px-6 py-4 border-t border-slate-800/80 bg-slate-950/40 flex items-center justify-between">
-          <span class="text-xs text-slate-500">
+        <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950/40 flex items-center justify-between">
+          <span class="text-xs text-slate-500 dark:text-slate-400">
             Cliquez sur un format pour l'activer instantanément.
           </span>
           <button
             type="button"
             @click="emit('close')"
-            class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition"
+            class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
           >
             Fermer
           </button>

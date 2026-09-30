@@ -175,40 +175,40 @@ const handleMetaCreated = async (newMeta: Meta) => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-950 pb-24">
+  <div class="min-h-screen bg-slate-100 dark:bg-slate-950 pb-24 transition-colors">
     <AppHeader />
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-24 md:pb-12">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
           <div class="flex items-center gap-2.5 flex-wrap">
-            <h1 class="text-3xl font-extrabold text-white">Mes Archétypes & Decks</h1>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Mes Archétypes & Decks</h1>
             <span
               v-if="activeGame"
-              class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+              class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
             >
               {{ activeGame.name }}
             </span>
             <span
               v-if="activeMeta"
-              class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20"
+              class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20"
             >
               {{ activeMeta.name }}
             </span>
           </div>
-          <p class="text-slate-400 text-sm mt-1">
+          <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-1">
             Gérez vos decks personnels et les archétypes du metagame que vous affrontez pour le format en cours.
           </p>
         </div>
       </div>
 
       <!-- Messages de feedback -->
-      <div v-if="successMessage" class="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm flex items-center justify-between">
+      <div v-if="successMessage" class="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-sm flex items-center justify-between">
         <span>{{ successMessage }}</span>
         <button
           type="button"
           @click="successMessage = null"
-          class="text-emerald-400 hover:text-emerald-300 p-1 rounded-lg transition"
+          class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 p-1 rounded-lg transition cursor-pointer"
         >
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 6 6 18M6 6l12 12" />
@@ -216,12 +216,12 @@ const handleMetaCreated = async (newMeta: Meta) => {
         </button>
       </div>
 
-      <div v-if="errorMessage" class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm flex items-center justify-between">
+      <div v-if="errorMessage" class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 text-sm flex items-center justify-between">
         <span>{{ errorMessage }}</span>
         <button
           type="button"
           @click="errorMessage = null"
-          class="text-red-400 hover:text-red-300 p-1 rounded-lg transition"
+          class="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 p-1 rounded-lg transition cursor-pointer"
         >
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 6 6 18M6 6l12 12" />
@@ -235,24 +235,24 @@ const handleMetaCreated = async (newMeta: Meta) => {
           <!-- État bloqué : aucun jeu ou aucune méta active -->
           <div
             v-if="!activeGameId || !activeMetaId"
-            class="glass-panel p-6 rounded-2xl border border-slate-800 text-center space-y-4 sticky top-24"
+            class="glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 text-center space-y-4 sticky top-24 shadow-sm"
           >
-            <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto shadow-inner">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto shadow-inner">
               <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect width="20" height="12" x="2" y="6" rx="6" />
                 <path d="M6 12h4m-2-2v4m9-2h.01m3 0h.01" />
               </svg>
             </div>
             <div>
-              <h3 class="text-sm font-bold text-white">Sélection Jeu & Méta requise</h3>
-              <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">
+              <h3 class="text-sm font-bold text-slate-900 dark:text-white">Sélection Jeu & Méta requise</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
                 Un archétype doit obligatoirement être rattaché à un jeu et à une extension / méta active.
               </p>
             </div>
             <button
               type="button"
               @click="isGameMetaModalOpen = true"
-              class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition shadow-md shadow-indigo-950/40 flex items-center justify-center gap-2 cursor-pointer"
+              class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition shadow-md shadow-indigo-950/20 flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>Choisir Jeu & Format</span>
               <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -262,20 +262,20 @@ const handleMetaCreated = async (newMeta: Meta) => {
           </div>
 
           <!-- Formulaire actif -->
-          <div v-else class="glass-panel p-6 rounded-2xl border border-slate-800 sticky top-24">
+          <div v-else class="glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm sticky top-24">
             <div class="flex items-center justify-between mb-4">
-              <h2 class="text-lg font-bold text-white flex items-center gap-2">
+              <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                 {{ isEditing ? "Modifier l'archétype" : 'Nouvel Archétype' }}
               </h2>
-              <span v-if="activeMeta" class="text-[11px] font-medium text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
+              <span v-if="activeMeta" class="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
                 {{ activeMeta.name }}
               </span>
             </div>
 
             <form @submit.prevent="submitForm" class="space-y-4">
               <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
                   Nom de l'archétype *
                 </label>
                 <input
@@ -283,53 +283,53 @@ const handleMetaCreated = async (newMeta: Meta) => {
                   type="text"
                   required
                   placeholder="Nom de l'archétype..."
-                  class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition text-sm"
+                  class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition text-sm"
                 />
               </div>
 
               <!-- Carte clé 1 -->
-              <div class="p-3.5 rounded-xl bg-slate-900/50 border border-slate-800 space-y-2">
-                <span class="text-xs font-semibold text-emerald-400 uppercase tracking-wider block">
+              <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 space-y-2">
+                <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">
                   Carte Clé 1 (Illustration principale)
                 </span>
                 <input
                   v-model="form.card1Name"
                   type="text"
                   placeholder="Nom de la carte..."
-                  class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500"
+                  class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500"
                 />
                 <input
                   v-model="form.card1ImageUrl"
                   type="url"
                   placeholder="https://..."
-                  class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500"
+                  class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500"
                 />
                 <div v-if="form.card1ImageUrl" class="mt-1 flex items-center gap-2">
-                  <img :src="form.card1ImageUrl" alt="Aperçu carte 1" class="w-10 h-14 object-cover rounded border border-slate-700" />
-                  <span class="text-[11px] text-slate-400 truncate">{{ form.card1Name || 'Carte 1' }}</span>
+                  <img :src="form.card1ImageUrl" alt="Aperçu carte 1" class="w-10 h-14 object-cover rounded border border-slate-200 dark:border-slate-700" />
+                  <span class="text-[11px] text-slate-500 dark:text-slate-400 truncate">{{ form.card1Name || 'Carte 1' }}</span>
                 </div>
               </div>
 
               <!-- Carte clé 2 -->
-              <div class="p-3.5 rounded-xl bg-slate-900/50 border border-slate-800 space-y-2">
-                <span class="text-xs font-semibold text-indigo-400 uppercase tracking-wider block">
+              <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 space-y-2">
+                <span class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider block">
                   Carte Clé 2 (Optionnelle)
                 </span>
                 <input
                   v-model="form.card2Name"
                   type="text"
                   placeholder="Nom de la carte..."
-                  class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500"
+                  class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500"
                 />
                 <input
                   v-model="form.card2ImageUrl"
                   type="url"
                   placeholder="https://..."
-                  class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500"
+                  class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500"
                 />
                 <div v-if="form.card2ImageUrl" class="mt-1 flex items-center gap-2">
-                  <img :src="form.card2ImageUrl" alt="Aperçu carte 2" class="w-10 h-14 object-cover rounded border border-slate-700" />
-                  <span class="text-[11px] text-slate-400 truncate">{{ form.card2Name || 'Carte 2' }}</span>
+                  <img :src="form.card2ImageUrl" alt="Aperçu carte 2" class="w-10 h-14 object-cover rounded border border-slate-200 dark:border-slate-700" />
+                  <span class="text-[11px] text-slate-500 dark:text-slate-400 truncate">{{ form.card2Name || 'Carte 2' }}</span>
                 </div>
               </div>
 
@@ -337,7 +337,7 @@ const handleMetaCreated = async (newMeta: Meta) => {
                 <button
                   type="submit"
                   :disabled="isSubmitting"
-                  class="flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] transition disabled:opacity-50 shadow-md shadow-emerald-600/20"
+                  class="flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] transition disabled:opacity-50 shadow-md shadow-emerald-600/20 cursor-pointer"
                 >
                   {{ isSubmitting ? 'Enregistrement...' : (isEditing ? 'Mettre à jour' : 'Ajouter') }}
                 </button>
@@ -345,7 +345,7 @@ const handleMetaCreated = async (newMeta: Meta) => {
                   v-if="isEditing"
                   type="button"
                   @click="resetForm"
-                  class="py-2.5 px-3 rounded-xl text-sm font-medium text-slate-400 hover:text-white bg-slate-800 transition"
+                  class="py-2.5 px-3 rounded-xl text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer"
                 >
                   Annuler
                 </button>
@@ -356,48 +356,48 @@ const handleMetaCreated = async (newMeta: Meta) => {
 
         <!-- Grille des archétypes -->
         <div class="lg:col-span-2">
-          <div class="glass-panel p-6 rounded-2xl border border-slate-800">
+          <div class="glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm">
             <div class="flex items-center justify-between mb-4">
-              <h2 class="text-lg font-bold text-white">
+              <h2 class="text-lg font-bold text-slate-900 dark:text-white">
                 Archétypes {{ activeMeta ? `(${activeMeta.name})` : '' }} ({{ archetypesList?.length || 0 }})
               </h2>
               <button
                 @click="refreshArchetypes()"
-                class="text-xs text-slate-400 hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-800 transition cursor-pointer"
+                class="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
               >
                 Actualiser
               </button>
             </div>
 
-            <div v-if="loadingArchetypes === 'pending'" class="py-12 text-center text-slate-500 text-sm">
+            <div v-if="loadingArchetypes === 'pending'" class="py-12 text-center text-slate-400 dark:text-slate-500 text-sm">
               Chargement des archétypes...
             </div>
 
             <div v-else-if="!archetypesList || archetypesList.length === 0" class="py-12 text-center">
-              <div class="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto text-emerald-400 mb-3 shadow-inner">
+              <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center mx-auto text-emerald-600 dark:text-emerald-400 mb-3 shadow-inner">
                 <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect width="14" height="18" x="3" y="3" rx="2" />
                   <path d="M7 3v18" />
                   <path d="M10 7.5h4" />
                 </svg>
               </div>
-              <p class="text-slate-400 text-sm">
+              <p class="text-slate-500 dark:text-slate-400 text-sm">
                 Aucun archétype enregistré pour la méta {{ activeMeta ? `« ${activeMeta.name} »` : 'actuelle' }}.
               </p>
-              <p class="text-slate-500 text-xs mt-1">Créez votre deck ou les archétypes adverses pour ce format.</p>
+              <p class="text-slate-400 dark:text-slate-500 text-xs mt-1">Créez votre deck ou les archétypes adverses pour ce format.</p>
             </div>
 
             <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div
                 v-for="arch in archetypesList"
                 :key="arch.id"
-                class="glass-card p-4 rounded-xl border border-slate-800 hover:border-slate-700 transition flex flex-col justify-between group overflow-hidden relative"
+                class="glass-card p-4 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900/60 transition flex flex-col justify-between group overflow-hidden relative shadow-sm"
               >
                 <div>
                   <!-- Images des cartes clés -->
                   <div class="flex items-center gap-2 mb-3">
                     <!-- Carte 1 -->
-                    <div class="w-14 h-20 rounded-lg bg-slate-800 border border-slate-700 overflow-hidden shadow flex items-center justify-center flex-shrink-0">
+                    <div class="w-14 h-20 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm flex items-center justify-center flex-shrink-0">
                       <img
                         v-if="arch.card1ImageUrl"
                         :src="arch.card1ImageUrl"
@@ -405,13 +405,13 @@ const handleMetaCreated = async (newMeta: Meta) => {
                         class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                         @error="(e) => (e.target as HTMLElement).style.display = 'none'"
                       />
-                      <span v-else class="text-xs font-bold text-slate-600">C1</span>
+                      <span v-else class="text-xs font-bold text-slate-400 dark:text-slate-600">C1</span>
                     </div>
 
                     <!-- Carte 2 (si présente) -->
                     <div
                       v-if="arch.card2ImageUrl || arch.card2Name"
-                      class="w-14 h-20 rounded-lg bg-slate-800 border border-slate-700 overflow-hidden shadow flex items-center justify-center flex-shrink-0"
+                      class="w-14 h-20 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm flex items-center justify-center flex-shrink-0"
                     >
                       <img
                         v-if="arch.card2ImageUrl"
@@ -420,14 +420,14 @@ const handleMetaCreated = async (newMeta: Meta) => {
                         class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                         @error="(e) => (e.target as HTMLElement).style.display = 'none'"
                       />
-                      <span v-else class="text-xs font-bold text-slate-600">C2</span>
+                      <span v-else class="text-xs font-bold text-slate-400 dark:text-slate-600">C2</span>
                     </div>
 
                     <div class="ml-1 min-w-0 flex-1">
-                      <h3 class="font-bold text-white text-base group-hover:text-emerald-400 transition truncate">
+                      <h3 class="font-bold text-slate-900 dark:text-white text-base group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition truncate">
                         {{ arch.name }}
                       </h3>
-                      <div class="text-xs text-slate-400 mt-1 space-y-0.5">
+                      <div class="text-xs text-slate-500 dark:text-slate-400 mt-1 space-y-0.5">
                         <p v-if="arch.card1Name" class="truncate">• {{ arch.card1Name }}</p>
                         <p v-if="arch.card2Name" class="truncate">• {{ arch.card2Name }}</p>
                       </div>
@@ -435,18 +435,18 @@ const handleMetaCreated = async (newMeta: Meta) => {
                   </div>
                 </div>
 
-                <div class="pt-3 border-t border-slate-800/80 flex items-center justify-end gap-1.5 flex-wrap">
+                <div class="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-end gap-1.5 flex-wrap">
                   <button
                     type="button"
                     @click="editArchetype(arch)"
-                    class="px-2.5 py-1 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 transition cursor-pointer"
+                    class="px-2.5 py-1 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer"
                   >
                     Modifier
                   </button>
                   <button
                     type="button"
                     @click="archiveArchetype(arch)"
-                    class="px-2.5 py-1 rounded-lg text-xs font-medium text-amber-400/80 hover:text-amber-300 hover:bg-amber-500/10 transition cursor-pointer"
+                    class="px-2.5 py-1 rounded-lg text-xs font-medium text-amber-600 dark:text-amber-400/80 hover:text-amber-700 dark:hover:text-amber-300 hover:bg-amber-500/10 transition cursor-pointer"
                     title="Archiver l'archétype (masqué mais conserve l'historique)"
                   >
                     Archiver
@@ -454,7 +454,7 @@ const handleMetaCreated = async (newMeta: Meta) => {
                   <button
                     type="button"
                     @click="deleteArchetype(arch)"
-                    class="px-2.5 py-1 rounded-lg text-xs font-medium text-red-400/80 hover:text-red-300 hover:bg-red-500/10 transition cursor-pointer"
+                    class="px-2.5 py-1 rounded-lg text-xs font-medium text-red-600 dark:text-red-400/80 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-500/10 transition cursor-pointer"
                     title="Supprimer définitivement l'archétype et ses données"
                   >
                     Supprimer
