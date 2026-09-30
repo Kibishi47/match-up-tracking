@@ -1,5 +1,5 @@
 import { and, desc, eq, sql } from 'drizzle-orm'
-import { useDb, matches, archetypes } from '../db'
+import { useDb, matches, archetypes, matchups } from '../db'
 import { requireAuthUser } from '../utils/auth'
 
 export default defineEventHandler(async (event) => {
