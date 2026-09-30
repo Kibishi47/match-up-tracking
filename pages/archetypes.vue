@@ -146,6 +146,27 @@ const archiveArchetype = async (arch: Archetype) => {
   }
 }
 
+const deleteArchetype = async (arch: Archetype) => {
+  const confirmed = await confirmAction({
+    title: `Supprimer l'archétype "${arch.name}" ?`,
+    message: `Cette action supprimera définitivement cet archétype ainsi que ses matchs et statistiques associés.`,
+    confirmText: 'Supprimer',
+    isDestructive: true
+  })
+  if (!confirmed) return
+
+  try {
+    await $fetch(`/api/archetypes/${arch.id}?force=true`, { method: 'DELETE' })
+    toast.success(`Archétype "${arch.name}" supprimé`)
+    if (form.id === arch.id) {
+      resetForm()
+    }
+    await refreshArchetypes()
+  } catch (err: any) {
+    toast.error(err?.data?.statusMessage || 'Erreur lors de la suppression')
+  }
+}
+
 const handleMetaCreated = async (newMeta: Meta) => {
   await refreshMetas()
   setActiveMeta(newMeta.id)
@@ -414,18 +435,29 @@ const handleMetaCreated = async (newMeta: Meta) => {
                   </div>
                 </div>
 
-                <div class="pt-3 border-t border-slate-800/80 flex items-center justify-end gap-2">
+                <div class="pt-3 border-t border-slate-800/80 flex items-center justify-end gap-1.5 flex-wrap">
                   <button
+                    type="button"
                     @click="editArchetype(arch)"
-                    class="px-2.5 py-1 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 transition"
+                    class="px-2.5 py-1 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 transition cursor-pointer"
                   >
                     Modifier
                   </button>
                   <button
+                    type="button"
                     @click="archiveArchetype(arch)"
-                    class="px-2.5 py-1 rounded-lg text-xs font-medium text-amber-400/80 hover:text-amber-300 hover:bg-amber-500/10 transition"
+                    class="px-2.5 py-1 rounded-lg text-xs font-medium text-amber-400/80 hover:text-amber-300 hover:bg-amber-500/10 transition cursor-pointer"
+                    title="Archiver l'archétype (masqué mais conserve l'historique)"
                   >
                     Archiver
+                  </button>
+                  <button
+                    type="button"
+                    @click="deleteArchetype(arch)"
+                    class="px-2.5 py-1 rounded-lg text-xs font-medium text-red-400/80 hover:text-red-300 hover:bg-red-500/10 transition cursor-pointer"
+                    title="Supprimer définitivement l'archétype et ses données"
+                  >
+                    Supprimer
                   </button>
                 </div>
               </div>
