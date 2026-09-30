@@ -42,7 +42,7 @@ const isGameMetaModalOpen = ref(false)
             v-else
             type="button"
             @click="isGameMetaModalOpen = true"
-            class="h-9 max-w-[280px] sm:max-w-[340px] px-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900/90 dark:hover:bg-slate-800/90 border border-slate-300 dark:border-slate-700/80 hover:border-emerald-500/60 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white transition duration-200 flex items-center gap-2 shadow-sm cursor-pointer group"
+            class="h-9 max-w-[160px] min-[400px]:max-w-[200px] sm:max-w-[340px] px-2.5 sm:px-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900/90 dark:hover:bg-slate-800/90 border border-slate-300 dark:border-slate-700/80 hover:border-emerald-500/60 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white transition duration-200 flex items-center gap-1.5 sm:gap-2 shadow-sm cursor-pointer group"
             title="Changer de jeu ou de format/méta"
           >
             <!-- Logo du jeu ou icône SVG professionnelle -->
