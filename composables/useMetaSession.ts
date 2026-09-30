@@ -21,7 +21,8 @@ export function useMetaSession() {
     } catch {}
   }
 
-  const activeMetaId = useState<string | null>('tcg_active_meta_id', () => null)
+  const initialMetaId = getStored('tcg_active_meta')
+  const activeMetaId = useState<string | null>('tcg_active_meta_id', () => initialMetaId)
 
   const { data: metas, refresh: refreshMetas, status: metasStatus } = useFetch<Meta[]>('/api/metas', {
     query: computed(() => ({
@@ -66,6 +67,7 @@ export function useMetaSession() {
     // 3. Sélectionner par défaut la première méta active, sinon la première
     const defaultMeta = metas.value.find(m => m.isActive) || metas.value[0]
     activeMetaId.value = defaultMeta.id
+    setStored('tcg_active_meta', defaultMeta.id)
     setStored(`tcg_meta_${activeGameId.value}`, defaultMeta.id)
   }
 
@@ -75,6 +77,7 @@ export function useMetaSession() {
 
   const setActiveMeta = (metaId: string) => {
     activeMetaId.value = metaId
+    setStored('tcg_active_meta', metaId)
     if (activeGameId.value) {
       setStored(`tcg_meta_${activeGameId.value}`, metaId)
     }
