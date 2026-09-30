@@ -122,17 +122,9 @@ const handleLogout = async () => {
 <template>
   <div class="min-h-screen bg-slate-100 dark:bg-slate-950 transition-colors">
     <AppHeader />
-    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 pb-24 md:pb-12 space-y-8">
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-24 md:pb-12 space-y-6 sm:space-y-8">
     <!-- En-tête de la page -->
-    <div class="border-b border-slate-200 dark:border-slate-800 pb-6">
-      <div class="flex items-center gap-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-2">
-        <NuxtLink to="/" class="hover:underline flex items-center gap-1">
-          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M19 12H5M12 19l-7-7 7-7" />
-          </svg>
-          Retour au Dashboard
-        </NuxtLink>
-      </div>
+    <div class="border-b border-slate-200 dark:border-slate-800 pb-4 sm:pb-6">
       <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
         Paramètres du compte
       </h1>
