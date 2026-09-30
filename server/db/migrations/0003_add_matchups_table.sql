@@ -48,6 +48,8 @@ WHERE m."user_id" = mu."user_id"
   AND m."opponent_archetype_id" = mu."opponent_archetype_id"
   AND m."matchup_id" IS NULL;
 --> statement-breakpoint
+DELETE FROM "matches" WHERE "matchup_id" IS NULL;
+--> statement-breakpoint
 ALTER TABLE "matches" ALTER COLUMN "matchup_id" SET NOT NULL;
 --> statement-breakpoint
 ALTER TABLE "matches" ADD CONSTRAINT "matches_matchup_id_matchups_id_fk" FOREIGN KEY ("matchup_id") REFERENCES "public"."matchups"("id") ON DELETE cascade ON UPDATE no action;

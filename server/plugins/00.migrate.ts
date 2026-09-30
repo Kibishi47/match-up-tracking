@@ -8,22 +8,33 @@ export default defineNitroPlugin(async () => {
   // Ne pas bloquer si désactivé explicitement
   if (process.env.SKIP_MIGRATIONS === 'true') return
 
-  try {
-    const db = useDb()
-    // Trouver le dossier migrations soit en dev soit dans le build
-    let migrationsFolder = path.resolve(process.cwd(), 'server/db/migrations')
-    if (!fs.existsSync(migrationsFolder)) {
-      migrationsFolder = path.resolve(process.cwd(), '.output/server/db/migrations')
-    }
+  let migrationsFolder = path.resolve(process.cwd(), 'server/db/migrations')
+  if (!fs.existsSync(migrationsFolder)) {
+    migrationsFolder = path.resolve(process.cwd(), '.output/server/db/migrations')
+  }
 
-    if (fs.existsSync(migrationsFolder)) {
-      console.log('🔄 [DB] Vérification et application des migrations automatiques...')
+  if (!fs.existsSync(migrationsFolder)) {
+    console.warn('⚠️ [DB] Dossier migrations non trouvé à :', migrationsFolder)
+    return
+  }
+
+  const maxRetries = 10
+  const retryDelayMs = 2500
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`🔄 [DB] Vérification des migrations (tentative ${attempt}/${maxRetries})...`)
+      const db = useDb()
       await migrate(db, { migrationsFolder })
       console.log('✅ [DB] Migrations synchronisées avec succès !')
-    } else {
-      console.warn('⚠️ [DB] Dossier migrations non trouvé à :', migrationsFolder)
+      return
+    } catch (error: any) {
+      console.error(`❌ [DB] Échec tentative ${attempt}/${maxRetries} :`, error?.message || error)
+      if (attempt < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, retryDelayMs))
+      } else {
+        console.error('💥 [DB] Abandon des migrations automatiques après 10 tentatives.')
+      }
     }
-  } catch (error: any) {
-    console.error('❌ [DB] Erreur lors de l’application des migrations :', error?.message || error)
   }
 })
