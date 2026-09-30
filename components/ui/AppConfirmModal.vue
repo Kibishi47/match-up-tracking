@@ -20,7 +20,7 @@ onUnmounted(() => {
   <Teleport to="body">
     <div
       v-if="confirmState.isOpen"
-      class="fixed inset-0 z-50 overflow-y-auto p-4 flex min-h-full items-center justify-center bg-slate-950/80 backdrop-blur-sm animate-fade-in"
+      class="fixed inset-0 z-[100] overflow-y-auto p-4 flex min-h-full items-center justify-center bg-slate-950/80 backdrop-blur-sm animate-fade-in"
       @click.self="resolveConfirm(false)"
     >
       <div

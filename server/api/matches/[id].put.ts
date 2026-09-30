@@ -24,9 +24,9 @@ export default defineEventHandler(async (event) => {
     }
     updateData.result = body.result
   }
-
-
-
+  if (body.notes !== undefined) {
+    updateData.notes = String(body.notes || '').trim()
+  }
   if (body.playedAt !== undefined) {
     updateData.playedAt = new Date(body.playedAt)
   }

@@ -32,12 +32,19 @@ export default defineEventHandler(async (event) => {
   const db = useDb()
 
   try {
+    // Décaler les positions existantes pour placer la nouvelle méta en tête
+    await db
+      .update(metas)
+      .set({ position: sql`${metas.position} + 1` })
+      .where(and(eq(metas.userId, user.id), eq(metas.gameId, gameId)))
+
     const [newMeta] = await db
       .insert(metas)
       .values({
         userId: user.id,
         gameId,
         name,
+        position: 0,
         isActive: body.isActive !== undefined ? Boolean(body.isActive) : true
       })
       .returning()

@@ -136,7 +136,8 @@ export default defineEventHandler(async (event) => {
           createdAt: m.createdAt,
           myArchetype: m.matchup.myArchetype,
           opponentArchetype: m.matchup.opponentArchetype,
-          notes: m.matchup.notes
+          notes: m.notes || '',
+          matchupNotes: m.matchup.notes || ''
         }))
     } catch (err: any) {
       console.error('⚠️ [Dashboard] Erreur lors de la récupération des matchups/matches:', err?.message || err)

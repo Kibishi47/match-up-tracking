@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, boolean, primaryKey, pgEnum, unique, varchar } from 'drizzle-orm/pg-core'
+import { pgTable, uuid, text, timestamp, boolean, primaryKey, pgEnum, unique, varchar, integer } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 
 // Énumérations
@@ -42,6 +42,7 @@ export const metas = pgTable('metas', {
   gameId: uuid('game_id').references(() => games.id, { onDelete: 'cascade' }).notNull(),
   name: varchar('name', { length: 100 }).notNull(),
   isActive: boolean('is_active').default(true).notNull(),
+  position: integer('position').default(0).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull()
 }, (table) => [
   unique('user_game_meta_name_unique').on(table.userId, table.gameId, table.name)
@@ -86,6 +87,7 @@ export const matches = pgTable('matches', {
   matchupId: uuid('matchup_id').references(() => matchups.id, { onDelete: 'cascade' }).notNull(),
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   result: matchResultEnum('result').notNull(),
+  notes: text('notes').default('').notNull(),
   playedAt: timestamp('played_at').defaultNow().notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull()
 })

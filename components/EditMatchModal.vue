@@ -37,23 +37,10 @@ const saveMatch = async () => {
     const updated = await $fetch<Match>(`/api/matches/${props.match.id}`, {
       method: 'PUT',
       body: {
-        result: result.value
+        result: result.value,
+        notes: notes.value
       }
     })
-
-    const myArchId = (props.match as any).myArchetypeId || props.match.myArchetype?.id
-    const oppArchId = (props.match as any).opponentArchetypeId || props.match.opponentArchetype?.id
-
-    if (myArchId && oppArchId && notes.value !== (props.match.notes || '')) {
-      await $fetch('/api/matchups/notes', {
-        method: 'PUT',
-        body: {
-          myArchetypeId: myArchId,
-          opponentArchetypeId: oppArchId,
-          notes: notes.value
-        }
-      }).catch(() => {})
-    }
 
     emit('updated', updated)
     emit('close')

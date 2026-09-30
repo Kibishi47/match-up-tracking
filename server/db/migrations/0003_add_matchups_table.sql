@@ -65,5 +65,3 @@ ALTER TABLE "matches" DROP COLUMN IF EXISTS "game_id";
 ALTER TABLE "matches" DROP COLUMN IF EXISTS "my_archetype_id";
 --> statement-breakpoint
 ALTER TABLE "matches" DROP COLUMN IF EXISTS "opponent_archetype_id";
---> statement-breakpoint
-ALTER TABLE "matches" DROP COLUMN IF EXISTS "notes";

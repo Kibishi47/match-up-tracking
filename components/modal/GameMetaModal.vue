@@ -12,7 +12,7 @@ const emit = defineEmits<{
 
 const { games, activeGameId, setActiveGame } = useGameSession()
 const { activeMetaId, setActiveMeta, refreshMetas: refreshSessionMetas } = useMetaSession()
-const { toast } = useNotify()
+const { toast, confirmAction } = useNotify()
 
 // Jeu sélectionné temporairement dans la modale
 const selectedGameId = ref<string | null>(null)
@@ -21,9 +21,22 @@ const isCreatingMeta = ref(false)
 const localMetas = ref<Meta[]>([])
 const isLoadingMetas = ref(false)
 
+// Mode gestion / édition des métas
+const isEditMode = ref(false)
+const editingMetaId = ref<string | null>(null)
+const editingMetaName = ref('')
+const isSavingOrder = ref(false)
+
+const cancelRename = () => {
+  editingMetaId.value = null
+  editingMetaName.value = ''
+}
+
 // Initialiser le jeu sélectionné à l'ouverture
 watch(() => props.isOpen, (open) => {
   if (open) {
+    isEditMode.value = false
+    cancelRename()
     newMetaName.value = ''
     selectedGameId.value = activeGameId.value || (games.value && games.value.length > 0 ? games.value[0].id : null)
     loadMetasForSelectedGame()
@@ -33,6 +46,8 @@ watch(() => props.isOpen, (open) => {
 // Recharger les métas quand le jeu sélectionné change
 watch(selectedGameId, () => {
   if (props.isOpen && selectedGameId.value) {
+    isEditMode.value = false
+    cancelRename()
     loadMetasForSelectedGame()
   }
 })
@@ -51,12 +66,7 @@ const loadMetasForSelectedGame = async () => {
     const data = await $fetch<Meta[]>('/api/metas', {
       query: { gameId: selectedGameId.value }
     })
-    // Garanti tri DESC par date de création
-    localMetas.value = (data || []).sort((a, b) => {
-      const dateA = new Date(a.createdAt).getTime()
-      const dateB = new Date(b.createdAt).getTime()
-      return dateB - dateA
-    })
+    localMetas.value = data || []
   } catch (err: any) {
     toast.error('Impossible de charger les métas de ce jeu')
   } finally {
@@ -119,6 +129,105 @@ const handleCreateMeta = async () => {
     toast.error(err?.data?.statusMessage || err?.message || 'Erreur lors de la création de la méta')
   } finally {
     isCreatingMeta.value = false
+  }
+}
+
+// Renommage
+const startRename = (meta: Meta) => {
+  editingMetaId.value = meta.id
+  editingMetaName.value = meta.name
+}
+
+const saveRename = async (meta: Meta) => {
+  const trimmed = editingMetaName.value.trim()
+  if (!trimmed) {
+    toast.warning('Le nom de la méta ne peut pas être vide.')
+    return
+  }
+  if (trimmed === meta.name) {
+    cancelRename()
+    return
+  }
+
+  try {
+    const updated = await $fetch<Meta>(`/api/metas/${meta.id}`, {
+      method: 'PATCH',
+      body: { name: trimmed }
+    })
+    meta.name = updated.name
+    cancelRename()
+    toast.success('Méta renommée avec succès !')
+    if (selectedGameId.value === activeGameId.value) {
+      await refreshSessionMetas()
+    }
+  } catch (err: any) {
+    toast.error(err?.data?.statusMessage || err?.message || 'Erreur lors du renommage')
+  }
+}
+
+// Réorganisation (Reorder)
+const moveMetaUp = async (index: number) => {
+  if (index <= 0) return
+  const item = localMetas.value.splice(index, 1)[0]
+  localMetas.value.splice(index - 1, 0, item)
+  await persistMetaOrder()
+}
+
+const moveMetaDown = async (index: number) => {
+  if (index >= localMetas.value.length - 1) return
+  const item = localMetas.value.splice(index, 1)[0]
+  localMetas.value.splice(index + 1, 0, item)
+  await persistMetaOrder()
+}
+
+const persistMetaOrder = async () => {
+  if (!selectedGameId.value || isSavingOrder.value) return
+  isSavingOrder.value = true
+  try {
+    await $fetch('/api/metas/reorder', {
+      method: 'PUT',
+      body: {
+        gameId: selectedGameId.value,
+        metaIds: localMetas.value.map(m => m.id)
+      }
+    })
+    if (selectedGameId.value === activeGameId.value) {
+      await refreshSessionMetas()
+    }
+  } catch (err: any) {
+    toast.error('Erreur lors de la réorganisation des métas')
+  } finally {
+    isSavingOrder.value = false
+  }
+}
+
+// Suppression
+const handleDeleteMeta = async (meta: Meta) => {
+  const confirmed = await confirmAction({
+    title: `Supprimer la méta "${meta.name}" ?`,
+    message: 'Cette action supprimera définitivement cette méta ainsi que ses archétypes et statistiques associés.',
+    confirmText: 'Supprimer',
+    isDestructive: true
+  })
+  if (!confirmed) return
+
+  try {
+    await $fetch(`/api/metas/${meta.id}`, { method: 'DELETE' })
+    toast.success(`Méta "${meta.name}" supprimée`)
+    localMetas.value = localMetas.value.filter(m => m.id !== meta.id)
+
+    if (selectedGameId.value === activeGameId.value) {
+      await refreshSessionMetas()
+      if (activeMetaId.value === meta.id) {
+        if (localMetas.value.length > 0) {
+          selectMeta(localMetas.value[0])
+        } else {
+          setActiveMeta(null as any)
+        }
+      }
+    }
+  } catch (err: any) {
+    toast.error(err?.data?.statusMessage || err?.message || 'Erreur lors de la suppression de la méta')
   }
 }
 </script>
@@ -255,7 +364,27 @@ const handleCreateMeta = async () => {
                   ({{ selectedGame.name }})
                 </span>
               </label>
-              <span class="text-[11px] text-slate-500">Triées par date décroissante (plus récent d'abord)</span>
+
+              <!-- Bouton activation mode gestion -->
+              <button
+                v-if="localMetas.length > 0"
+                type="button"
+                @click="isEditMode = !isEditMode; cancelRename()"
+                :class="[
+                  'text-xs px-2.5 py-1 rounded-lg font-medium transition flex items-center gap-1.5 cursor-pointer',
+                  isEditMode
+                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                ]"
+              >
+                <svg v-if="!isEditMode" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                </svg>
+                <svg v-else class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M20 6 9 17l-5-5"/>
+                </svg>
+                <span>{{ isEditMode ? 'Terminer' : 'Gérer les métas' }}</span>
+              </button>
             </div>
 
             <!-- Loading -->
@@ -308,7 +437,111 @@ const handleCreateMeta = async () => {
 
             <!-- Liste des métas existantes -->
             <div v-else class="space-y-3">
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-56 overflow-y-auto pr-1">
+              <!-- MODE GESTION / ÉDITION (Renommage, Reorder, Suppression) -->
+              <div v-if="isEditMode" class="space-y-2 max-h-64 overflow-y-auto pr-1">
+                <div
+                  v-for="(meta, index) in localMetas"
+                  :key="meta.id"
+                  class="flex items-center justify-between p-2.5 sm:p-3 rounded-2xl border bg-slate-950/80 border-slate-800 gap-2 hover:border-slate-700 transition"
+                >
+                  <!-- 1. Réordonner (Haut / Bas) -->
+                  <div class="flex items-center gap-0.5 flex-shrink-0">
+                    <button
+                      type="button"
+                      @click="moveMetaUp(index)"
+                      :disabled="index === 0"
+                      class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 disabled:opacity-20 disabled:hover:bg-transparent transition cursor-pointer"
+                      title="Monter d'une position"
+                    >
+                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="m18 15-6-6-6 6"/>
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      @click="moveMetaDown(index)"
+                      :disabled="index === localMetas.length - 1"
+                      class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 disabled:opacity-20 disabled:hover:bg-transparent transition cursor-pointer"
+                      title="Descendre d'une position"
+                    >
+                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="m6 9 6 6 6-6"/>
+                      </svg>
+                    </button>
+                  </div>
+
+                  <!-- 2. Nom ou Input de renommage -->
+                  <div class="flex-1 min-w-0">
+                    <div v-if="editingMetaId === meta.id" class="flex items-center gap-1.5">
+                      <input
+                        v-model="editingMetaName"
+                        type="text"
+                        maxlength="100"
+                        @keyup.enter="saveRename(meta)"
+                        @keyup.esc="cancelRename"
+                        class="w-full px-2.5 py-1.5 rounded-xl bg-slate-900 border border-emerald-500 text-white text-xs focus:outline-none"
+                      />
+                      <button
+                        type="button"
+                        @click="saveRename(meta)"
+                        class="p-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition flex-shrink-0 cursor-pointer"
+                        title="Enregistrer"
+                      >
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                      </button>
+                      <button
+                        type="button"
+                        @click="cancelRename"
+                        class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex-shrink-0 cursor-pointer"
+                        title="Annuler"
+                      >
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                          <line x1="18" y1="6" x2="6" y2="18"/>
+                          <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                      </button>
+                    </div>
+                    <div v-else class="flex items-center gap-2">
+                      <span class="text-xs sm:text-sm font-semibold text-white truncate">{{ meta.name }}</span>
+                      <span
+                        v-if="meta.id === activeMetaId && selectedGameId === activeGameId"
+                        class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex-shrink-0"
+                      >
+                        Actif
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- 3. Actions (Renommer & Supprimer) -->
+                  <div v-if="editingMetaId !== meta.id" class="flex items-center gap-1 flex-shrink-0">
+                    <button
+                      type="button"
+                      @click="startRename(meta)"
+                      class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+                      title="Renommer cette méta"
+                    >
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      @click="handleDeleteMeta(meta)"
+                      class="p-1.5 rounded-lg text-red-400 hover:text-red-300 hover:bg-red-500/10 transition cursor-pointer"
+                      title="Supprimer définitivement cette méta"
+                    >
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- MODE SELECTION STANDARD (Sans affichage de la date) -->
+              <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-56 overflow-y-auto pr-1">
                 <button
                   v-for="meta in localMetas"
                   :key="meta.id"
@@ -324,9 +557,6 @@ const handleCreateMeta = async () => {
                   <div class="min-w-0 pr-2">
                     <div class="text-sm font-semibold truncate group-hover:text-emerald-300 transition">
                       {{ meta.name }}
-                    </div>
-                    <div class="text-[11px] text-slate-500 mt-0.5">
-                      {{ new Date(meta.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) }}
                     </div>
                   </div>
 

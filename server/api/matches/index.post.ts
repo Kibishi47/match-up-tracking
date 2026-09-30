@@ -102,6 +102,7 @@ export default defineEventHandler(async (event) => {
       userId: user.id,
       matchupId: targetMatchup.id,
       result,
+      notes: body.notes ? String(body.notes).trim() : '',
       playedAt: body.playedAt ? new Date(body.playedAt) : new Date()
     })
     .returning()

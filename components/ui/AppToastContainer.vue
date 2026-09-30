@@ -5,7 +5,7 @@ const { toasts, dismissToast } = useNotify()
 <template>
   <Teleport to="body">
     <div
-      class="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none"
+      class="fixed bottom-5 right-5 z-[110] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none"
       aria-live="polite"
     >
       <TransitionGroup
