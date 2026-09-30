@@ -4,7 +4,7 @@ import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 import { asc, eq, and } from 'drizzle-orm'
 import * as schema from './schema'
-import { users, games, userGames, metas, archetypes, matches } from './schema'
+import { users, games, userGames, metas, archetypes, matchups, matches } from './schema'
 
 // Charger le fichier .env si non défini dans l'environnement
 if (!process.env.DATABASE_URL) {
@@ -322,45 +322,64 @@ async function seed() {
       const archKeys = Object.keys(insertedArchetypeMap)
       if (archKeys.length >= 2) {
         const myDeckId = insertedArchetypeMap[archKeys[0]]
-        const existingMatches = await db
-          .select()
-          .from(matches)
-          .where(and(eq(matches.userId, adminUser.id), eq(matches.myArchetypeId, myDeckId)))
-          .limit(1)
 
-        if (existingMatches.length === 0) {
-          console.log(`   🎲 Ajout de matchs d'exemple pour le deck actif ${archKeys[0]}...`)
-          for (let i = 1; i < archKeys.length; i++) {
-            const oppId = insertedArchetypeMap[archKeys[i]]
-            // 2 victoires, 1 défaite par adversaire pour animer les stats
+        for (let i = 1; i < archKeys.length; i++) {
+          const oppId = insertedArchetypeMap[archKeys[i]]
+
+          // Trouver ou créer le matchup
+          let [matchup] = await db
+            .select()
+            .from(matchups)
+            .where(
+              and(
+                eq(matchups.userId, adminUser.id),
+                eq(matchups.myArchetypeId, myDeckId),
+                eq(matchups.opponentArchetypeId, oppId)
+              )
+            )
+            .limit(1)
+
+          if (!matchup) {
+            const [created] = await db
+              .insert(matchups)
+              .values({
+                userId: adminUser.id,
+                gameId: existingGame.id,
+                metaId: targetMeta.id,
+                myArchetypeId: myDeckId,
+                opponentArchetypeId: oppId,
+                notes: 'Conseils de matchup : garder les cartes de tempo en main de départ.'
+              })
+              .returning()
+            matchup = created
+          }
+
+          const existingMatches = await db
+            .select()
+            .from(matches)
+            .where(and(eq(matches.userId, adminUser.id), eq(matches.matchupId, matchup.id)))
+            .limit(1)
+
+          if (existingMatches.length === 0) {
+            console.log(`   🎲 Ajout de matchs d'exemple pour ${archKeys[0]} vs ${archKeys[i]}...`)
             await db.insert(matches).values([
               {
                 userId: adminUser.id,
-                gameId: existingGame.id,
-                myArchetypeId: myDeckId,
-                opponentArchetypeId: oppId,
-                result: 'win',
-                notes: 'Bonne sortie'
+                matchupId: matchup.id,
+                result: 'win'
               },
               {
                 userId: adminUser.id,
-                gameId: existingGame.id,
-                myArchetypeId: myDeckId,
-                opponentArchetypeId: oppId,
-                result: 'loss',
-                notes: 'Manque de ressources'
+                matchupId: matchup.id,
+                result: 'loss'
               },
               {
                 userId: adminUser.id,
-                gameId: existingGame.id,
-                myArchetypeId: myDeckId,
-                opponentArchetypeId: oppId,
-                result: 'win',
-                notes: 'Victoire au tour 6'
+                matchupId: matchup.id,
+                result: 'win'
               }
             ])
           }
-          console.log(`   ✅ Matchs de démonstration insérés avec succès.`)
         }
       }
     }

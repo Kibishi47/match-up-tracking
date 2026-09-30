@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
     .select()
     .from(metas)
     .where(and(...conditions))
-    .orderBy(desc(metas.isActive), asc(metas.name))
+    .orderBy(desc(metas.createdAt))
 
   return results
 })

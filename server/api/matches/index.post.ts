@@ -1,5 +1,5 @@
 import { and, eq } from 'drizzle-orm'
-import { useDb, matches, archetypes } from '../../db'
+import { useDb, matches, matchups, archetypes, metas } from '../../db'
 import { requireAuthUser } from '../../utils/auth'
 
 export default defineEventHandler(async (event) => {
@@ -47,22 +47,69 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  const myDeck = myDecks[0]
+  const oppDeck = opponentDecks[0]
+
+  let metaId = myDeck.metaId || oppDeck.metaId
+  if (!metaId) {
+    const defaultMeta = await db
+      .select()
+      .from(metas)
+      .where(and(eq(metas.userId, user.id), eq(metas.gameId, gameId)))
+      .limit(1)
+      .then(rows => rows[0])
+    if (defaultMeta) metaId = defaultMeta.id
+  }
+
+  if (!metaId) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Format / Méta introuvable pour ce match'
+    })
+  }
+
+  // Find-or-create du matchup
+  let [targetMatchup] = await db
+    .select()
+    .from(matchups)
+    .where(
+      and(
+        eq(matchups.userId, user.id),
+        eq(matchups.myArchetypeId, myArchetypeId),
+        eq(matchups.opponentArchetypeId, opponentArchetypeId)
+      )
+    )
+    .limit(1)
+
+  if (!targetMatchup) {
+    const [created] = await db
+      .insert(matchups)
+      .values({
+        userId: user.id,
+        gameId,
+        metaId,
+        myArchetypeId,
+        opponentArchetypeId,
+        notes: ''
+      })
+      .returning()
+    targetMatchup = created
+  }
+
   const [newMatch] = await db
     .insert(matches)
     .values({
       userId: user.id,
-      gameId,
-      myArchetypeId,
-      opponentArchetypeId,
+      matchupId: targetMatchup.id,
       result,
-      notes: body.notes ? String(body.notes).trim() : null,
       playedAt: body.playedAt ? new Date(body.playedAt) : new Date()
     })
     .returning()
 
   return {
     ...newMatch,
-    myArchetype: myDecks[0],
-    opponentArchetype: opponentDecks[0]
+    matchup: targetMatchup,
+    myArchetype: myDeck,
+    opponentArchetype: oppDeck
   }
 })

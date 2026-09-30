@@ -1,5 +1,5 @@
-import { and, desc, eq } from 'drizzle-orm'
-import { useDb, matches } from '../../db'
+import { and, desc, eq, inArray } from 'drizzle-orm'
+import { useDb, matches, matchups } from '../../db'
 import { requireAuthUser } from '../../utils/auth'
 
 export default defineEventHandler(async (event) => {
@@ -17,25 +17,65 @@ export default defineEventHandler(async (event) => {
 
   const db = useDb()
 
-  const conditions = [
-    eq(matches.userId, user.id),
-    eq(matches.gameId, gameId)
+  const matchupConditions = [
+    eq(matchups.userId, user.id),
+    eq(matchups.gameId, gameId)
   ]
 
   if (myArchetypeId) {
-    conditions.push(eq(matches.myArchetypeId, myArchetypeId))
+    matchupConditions.push(eq(matchups.myArchetypeId, myArchetypeId))
+  }
+
+  const userMatchups = await db.query.matchups.findMany({
+    where: and(...matchupConditions)
+  })
+
+  const matchupIds = userMatchups.map((m) => m.id)
+
+  if (matchupIds.length === 0) {
+    return {
+      recentMatches: [],
+      stats: {
+        total: 0,
+        wins: 0,
+        losses: 0,
+        draws: 0,
+        winrate: 0
+      },
+      statsByOpponent: {}
+    }
   }
 
   // Récent historique des matchs
-  const recentMatches = await db.query.matches.findMany({
-    where: and(...conditions),
+  const rawRecentMatches = await db.query.matches.findMany({
+    where: and(
+      eq(matches.userId, user.id),
+      inArray(matches.matchupId, matchupIds)
+    ),
     orderBy: [desc(matches.createdAt)],
     limit: 50,
     with: {
-      myArchetype: true,
-      opponentArchetype: true
+      matchup: {
+        with: {
+          myArchetype: true,
+          opponentArchetype: true
+        }
+      }
     }
   })
+
+  const recentMatches = rawRecentMatches.map((m) => ({
+    id: m.id,
+    userId: m.userId,
+    matchupId: m.matchupId,
+    result: m.result,
+    playedAt: m.playedAt,
+    createdAt: m.createdAt,
+    myArchetypeId: m.matchup.myArchetypeId,
+    opponentArchetypeId: m.matchup.opponentArchetypeId,
+    myArchetype: m.matchup.myArchetype,
+    opponentArchetype: m.matchup.opponentArchetype
+  }))
 
   // Calcul des stats
   let totalWins = 0
@@ -46,21 +86,27 @@ export default defineEventHandler(async (event) => {
 
   const allFilteredMatches = await db
     .select({
-      opponentArchetypeId: matches.opponentArchetypeId,
+      matchupId: matches.matchupId,
       result: matches.result
     })
     .from(matches)
-    .where(and(...conditions))
+    .where(and(eq(matches.userId, user.id), inArray(matches.matchupId, matchupIds)))
+
+  const matchupMap = new Map(userMatchups.map((m) => [m.id, m]))
 
   for (const m of allFilteredMatches) {
     if (m.result === 'win') totalWins++
     else if (m.result === 'loss') totalLosses++
     else if (m.result === 'draw') totalDraws++
 
-    if (!statsByOpponent[m.opponentArchetypeId]) {
-      statsByOpponent[m.opponentArchetypeId] = { wins: 0, losses: 0, draws: 0, total: 0, winrate: 0 }
+    const mu = matchupMap.get(m.matchupId)
+    if (!mu) continue
+    const oppId = mu.opponentArchetypeId
+
+    if (!statsByOpponent[oppId]) {
+      statsByOpponent[oppId] = { wins: 0, losses: 0, draws: 0, total: 0, winrate: 0 }
     }
-    const stat = statsByOpponent[m.opponentArchetypeId]
+    const stat = statsByOpponent[oppId]
     if (m.result === 'win') stat.wins++
     else if (m.result === 'loss') stat.losses++
     else if (m.result === 'draw') stat.draws++
