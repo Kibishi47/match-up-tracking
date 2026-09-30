@@ -302,13 +302,13 @@ const handleLogout = async () => {
     </section>
 
     <!-- Actions du compte (Déconnexion & Suppression) -->
-    <div class="pt-6 border-t border-slate-200 dark:border-slate-800/80 flex flex-col items-center">
-      <div class="w-full max-w-xs space-y-3">
+    <div class="pt-8 border-t border-slate-200 dark:border-slate-800/80 flex flex-col items-center">
+      <div class="w-full max-w-sm sm:max-w-lg space-y-3.5">
         <!-- Bouton Déconnexion en danger au-dessus -->
         <button
           type="button"
           @click="handleLogout"
-          class="w-full px-4 py-2.5 rounded-xl text-xs font-semibold bg-red-600 hover:bg-red-700 text-white transition shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+          class="w-full py-3 px-6 rounded-xl text-sm font-semibold bg-red-600 hover:bg-red-700 text-white transition shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
         >
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -322,7 +322,7 @@ const handleLogout = async () => {
         <button
           type="button"
           @click="openDeleteModal"
-          class="w-full px-4 py-2.5 rounded-xl text-xs font-semibold border border-red-500/40 dark:border-red-500/50 text-red-600 dark:text-red-400 hover:bg-red-500/10 hover:border-red-500 transition flex items-center justify-center gap-2 cursor-pointer"
+          class="w-full py-3 px-6 rounded-xl text-sm font-semibold border border-red-500/40 dark:border-red-500/50 text-red-600 dark:text-red-400 hover:bg-red-500/10 hover:border-red-500 transition flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
         >
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3 6h18"/>
