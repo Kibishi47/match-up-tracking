@@ -1,3 +1,13 @@
+<script setup lang="ts">
+interface Props {
+  hideTextOnMobile?: boolean
+}
+
+withDefaults(defineProps<Props>(), {
+  hideTextOnMobile: true
+})
+</script>
+
 <template>
   <NuxtLink
     to="/"
@@ -67,7 +77,12 @@
     </div>
 
     <!-- Brand Typography -->
-    <span class="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white transition-colors">
+    <span
+      :class="[
+        'text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white transition-colors',
+        hideTextOnMobile ? 'hidden sm:inline' : 'inline'
+      ]"
+    >
       Metadex
     </span>
   </NuxtLink>
