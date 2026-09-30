@@ -13,9 +13,9 @@ const isGameMetaModalOpen = ref(false)
 
 <template>
   <header class="glass-panel border-b border-slate-200/80 dark:border-slate-800/80 sticky top-0 z-40 bg-white/85 dark:bg-slate-950/85 backdrop-blur-md">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2.5 sm:gap-4">
       <!-- Logo & Navigation -->
-      <div class="flex items-center gap-4 sm:gap-6">
+      <div class="flex items-center gap-2.5 sm:gap-6 flex-1 min-w-0">
         <NuxtLink to="/" class="flex items-center gap-2.5 font-bold text-lg text-slate-900 dark:text-white group flex-shrink-0">
           <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-500 to-indigo-600 flex items-center justify-center shadow-md shadow-emerald-500/20 group-hover:scale-105 transition">
             <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -31,11 +31,11 @@ const isGameMetaModalOpen = ref(false)
         </NuxtLink>
 
         <!-- Sélecteur Unifié Permanent [ JEU — META ] (Jamais masqué) -->
-        <div v-if="user" class="flex-shrink-0 flex items-center">
+        <div v-if="user" class="flex-1 min-w-0 flex items-center max-w-[280px] min-[400px]:max-w-[320px] sm:max-w-[380px]">
           <!-- Skeleton anti-CLS pendant le chargement initial -->
           <div
             v-if="!isSessionReady"
-            class="h-9 w-48 bg-slate-200 dark:bg-slate-800/80 animate-pulse rounded-xl border border-slate-300 dark:border-slate-700/60"
+            class="h-9 w-full bg-slate-200 dark:bg-slate-800/80 animate-pulse rounded-xl border border-slate-300 dark:border-slate-700/60"
           />
 
           <!-- Badge cliquable unifié permanent -->
@@ -43,7 +43,7 @@ const isGameMetaModalOpen = ref(false)
             v-else
             type="button"
             @click="isGameMetaModalOpen = true"
-            class="h-9 max-w-[160px] min-[400px]:max-w-[200px] sm:max-w-[340px] px-2.5 sm:px-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900/90 dark:hover:bg-slate-800/90 border border-slate-300 dark:border-slate-700/80 hover:border-emerald-500/60 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white transition duration-200 flex items-center gap-1.5 sm:gap-2 shadow-sm cursor-pointer group"
+            class="h-9 w-full px-2.5 sm:px-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900/90 dark:hover:bg-slate-800/90 border border-slate-300 dark:border-slate-700/80 hover:border-emerald-500/60 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white transition duration-200 flex items-center gap-1.5 sm:gap-2 shadow-sm cursor-pointer group min-w-0"
             title="Changer de jeu ou de format/méta"
           >
             <!-- Logo du jeu ou icône SVG professionnelle -->
@@ -68,14 +68,14 @@ const isGameMetaModalOpen = ref(false)
             </svg>
 
             <!-- Nom du Jeu — Méta -->
-            <div class="flex items-center gap-1.5 text-xs truncate">
+            <div class="flex items-center gap-1.5 text-xs min-w-0 flex-1 overflow-hidden">
               <span class="font-bold text-slate-900 dark:text-white truncate">
                 {{ activeGame?.name || 'Aucun jeu' }}
               </span>
-              <span class="text-slate-400 dark:text-slate-500 font-semibold">—</span>
+              <span class="text-slate-400 dark:text-slate-500 font-semibold flex-shrink-0">—</span>
               <span
                 :class="[
-                  'truncate font-medium',
+                  'truncate font-medium text-left',
                   activeMeta ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400/90 italic'
                 ]"
               >
@@ -85,7 +85,7 @@ const isGameMetaModalOpen = ref(false)
 
             <!-- Chevron indicateur -->
             <svg
-              class="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-500 dark:group-hover:text-emerald-400 group-hover:translate-y-0.5 transition flex-shrink-0 ml-0.5"
+              class="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-500 dark:group-hover:text-emerald-400 group-hover:translate-y-0.5 transition flex-shrink-0 ml-auto"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"

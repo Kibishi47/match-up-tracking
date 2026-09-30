@@ -111,6 +111,12 @@ const handleDeleteAccount = async () => {
     isDeletingAccount.value = false
   }
 }
+
+const handleLogout = async () => {
+  await clear()
+  await $fetch('/api/auth/logout', { method: 'POST' }).catch(() => {})
+  navigateTo('/login')
+}
 </script>
 
 <template>
@@ -176,9 +182,6 @@ const handleDeleteAccount = async () => {
               Admin
             </span>
           </div>
-          <p class="text-xs text-slate-400 dark:text-slate-500">
-            Compte authentifié via Discord (ID : {{ user?.discordId }})
-          </p>
         </div>
       </div>
 
@@ -298,44 +301,38 @@ const handleDeleteAccount = async () => {
       </div>
     </section>
 
-    <!-- 3. Zone de Danger (Suppression de compte) -->
-    <section class="bg-red-500/5 border border-red-500/20 dark:border-red-500/30 rounded-2xl p-6 sm:p-8">
-      <div class="flex items-start gap-4">
-        <div class="w-10 h-10 rounded-xl bg-red-500/10 text-red-600 dark:text-red-400 flex items-center justify-center flex-shrink-0 border border-red-500/20">
-          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
-            <line x1="12" x2="12" y1="9" y2="13"/>
-            <line x1="12" x2="12.01" y1="17" y2="17"/>
-          </svg>
-        </div>
+    <!-- Actions du compte (Déconnexion & Suppression) -->
+    <div class="pt-2 border-t border-slate-200 dark:border-slate-800/80 space-y-3 max-w-xs">
+      <!-- Bouton Déconnexion en danger au-dessus -->
+      <button
+        type="button"
+        @click="handleLogout"
+        class="w-full px-4 py-2.5 rounded-xl text-xs font-semibold bg-red-600 hover:bg-red-700 text-white transition shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+      >
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
+        </svg>
+        <span>Se déconnecter</span>
+      </button>
 
-        <div class="space-y-1 flex-1">
-          <h2 class="text-lg font-bold text-red-600 dark:text-red-400">
-            Zone de danger
-          </h2>
-          <p class="text-xs text-slate-600 dark:text-slate-400">
-            La suppression de votre compte est irréversible. L'ensemble de vos jeux associés, métas, archétypes créés, statistiques de matchups et historiques de parties seront définitivement effacés de la base de données.
-          </p>
-
-          <div class="pt-4">
-            <button
-              type="button"
-              @click="openDeleteModal"
-              class="px-4 py-2.5 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-700 text-white transition shadow-sm cursor-pointer flex items-center gap-2"
-            >
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M3 6h18"/>
-                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
-                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
-                <line x1="10" x2="10" y1="11" y2="17"/>
-                <line x1="14" x2="14" y1="11" y2="17"/>
-              </svg>
-              <span>Supprimer mon compte définitivement</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
+      <!-- Bouton Danger Outline pour la suppression du compte en-dessous -->
+      <button
+        type="button"
+        @click="openDeleteModal"
+        class="w-full px-4 py-2.5 rounded-xl text-xs font-semibold border border-red-500/40 dark:border-red-500/50 text-red-600 dark:text-red-400 hover:bg-red-500/10 hover:border-red-500 transition flex items-center justify-center gap-2 cursor-pointer"
+      >
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 6h18"/>
+          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+          <line x1="10" x2="10" y1="11" y2="17"/>
+          <line x1="14" x2="14" y1="11" y2="17"/>
+        </svg>
+        <span>Supprimer mon compte</span>
+      </button>
+    </div>
 
     <!-- Modale de Confirmation Stricte de Suppression -->
     <div
