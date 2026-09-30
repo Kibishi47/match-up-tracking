@@ -96,7 +96,7 @@ const deckOptions = computed(() => {
         <!-- Title & Deck Switcher -->
         <div class="min-w-0 flex-1">
           <div class="flex items-center gap-2 mb-1">
-            <span class="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black tracking-wider uppercase bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+            <span class="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black tracking-wider uppercase bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex-shrink-0">
               Deck Actif
             </span>
             <span v-if="deck.card1Name || deck.card2Name" class="hidden sm:inline text-xs text-slate-500 dark:text-slate-400 truncate max-w-xs" :title="[deck.card1Name, deck.card2Name].filter(Boolean).join(' // ')">
@@ -107,6 +107,11 @@ const deckOptions = computed(() => {
           <h2 class="text-lg min-[400px]:text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-white tracking-tight truncate max-w-lg">
             {{ deck.name }}
           </h2>
+
+          <!-- Nom des cartes de l'archétype sur mobile (séparateur //) -->
+          <p v-if="deck.card1Name || deck.card2Name" class="sm:hidden text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5" :title="[deck.card1Name, deck.card2Name].filter(Boolean).join(' // ')">
+            {{ [deck.card1Name, deck.card2Name].filter(Boolean).join(' // ') }}
+          </p>
 
           <!-- Sélecteur rapide de deck alternatif -->
           <div class="mt-1.5 sm:mt-2.5 flex items-center gap-2">

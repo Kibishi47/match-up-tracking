@@ -12,6 +12,7 @@
         <div class="space-y-2 sm:space-y-3 flex-1 min-w-0">
           <div class="h-3.5 w-24 bg-slate-200 dark:bg-slate-800 rounded-full" />
           <div class="h-6 sm:h-8 w-44 sm:w-64 bg-slate-300 dark:bg-slate-700 rounded-xl" />
+          <div class="h-3.5 w-28 bg-slate-200 dark:bg-slate-800/80 rounded-md sm:hidden" />
           <div class="h-4 w-32 bg-slate-200 dark:bg-slate-800/80 rounded-lg" />
         </div>
       </div>
