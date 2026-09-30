@@ -54,11 +54,22 @@ Renseignez vos identifiants d'application Discord :
 ### 2. Démarrage avec Docker Compose (recommandé en dev)
 Lance l'application avec rechargement à chaud (hot-reload) et le conteneur PostgreSQL :
 ```bash
-npm run dev:docker:build
-# ou directement :
-docker compose up --build
+# Met à jour automatiquement l'IP locale dans .env puis lance les conteneurs avec build :
+make dev
+
+# Ou sans rebuild des images :
+make up
+
+# Pour arrêter les conteneurs :
+make stop
+
+# Pour arrêter et supprimer les conteneurs et réseaux :
+make down
+
+# Pour uniquement rafraîchir l'IP locale dans le fichier .env :
+make ip
 ```
-L'adresse IP locale de votre machine (ex: `192.168.4.80`) est automatiquement détectée et injectée dans Nuxt pour afficher le bon QR Code et permettre l'accès direct depuis votre smartphone / iPhone sur le même réseau Wi-Fi.
+L'adresse IP locale de votre machine (ex: `192.168.4.80`) est automatiquement détectée et injectée dans le fichier `.env` et dans Nuxt pour afficher le bon QR Code et permettre l'accès direct depuis votre smartphone / iPhone sur le même réseau Wi-Fi.
 
 L'application est accessible sur : `http://localhost:3000` et sur votre réseau local via `http://<VOTRE_IP_LOCALE>:3000`.
 
