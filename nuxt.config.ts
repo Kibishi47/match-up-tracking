@@ -7,6 +7,14 @@ export default defineNuxtConfig({
     host: '0.0.0.0',
     port: 3000
   },
+  app: {
+    head: {
+      title: 'Metadex — TCG Matchup Tracker',
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }
+      ]
+    }
+  },
   components: [
     {
       path: '~/components',
