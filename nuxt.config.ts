@@ -5,8 +5,15 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: [
     '@nuxtjs/tailwindcss',
+    '@nuxtjs/color-mode',
     'nuxt-auth-utils'
   ],
+  colorMode: {
+    classSuffix: '',
+    preference: 'system',
+    fallback: 'dark',
+    storageKey: 'tcg_color_mode'
+  },
   css: ['~/assets/css/main.css'],
   runtimeConfig: {
     databaseUrl: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/matchup_tracking',

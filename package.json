@@ -15,6 +15,7 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@nuxtjs/color-mode": "^4.0.1",
     "@nuxtjs/tailwindcss": "^6.13.1",
     "drizzle-orm": "^0.40.0",
     "lucide-vue-next": "^0.475.0",

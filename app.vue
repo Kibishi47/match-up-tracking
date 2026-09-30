@@ -4,7 +4,7 @@ import AppConfirmModal from '~/components/ui/AppConfirmModal.vue'
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+  <div class="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
     <NuxtRouteAnnouncer />
     <NuxtPage />
 
