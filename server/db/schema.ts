@@ -65,15 +65,27 @@ export const archetypes = pgTable('archetypes', {
   unique('user_game_meta_archetype_name_unique').on(table.userId, table.gameId, table.metaId, table.name)
 ])
 
-// 6. Table Matchs (Enregistrement avec my_archetype_id et opponent_archetype_id)
-export const matches = pgTable('matches', {
+// 6. Table Matchups (Paires Deck A vs Deck B avec notes partagées)
+export const matchups = pgTable('matchups', {
   id: uuid('id').defaultRandom().primaryKey(),
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   gameId: uuid('game_id').references(() => games.id, { onDelete: 'cascade' }).notNull(),
+  metaId: uuid('meta_id').references(() => metas.id, { onDelete: 'cascade' }).notNull(),
   myArchetypeId: uuid('my_archetype_id').references(() => archetypes.id, { onDelete: 'cascade' }).notNull(),
   opponentArchetypeId: uuid('opponent_archetype_id').references(() => archetypes.id, { onDelete: 'cascade' }).notNull(),
+  notes: text('notes').default('').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull()
+}, (table) => [
+  unique('user_matchup_pair_unique').on(table.userId, table.myArchetypeId, table.opponentArchetypeId)
+])
+
+// 7. Table Matchs (Enregistrement individuel lié à un matchup)
+export const matches = pgTable('matches', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  matchupId: uuid('matchup_id').references(() => matchups.id, { onDelete: 'cascade' }).notNull(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   result: matchResultEnum('result').notNull(),
-  notes: text('notes'),
   playedAt: timestamp('played_at').defaultNow().notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull()
 })
@@ -83,6 +95,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   userGames: many(userGames),
   metas: many(metas),
   archetypes: many(archetypes),
+  matchups: many(matchups),
   matches: many(matches)
 }))
 
@@ -90,7 +103,7 @@ export const gamesRelations = relations(games, ({ many }) => ({
   userGames: many(userGames),
   metas: many(metas),
   archetypes: many(archetypes),
-  matches: many(matches)
+  matchups: many(matchups)
 }))
 
 export const userGamesRelations = relations(userGames, ({ one }) => ({
@@ -113,7 +126,8 @@ export const metasRelations = relations(metas, ({ one, many }) => ({
     fields: [metas.gameId],
     references: [games.id]
   }),
-  archetypes: many(archetypes)
+  archetypes: many(archetypes),
+  matchups: many(matchups)
 }))
 
 export const archetypesRelations = relations(archetypes, ({ one, many }) => ({
@@ -129,8 +143,34 @@ export const archetypesRelations = relations(archetypes, ({ one, many }) => ({
     fields: [archetypes.metaId],
     references: [metas.id]
   }),
-  myMatches: many(matches, { relationName: 'myMatches' }),
-  opponentMatches: many(matches, { relationName: 'opponentMatches' })
+  myMatchups: many(matchups, { relationName: 'myArchetypeMatchups' }),
+  opponentMatchups: many(matchups, { relationName: 'opponentArchetypeMatchups' })
+}))
+
+export const matchupsRelations = relations(matchups, ({ one, many }) => ({
+  user: one(users, {
+    fields: [matchups.userId],
+    references: [users.id]
+  }),
+  game: one(games, {
+    fields: [matchups.gameId],
+    references: [games.id]
+  }),
+  meta: one(metas, {
+    fields: [matchups.metaId],
+    references: [metas.id]
+  }),
+  myArchetype: one(archetypes, {
+    fields: [matchups.myArchetypeId],
+    references: [archetypes.id],
+    relationName: 'myArchetypeMatchups'
+  }),
+  opponentArchetype: one(archetypes, {
+    fields: [matchups.opponentArchetypeId],
+    references: [archetypes.id],
+    relationName: 'opponentArchetypeMatchups'
+  }),
+  matches: many(matches)
 }))
 
 export const matchesRelations = relations(matches, ({ one }) => ({
@@ -138,19 +178,9 @@ export const matchesRelations = relations(matches, ({ one }) => ({
     fields: [matches.userId],
     references: [users.id]
   }),
-  game: one(games, {
-    fields: [matches.gameId],
-    references: [games.id]
-  }),
-  myArchetype: one(archetypes, {
-    fields: [matches.myArchetypeId],
-    references: [archetypes.id],
-    relationName: 'myMatches'
-  }),
-  opponentArchetype: one(archetypes, {
-    fields: [matches.opponentArchetypeId],
-    references: [archetypes.id],
-    relationName: 'opponentMatches'
+  matchup: one(matchups, {
+    fields: [matches.matchupId],
+    references: [matchups.id]
   })
 }))
 
@@ -164,5 +194,7 @@ export type Meta = typeof metas.$inferSelect
 export type NewMeta = typeof metas.$inferInsert
 export type Archetype = typeof archetypes.$inferSelect
 export type NewArchetype = typeof archetypes.$inferInsert
+export type Matchup = typeof matchups.$inferSelect
+export type NewMatchup = typeof matchups.$inferInsert
 export type Match = typeof matches.$inferSelect
 export type NewMatch = typeof matches.$inferInsert
