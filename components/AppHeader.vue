@@ -2,6 +2,7 @@
 import ManageGamesModal from '~/components/games/ManageGamesModal.vue'
 import GameMetaModal from '~/components/modal/GameMetaModal.vue'
 import ProfileDropdown from '~/components/ui/ProfileDropdown.vue'
+import AppLogo from '~/components/ui/AppLogo.vue'
 
 const { user, clear } = useUserSession()
 const { games, activeGameId, activeGame, setActiveGame, isSessionReady } = useGameSession()
@@ -16,19 +17,7 @@ const isGameMetaModalOpen = ref(false)
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
       <!-- Logo & Navigation -->
       <div class="flex items-center gap-3 sm:gap-6 min-w-0">
-        <NuxtLink to="/" class="flex items-center gap-2.5 font-bold text-lg text-slate-900 dark:text-white group flex-shrink-0">
-          <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-500 to-indigo-600 flex items-center justify-center shadow-md shadow-emerald-500/20 group-hover:scale-105 transition">
-            <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <rect width="18" height="18" x="3" y="3" rx="2" />
-              <path d="M7 7h10" />
-              <path d="M7 12h10" />
-              <path d="M7 17h10" />
-            </svg>
-          </div>
-          <span class="hidden sm:inline tracking-tight font-extrabold bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:via-slate-100 dark:to-slate-400 bg-clip-text text-transparent">
-            TCG Tracker
-          </span>
-        </NuxtLink>
+        <AppLogo class="flex-shrink-0" />
 
         <!-- Sélecteur Unifié Permanent [ JEU — META ] (Jamais masqué) -->
         <div v-if="user" class="flex-shrink-0 flex items-center min-w-0">
