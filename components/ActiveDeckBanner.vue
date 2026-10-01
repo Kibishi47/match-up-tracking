@@ -125,11 +125,9 @@ const isSelectModalOpen = ref(false)
               class="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700/80 border border-slate-300 dark:border-slate-700/80 text-slate-800 dark:text-slate-200 text-xs font-semibold transition active:scale-95 shadow-sm cursor-pointer group"
               title="Changer de deck actif"
             >
-              <svg class="w-3.5 h-3.5 text-emerald-500 group-hover:rotate-180 transition-transform duration-300 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <path d="m17 2 4 4-4 4"/>
-                <path d="M3 11v-1a4 4 0 0 1 4-4h14"/>
-                <path d="m7 22-4-4 4-4"/>
-                <path d="M21 13v1a4 4 0 0 1-4 4H3"/>
+              <svg class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect width="14" height="18" x="5" y="3" rx="2" />
+                <path d="M9 7h6M9 11h6M9 15h4" />
               </svg>
               <span>Changer de deck</span>
               <span class="text-[10px] text-slate-400 dark:text-slate-500 font-normal">({{ allDecks.length }})</span>

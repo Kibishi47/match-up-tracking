@@ -71,19 +71,6 @@ const isGameMetaModalOpen = ref(false)
                 {{ activeMeta?.name || 'Aucune méta' }}
               </span>
             </div>
-
-            <!-- Chevron indicateur -->
-            <svg
-              class="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-500 dark:group-hover:text-emerald-400 group-hover:translate-y-0.5 transition flex-shrink-0 ml-0.5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
           </button>
         </div>
 
