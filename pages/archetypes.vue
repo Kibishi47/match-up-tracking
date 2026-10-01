@@ -394,10 +394,37 @@ const handleMetaCreated = async (newMeta: Meta) => {
                 class="glass-card p-4 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900/60 transition flex flex-col justify-between group overflow-hidden relative shadow-sm"
               >
                 <div>
-                  <!-- Images des cartes clés -->
-                  <div class="flex items-center gap-2 mb-3">
-                    <!-- Carte 1 -->
-                    <div class="w-14 h-20 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm flex items-center justify-center flex-shrink-0">
+                  <!-- Images des cartes clés : Éventail si 2 cartes, Carte droite si 1 seule -->
+                  <div class="flex items-start gap-3 mb-3">
+                    <!-- Éventail de 2 cartes -->
+                    <div v-if="arch.card2ImageUrl || arch.card2Name" class="relative w-14 h-16 flex-shrink-0">
+                      <!-- Carte 1 (Arrière / Inclinée gauche) -->
+                      <div class="absolute left-0 top-1 w-10 h-14 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm transform -rotate-6 group-hover:-rotate-12 transition-transform duration-300 flex items-center justify-center">
+                        <img
+                          v-if="arch.card1ImageUrl"
+                          :src="arch.card1ImageUrl"
+                          :alt="arch.card1Name || 'Carte 1'"
+                          class="w-full h-full object-cover"
+                          @error="(e) => (e.target as HTMLElement).style.display = 'none'"
+                        />
+                        <span v-else class="text-[10px] font-bold text-slate-400 dark:text-slate-600">C1</span>
+                      </div>
+
+                      <!-- Carte 2 (Avant / Inclinée droite) -->
+                      <div class="absolute left-3.5 top-0.5 w-10 h-14 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden shadow-md transform rotate-6 group-hover:rotate-12 transition-transform duration-300 flex items-center justify-center">
+                        <img
+                          v-if="arch.card2ImageUrl"
+                          :src="arch.card2ImageUrl"
+                          :alt="arch.card2Name || 'Carte 2'"
+                          class="w-full h-full object-cover"
+                          @error="(e) => (e.target as HTMLElement).style.display = 'none'"
+                        />
+                        <span v-else class="text-[10px] font-bold text-slate-400 dark:text-slate-600">C2</span>
+                      </div>
+                    </div>
+
+                    <!-- 1 seule carte droite -->
+                    <div v-else class="w-12 h-16 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden flex-shrink-0 flex items-center justify-center shadow-sm">
                       <img
                         v-if="arch.card1ImageUrl"
                         :src="arch.card1ImageUrl"
@@ -408,23 +435,8 @@ const handleMetaCreated = async (newMeta: Meta) => {
                       <span v-else class="text-xs font-bold text-slate-400 dark:text-slate-600">C1</span>
                     </div>
 
-                    <!-- Carte 2 (si présente) -->
-                    <div
-                      v-if="arch.card2ImageUrl || arch.card2Name"
-                      class="w-14 h-20 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm flex items-center justify-center flex-shrink-0"
-                    >
-                      <img
-                        v-if="arch.card2ImageUrl"
-                        :src="arch.card2ImageUrl"
-                        :alt="arch.card2Name || 'Carte 2'"
-                        class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                        @error="(e) => (e.target as HTMLElement).style.display = 'none'"
-                      />
-                      <span v-else class="text-xs font-bold text-slate-400 dark:text-slate-600">C2</span>
-                    </div>
-
-                    <div class="ml-1 min-w-0 flex-1">
-                      <h3 class="font-bold text-slate-900 dark:text-white text-base group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition truncate">
+                    <div class="min-w-0 flex-1">
+                      <h3 class="font-bold text-slate-900 dark:text-white text-base group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition truncate" :title="arch.name">
                         {{ arch.name }}
                       </h3>
                       <p v-if="arch.card1Name || arch.card2Name" class="text-xs text-slate-500 dark:text-slate-400 mt-1 truncate" :title="[arch.card1Name, arch.card2Name].filter(Boolean).join(' // ')">

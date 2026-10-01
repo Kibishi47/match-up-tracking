@@ -55,8 +55,35 @@ const emit = defineEmits<{
         <!-- Visuel et infos de l'adversaire -->
         <div>
           <div class="flex items-start gap-2.5 mb-2.5">
-            <!-- Vignette Carte 1 -->
-            <div class="w-12 h-16 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden flex-shrink-0 flex items-center justify-center shadow-sm">
+            <!-- Éventail si 2 cartes clés -->
+            <div v-if="opp.card2ImageUrl || opp.card2Name" class="relative w-14 h-16 flex-shrink-0">
+              <!-- Carte 1 (Arrière / Inclinée gauche) -->
+              <div class="absolute left-0 top-1 w-10 h-14 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm transform -rotate-6 group-hover:-rotate-12 transition-transform duration-300 flex items-center justify-center">
+                <img
+                  v-if="opp.card1ImageUrl"
+                  :src="opp.card1ImageUrl"
+                  :alt="opp.card1Name || 'Carte 1'"
+                  class="w-full h-full object-cover"
+                  @error="(e) => (e.target as HTMLElement).style.display = 'none'"
+                />
+                <span v-else class="text-[10px] font-bold text-slate-400 dark:text-slate-600">C1</span>
+              </div>
+
+              <!-- Carte 2 (Avant / Inclinée droite) -->
+              <div class="absolute left-3.5 top-0.5 w-10 h-14 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden shadow-md transform rotate-6 group-hover:rotate-12 transition-transform duration-300 flex items-center justify-center">
+                <img
+                  v-if="opp.card2ImageUrl"
+                  :src="opp.card2ImageUrl"
+                  :alt="opp.card2Name || 'Carte 2'"
+                  class="w-full h-full object-cover"
+                  @error="(e) => (e.target as HTMLElement).style.display = 'none'"
+                />
+                <span v-else class="text-[10px] font-bold text-slate-400 dark:text-slate-600">C2</span>
+              </div>
+            </div>
+
+            <!-- 1 seule carte droite -->
+            <div v-else class="w-12 h-16 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden flex-shrink-0 flex items-center justify-center shadow-sm">
               <img
                 v-if="opp.card1ImageUrl"
                 :src="opp.card1ImageUrl"
@@ -65,21 +92,6 @@ const emit = defineEmits<{
                 @error="(e) => (e.target as HTMLElement).style.display = 'none'"
               />
               <span v-else class="text-xs font-bold text-slate-400 dark:text-slate-600">C1</span>
-            </div>
-
-            <!-- Vignette Carte 2 (si présente) -->
-            <div
-              v-if="opp.card2ImageUrl || opp.card2Name"
-              class="w-12 h-16 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden flex-shrink-0 flex items-center justify-center shadow-sm"
-            >
-              <img
-                v-if="opp.card2ImageUrl"
-                :src="opp.card2ImageUrl"
-                :alt="opp.card2Name || 'Carte 2'"
-                class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                @error="(e) => (e.target as HTMLElement).style.display = 'none'"
-              />
-              <span v-else class="text-xs font-bold text-slate-400 dark:text-slate-600">C2</span>
             </div>
 
             <div class="min-w-0 flex-1 ml-0.5">

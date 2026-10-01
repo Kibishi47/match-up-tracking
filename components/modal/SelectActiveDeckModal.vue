@@ -192,8 +192,8 @@ const handleSelect = (deckId: string) => {
                   : 'bg-slate-50 hover:bg-white dark:bg-slate-800/50 dark:hover:bg-slate-800 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm hover:shadow'
               ]"
             >
-              <!-- Deux cartes superposées compactes -->
-              <div class="relative w-12 h-14 flex-shrink-0">
+              <!-- Éventail si 2 cartes -->
+              <div v-if="d.card2ImageUrl || d.card2Name" class="relative w-12 h-14 flex-shrink-0">
                 <!-- Carte 1 (Arrière / Inclinée gauche) -->
                 <div class="absolute left-0 top-0.5 w-8 h-12 rounded bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 overflow-hidden shadow-sm transform -rotate-6 group-hover:-rotate-12 transition-transform">
                   <img
@@ -220,6 +220,23 @@ const handleSelect = (deckId: string) => {
                   <div v-else class="w-full h-full flex items-center justify-center font-bold text-[8px] text-slate-400">
                     C2
                   </div>
+                </div>
+              </div>
+
+              <!-- 1 seule carte droite -->
+              <div
+                v-else
+                class="w-9 h-12 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden flex-shrink-0 flex items-center justify-center shadow-sm"
+              >
+                <img
+                  v-if="d.card1ImageUrl"
+                  :src="d.card1ImageUrl"
+                  :alt="d.card1Name || 'Carte 1'"
+                  class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                  @error="(e) => (e.target as HTMLElement).style.display = 'none'"
+                />
+                <div v-else class="w-full h-full flex items-center justify-center font-bold text-[9px] text-slate-400 dark:text-slate-500">
+                  C1
                 </div>
               </div>
 

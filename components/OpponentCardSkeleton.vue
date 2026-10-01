@@ -2,10 +2,10 @@
   <div class="glass-panel p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between min-h-[172px] animate-pulse bg-white dark:bg-slate-900/60 shadow-sm">
     <div>
       <div class="flex items-start gap-2.5 mb-3">
-        <!-- 2 thumbnails skeleton -->
-        <div class="flex items-center gap-1.5 flex-shrink-0">
-          <div class="w-12 h-16 rounded-lg bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700/60" />
-          <div class="w-12 h-16 rounded-lg bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/40" />
+        <!-- Fan cards skeleton -->
+        <div class="relative w-14 h-16 flex-shrink-0">
+          <div class="absolute left-0 top-1 w-10 h-14 rounded-lg bg-slate-200 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700/60 transform -rotate-6" />
+          <div class="absolute left-3.5 top-0.5 w-10 h-14 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/40 transform rotate-6 shadow-sm" />
         </div>
 
         <div class="min-w-0 flex-1 space-y-1.5">

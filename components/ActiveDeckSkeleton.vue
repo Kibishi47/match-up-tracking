@@ -4,9 +4,9 @@
       <!-- Deck info & Card stack skeleton -->
       <div class="flex items-center gap-3.5 sm:gap-6">
         <!-- Two overlapping cards skeleton -->
-        <div class="relative w-16 h-20 min-[400px]:w-20 min-[400px]:h-24 sm:w-28 sm:h-32 flex-shrink-0">
-          <div class="absolute left-0 top-1 sm:top-2 w-11 h-16 min-[400px]:w-14 min-[400px]:h-20 sm:w-20 sm:h-28 rounded-lg sm:rounded-xl bg-slate-200 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700/60 shadow transform -rotate-6" />
-          <div class="absolute left-4 min-[400px]:left-6 sm:left-8 top-0 w-11 h-16 min-[400px]:w-14 min-[400px]:h-20 sm:w-20 sm:h-28 rounded-lg sm:rounded-xl bg-slate-300 dark:bg-slate-700/80 border border-slate-300 dark:border-slate-600/60 shadow-lg transform rotate-6" />
+        <div class="relative w-24 h-28 sm:w-28 sm:h-32 flex-shrink-0">
+          <div class="absolute left-0 top-1 sm:top-2 w-16 h-24 sm:w-20 sm:h-28 rounded-xl bg-slate-200 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700/60 shadow transform -rotate-6" />
+          <div class="absolute left-6 sm:left-8 top-0 w-16 h-24 sm:w-20 sm:h-28 rounded-xl bg-slate-300 dark:bg-slate-700/80 border border-slate-300 dark:border-slate-600/60 shadow-lg transform rotate-6" />
         </div>
 
         <div class="space-y-2 sm:space-y-3 flex-1 min-w-0">

@@ -62,11 +62,11 @@ const isSelectModalOpen = ref(false)
     <div v-else class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6 relative z-10">
       <!-- Deck visuals & Title -->
       <div class="flex items-center gap-3.5 sm:gap-6">
-        <!-- Two overlapping key cards (adaptées compactes sur mobile) -->
-        <div class="relative w-16 h-20 min-[400px]:w-20 min-[400px]:h-24 sm:w-28 sm:h-32 flex-shrink-0 group">
+        <!-- Visuel cartes du Deck : Éventail si 2 cartes, Carte droite si 1 seule carte -->
+        <div v-if="deck.card2ImageUrl || deck.card2Name" class="relative w-24 h-28 sm:w-28 sm:h-32 flex-shrink-0 group">
           <!-- Card 1 (Back/Tilted left) -->
           <div
-            class="absolute left-0 top-1 sm:top-2 w-11 h-16 min-[400px]:w-14 min-[400px]:h-20 sm:w-20 sm:h-28 rounded-lg sm:rounded-xl bg-slate-200 dark:bg-slate-800 border sm:border-2 border-slate-300 dark:border-slate-700/80 overflow-hidden shadow-md transform -rotate-6 group-hover:-rotate-12 transition-transform duration-300"
+            class="absolute left-0 top-1 sm:top-2 w-16 h-24 sm:w-20 sm:h-28 rounded-xl bg-slate-200 dark:bg-slate-800 border sm:border-2 border-slate-300 dark:border-slate-700/80 overflow-hidden shadow-md transform -rotate-6 group-hover:-rotate-12 transition-transform duration-300"
           >
             <img
               v-if="deck.card1ImageUrl"
@@ -75,14 +75,14 @@ const isSelectModalOpen = ref(false)
               class="w-full h-full object-cover"
               @error="(e) => (e.target as HTMLElement).style.display = 'none'"
             />
-            <div v-else class="w-full h-full flex items-center justify-center font-bold text-[10px] sm:text-xs text-slate-500 bg-slate-200 dark:bg-slate-800">
+            <div v-else class="w-full h-full flex items-center justify-center font-bold text-xs text-slate-500 bg-slate-200 dark:bg-slate-800">
               C1
             </div>
           </div>
 
           <!-- Card 2 (Front/Tilted right) -->
           <div
-            class="absolute left-4 min-[400px]:left-6 sm:left-8 top-0 w-11 h-16 min-[400px]:w-14 min-[400px]:h-20 sm:w-20 sm:h-28 rounded-lg sm:rounded-xl bg-slate-100 dark:bg-slate-700 border sm:border-2 border-slate-300 dark:border-slate-600/80 overflow-hidden shadow-lg transform rotate-6 group-hover:rotate-12 transition-transform duration-300"
+            class="absolute left-6 sm:left-8 top-0 w-16 h-24 sm:w-20 sm:h-28 rounded-xl bg-slate-100 dark:bg-slate-700 border sm:border-2 border-slate-300 dark:border-slate-600/80 overflow-hidden shadow-lg transform rotate-6 group-hover:rotate-12 transition-transform duration-300"
           >
             <img
               v-if="deck.card2ImageUrl"
@@ -91,9 +91,26 @@ const isSelectModalOpen = ref(false)
               class="w-full h-full object-cover"
               @error="(e) => (e.target as HTMLElement).style.display = 'none'"
             />
-            <div v-else class="w-full h-full flex items-center justify-center font-bold text-[10px] sm:text-xs text-slate-400 bg-slate-200 dark:bg-slate-800">
+            <div v-else class="w-full h-full flex items-center justify-center font-bold text-xs text-slate-400 bg-slate-200 dark:bg-slate-800">
               C2
             </div>
+          </div>
+        </div>
+
+        <!-- 1 seule carte droite (même taille desktop et mobile) -->
+        <div
+          v-else
+          class="w-20 h-28 rounded-xl bg-slate-200 dark:bg-slate-800 border sm:border-2 border-slate-300 dark:border-slate-700/80 overflow-hidden shadow-md flex-shrink-0 flex items-center justify-center group"
+        >
+          <img
+            v-if="deck.card1ImageUrl"
+            :src="deck.card1ImageUrl"
+            :alt="deck.card1Name || 'Carte clé'"
+            class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+            @error="(e) => (e.target as HTMLElement).style.display = 'none'"
+          />
+          <div v-else class="w-full h-full flex items-center justify-center font-bold text-sm text-slate-500 bg-slate-200 dark:bg-slate-800">
+            C1
           </div>
         </div>
 
