@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Archetype } from '~/server/db/schema'
-import AppDropdown from '~/components/ui/AppDropdown.vue'
+import SelectActiveDeckModal from '~/components/modal/SelectActiveDeckModal.vue'
 
 const props = defineProps<{
   deck: Archetype | null
@@ -18,13 +18,7 @@ const emit = defineEmits<{
   (e: 'change-deck', deckId: string): void
 }>()
 
-const deckOptions = computed(() => {
-  return props.allDecks.map(d => ({
-    value: d.id,
-    label: d.name,
-    iconUrl: d.card1ImageUrl
-  }))
-})
+const isSelectModalOpen = ref(false)
 </script>
 
 <template>
@@ -47,12 +41,22 @@ const deckOptions = computed(() => {
       <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-md mx-auto">
         Créez ou sélectionnez votre deck pour commencer à enregistrer vos confrontations.
       </p>
-      <NuxtLink
-        to="/archetypes"
-        class="mt-3.5 inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm transition shadow-lg shadow-emerald-600/20 active:scale-95"
-      >
-        <span>+ Configurer mes decks</span>
-      </NuxtLink>
+      <div class="flex flex-wrap items-center justify-center gap-2.5 mt-3.5">
+        <button
+          v-if="allDecks.length > 0"
+          type="button"
+          @click="isSelectModalOpen = true"
+          class="inline-flex items-center gap-2 px-4 py-2 sm:py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm transition shadow-lg shadow-emerald-600/20 active:scale-95 cursor-pointer"
+        >
+          <span>Choisir mon deck actif</span>
+        </button>
+        <NuxtLink
+          to="/archetypes"
+          class="inline-flex items-center gap-2 px-4 py-2 sm:py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-xs sm:text-sm transition shadow-sm active:scale-95"
+        >
+          <span>+ Configurer mes decks</span>
+        </NuxtLink>
+      </div>
     </div>
 
     <div v-else class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6 relative z-10">
@@ -113,17 +117,23 @@ const deckOptions = computed(() => {
             {{ [deck.card1Name, deck.card2Name].filter(Boolean).join(' // ') }}
           </p>
 
-          <!-- Sélecteur rapide de deck alternatif -->
-          <div class="mt-1.5 sm:mt-2.5 flex items-center gap-2">
-            <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Permuter :</span>
-            <AppDropdown
-              :model-value="deck.id"
-              :options="deckOptions"
-              placeholder="Changer de deck..."
-              menu-width-class="w-64"
-              button-class="px-2.5 py-1 text-xs"
-              @change="emit('change-deck', $event)"
-            />
+          <!-- Sélecteur rapide de deck alternatif via Modale -->
+          <div class="mt-2 sm:mt-2.5 flex items-center gap-2">
+            <button
+              type="button"
+              @click="isSelectModalOpen = true"
+              class="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700/80 border border-slate-300 dark:border-slate-700/80 text-slate-800 dark:text-slate-200 text-xs font-semibold transition active:scale-95 shadow-sm cursor-pointer group"
+              title="Changer de deck actif"
+            >
+              <svg class="w-3.5 h-3.5 text-emerald-500 group-hover:rotate-180 transition-transform duration-300 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="m17 2 4 4-4 4"/>
+                <path d="M3 11v-1a4 4 0 0 1 4-4h14"/>
+                <path d="m7 22-4-4 4-4"/>
+                <path d="M21 13v1a4 4 0 0 1-4 4H3"/>
+              </svg>
+              <span>Changer de deck</span>
+              <span class="text-[10px] text-slate-400 dark:text-slate-500 font-normal">({{ allDecks.length }})</span>
+            </button>
           </div>
         </div>
       </div>
@@ -162,5 +172,14 @@ const deckOptions = computed(() => {
         </div>
       </div>
     </div>
+
+    <!-- Modale de sélection de deck actif -->
+    <SelectActiveDeckModal
+      :is-open="isSelectModalOpen"
+      :decks="allDecks"
+      :active-deck-id="deck?.id || null"
+      @close="isSelectModalOpen = false"
+      @select="emit('change-deck', $event)"
+    />
   </div>
 </template>
