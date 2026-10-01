@@ -156,6 +156,16 @@ const emit = defineEmits<{
           </div>
         </div>
 
+        <!-- Note de matchup affichée directement sur la carte -->
+        <div
+          v-if="statsByOpponent?.[opp.id]?.notes"
+          class="mt-2.5 px-2.5 py-1.5 rounded-xl bg-amber-500/10 dark:bg-amber-400/10 border border-amber-500/20 dark:border-amber-400/20"
+        >
+          <p class="text-xs text-amber-900 dark:text-amber-200/90 leading-snug line-clamp-2 break-words italic">
+            {{ statsByOpponent[opp.id].notes }}
+          </p>
+        </div>
+
         <!-- Boutons d'action rapide Victoire (W) / Défaite (L) / Nul (D) avec hauteur minimale 44px pour confort tactile -->
         <div class="mt-2 pt-3 border-t border-slate-100 dark:border-slate-800/80 grid grid-cols-3 gap-1.5">
           <!-- Victoire avec flèche montante -->
