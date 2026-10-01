@@ -50,7 +50,7 @@ const emit = defineEmits<{
       <div
         v-for="opp in opponents"
         :key="opp.id"
-        class="glass-panel rounded-2xl border border-slate-200/90 dark:border-slate-800/90 hover:border-slate-300 dark:hover:border-slate-700 transition overflow-hidden flex flex-col justify-between p-4 group bg-white dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-900/80 min-h-[172px] shadow-sm"
+        class="glass-panel rounded-2xl border border-slate-200/90 dark:border-slate-800/90 hover:border-slate-300 dark:hover:border-slate-700 transition overflow-hidden flex flex-col justify-between p-4 group bg-white dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-900/80 min-h-[156px] shadow-sm"
       >
         <!-- Visuel et infos de l'adversaire -->
         <div>
@@ -166,13 +166,13 @@ const emit = defineEmits<{
           </p>
         </div>
 
-        <!-- Boutons d'action rapide Victoire (W) / Défaite (L) / Nul (D) avec hauteur minimale 44px pour confort tactile -->
-        <div class="mt-2 pt-3 border-t border-slate-100 dark:border-slate-800/80 grid grid-cols-3 gap-1.5">
+        <!-- Boutons d'action rapide Victoire (W) / Défaite (L) / Nul (D) -->
+        <div class="mt-2 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 grid grid-cols-3 gap-1.5">
           <!-- Victoire avec flèche montante -->
           <button
             type="button"
             @click="emit('log-match', opp.id, 'win')"
-            class="min-h-[44px] py-2 px-1 rounded-xl font-bold text-xs text-white bg-emerald-600 hover:bg-emerald-500 active:scale-95 transition flex items-center justify-center gap-1 shadow-sm cursor-pointer"
+            class="h-8 px-1 rounded-lg font-bold text-xs text-white bg-emerald-600 hover:bg-emerald-500 active:scale-95 transition flex items-center justify-center gap-1 shadow-sm cursor-pointer"
             title="Enregistrer une Victoire (flèche montante)"
           >
             <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -186,7 +186,7 @@ const emit = defineEmits<{
           <button
             type="button"
             @click="emit('log-match', opp.id, 'loss')"
-            class="min-h-[44px] py-2 px-1 rounded-xl font-bold text-xs text-white bg-red-600 hover:bg-red-500 active:scale-95 transition flex items-center justify-center gap-1 shadow-sm cursor-pointer"
+            class="h-8 px-1 rounded-lg font-bold text-xs text-white bg-red-600 hover:bg-red-500 active:scale-95 transition flex items-center justify-center gap-1 shadow-sm cursor-pointer"
             title="Enregistrer une Défaite (flèche descendante)"
           >
             <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -200,7 +200,7 @@ const emit = defineEmits<{
           <button
             type="button"
             @click="emit('log-match', opp.id, 'draw')"
-            class="min-h-[44px] py-2 px-1 rounded-xl font-bold text-xs text-white bg-amber-600 hover:bg-amber-500 active:scale-95 transition flex items-center justify-center gap-1 shadow-sm cursor-pointer"
+            class="h-8 px-1 rounded-lg font-bold text-xs text-white bg-amber-600 hover:bg-amber-500 active:scale-95 transition flex items-center justify-center gap-1 shadow-sm cursor-pointer"
             title="Enregistrer un Match Nul"
           >
             <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
