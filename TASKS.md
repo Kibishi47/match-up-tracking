@@ -48,9 +48,22 @@ Amélioration des parcours de saisie et préparation à l'international.
   - *Objectif :* Remplacer le formulaire fixe ou accordéon actuel de la page `/archetypes` par une expérience unifiée en modale (desktop) et bottom sheet (mobile), similaire à la sélection de deck et à l'édition de match.
   - *Bénéfice :* Cohérence absolue des interactions et libération d'espace visuel sur la page des archétypes.
 
+- [ ] **Barre de recherche pour les archétypes (Dashboard Matchups & Page Archétypes)**
+  - *Objectif :* Intégrer un champ de recherche instantané (filtrant par nom d'archétype et noms de cartes clés) :
+    1. Sur la grille des **Matchups** du dashboard principal (retrouver immédiatement un adversaire pour saisir un match sans défiler).
+    2. Sur la page de gestion des **Archétypes** (`/archetypes`).
+  - *Bénéfice :* Saisie et navigation ultra-rapides sur les métas comportant un grand nombre d'archétypes.
+
 - [ ] **Internationalisation du site (i18n)**
   - *Objectif :* Traduction multilingue (ex: FR / EN) via `@nuxtjs/i18n`.
   - *Règle stricte :* Conserver les termes et boutons de match en anglais universel : `Win`, `Loss` et `Draw` (ne pas les traduire en Victoire / Défaite / Nul).
+
+- [ ] **Statistiques globales par archétype et par méta (joué & affronté)**
+  - *Objectif :* Disposer d'une vue d'analyse globale des performances de chaque archétype au sein d'une méta donnée, qu'il soit joué par l'utilisateur ou affronté.
+  - *Indicateurs clés :*
+    - **En tant que deck joué :** Winrate global du joueur avec cet archétype, volume de parties (W/L/D) et historique agrégé.
+    - **En tant qu'adversaire :** Winrate global face à cet archétype (tous mes decks confondus), volume de confrontations et taux de présence global (Show Rate) dans la méta.
+    - Filtrage réactif par jeu et méta sélectionnée pour comparer la performance globale des archétypes.
 
 ---
 
