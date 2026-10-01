@@ -18,16 +18,19 @@ onUnmounted(() => {
 
 <template>
   <Teleport to="body">
-    <div
-      v-if="confirmState.isOpen"
-      class="fixed inset-0 z-[100] overflow-y-auto p-4 flex min-h-full items-center justify-center bg-slate-950/80 backdrop-blur-sm animate-fade-in"
-      @click.self="resolveConfirm(false)"
-    >
+    <Transition name="bottom-sheet">
       <div
-        class="relative w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-6 my-auto"
-        role="alertdialog"
-        aria-modal="true"
+        v-if="confirmState.isOpen"
+        class="fixed inset-0 z-[100] overflow-y-auto p-0 sm:p-4 flex items-end sm:items-center justify-center bg-slate-950/80 backdrop-blur-md"
+        @click.self="resolveConfirm(false)"
       >
+        <div
+          class="modal-card relative w-full max-w-md rounded-t-3xl sm:rounded-2xl rounded-b-none sm:rounded-b-2xl bg-white dark:bg-slate-900 border-t sm:border border-slate-200 dark:border-slate-800 shadow-2xl p-5 sm:p-6 pb-safe sm:pb-6"
+          role="alertdialog"
+          aria-modal="true"
+        >
+        <!-- Poignée de glissement sur mobile -->
+        <div class="w-12 h-1 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-3 sm:hidden flex-shrink-0" />
         <!-- Icône d'alerte et titre -->
         <div class="flex items-start gap-4">
           <div
@@ -86,5 +89,6 @@ onUnmounted(() => {
         </div>
       </div>
     </div>
+    </Transition>
   </Teleport>
 </template>

@@ -54,110 +54,115 @@ const saveMatch = async () => {
 
 <template>
   <Teleport to="body">
-    <div v-if="match" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-      <div class="glass-panel max-w-md w-full p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl relative">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-bold text-slate-900 dark:text-white">Modifier le Match</h3>
-          <button
-            type="button"
-            @click="emit('close')"
-            class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/80 transition cursor-pointer"
-          >
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 6 6 18M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+    <Transition name="bottom-sheet">
+      <div v-if="match" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto" @click.self="emit('close')">
+        <div class="modal-card relative w-full max-w-lg rounded-t-3xl sm:rounded-2xl rounded-b-none sm:rounded-b-2xl border-t sm:border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl overflow-hidden flex flex-col max-h-[90vh] sm:max-h-[85vh] pb-safe sm:pb-0">
+          <!-- Header -->
+          <div class="px-6 pt-3 pb-4 sm:py-5 border-b border-slate-200 dark:border-slate-800/80 flex flex-col bg-white dark:bg-slate-900 flex-shrink-0">
+            <!-- Poignée de glissement sur mobile -->
+            <div class="w-12 h-1 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-3 sm:hidden flex-shrink-0" />
 
-        <div class="mb-4 p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-800 text-sm">
-          <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
-            <span>Deck : <strong class="text-slate-900 dark:text-white">{{ match.myArchetype?.name || 'Mon Deck' }}</strong></span>
-            <span>vs</span>
-            <span>Adversaire : <strong class="text-slate-900 dark:text-white">{{ match.opponentArchetype?.name || 'Adversaire' }}</strong></span>
-          </div>
-        </div>
-
-        <form @submit.prevent="saveMatch" class="space-y-4">
-          <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
-              Résultat
-            </label>
-            <div class="grid grid-cols-3 gap-2">
+            <div class="flex items-center justify-between">
+              <h3 class="text-base font-bold text-slate-900 dark:text-white">Modifier le Match</h3>
               <button
                 type="button"
-                @click="result = 'win'"
-                :class="[
-                  'py-2.5 rounded-xl font-bold text-xs sm:text-sm transition border flex items-center justify-center gap-1 cursor-pointer',
-                  result === 'win'
-                    ? 'bg-emerald-600 text-white border-emerald-500 shadow-lg shadow-emerald-600/30'
-                    : 'bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
-                ]"
+                @click="emit('close')"
+                class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/80 transition cursor-pointer"
+                aria-label="Fermer"
               >
-                <span>Victoire</span>
-              </button>
-
-              <button
-                type="button"
-                @click="result = 'loss'"
-                :class="[
-                  'py-2.5 rounded-xl font-bold text-xs sm:text-sm transition border flex items-center justify-center gap-1 cursor-pointer',
-                  result === 'loss'
-                    ? 'bg-red-600 text-white border-red-500 shadow-lg shadow-red-600/30'
-                    : 'bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
-                ]"
-              >
-                <span>Défaite</span>
-              </button>
-
-              <button
-                type="button"
-                @click="result = 'draw'"
-                :class="[
-                  'py-2.5 rounded-xl font-bold text-xs sm:text-sm transition border flex items-center justify-center gap-1 cursor-pointer',
-                  result === 'draw'
-                    ? 'bg-amber-600 text-white border-amber-500 shadow-lg shadow-amber-600/30'
-                    : 'bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
-                ]"
-              >
-                <span>Nul</span>
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
               </button>
             </div>
           </div>
 
-          <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-              Notes / Détails de partie (optionnel)
-            </label>
-            <textarea
-              v-model="notes"
-              rows="3"
-              placeholder="Ex: Main de départ parfaite, mauvaise sortie adverse, carte clé jouée au tour 4..."
-              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition text-sm resize-none"
-            />
-          </div>
+          <!-- Body -->
+          <form id="edit-match-form" @submit.prevent="saveMatch" class="p-6 space-y-4 overflow-y-auto flex-1">
+            <div class="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-800 text-sm">
+              <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
+                <span>Deck : <strong class="text-slate-900 dark:text-white">{{ match.myArchetype?.name || 'Mon Deck' }}</strong></span>
+                <span>vs</span>
+                <span>Adversaire : <strong class="text-slate-900 dark:text-white">{{ match.opponentArchetype?.name || 'Adversaire' }}</strong></span>
+              </div>
+            </div>
 
-          <div v-if="errorMessage" class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 text-xs">
-            {{ errorMessage }}
-          </div>
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
+                Résultat
+              </label>
+              <div class="grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  @click="result = 'win'"
+                  :class="[
+                    'py-2.5 rounded-xl font-bold text-xs sm:text-sm transition border flex items-center justify-center gap-1 cursor-pointer',
+                    result === 'win'
+                      ? 'bg-emerald-600 text-white border-emerald-500 shadow-lg shadow-emerald-600/30'
+                      : 'bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                  ]"
+                >
+                  <span>Victoire</span>
+                </button>
 
-          <div class="flex items-center justify-end gap-3 pt-2">
-            <button
-              type="button"
-              @click="emit('close')"
-              class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer"
-            >
-              Annuler
-            </button>
+                <button
+                  type="button"
+                  @click="result = 'loss'"
+                  :class="[
+                    'py-2.5 rounded-xl font-bold text-xs sm:text-sm transition border flex items-center justify-center gap-1 cursor-pointer',
+                    result === 'loss'
+                      ? 'bg-red-600 text-white border-red-500 shadow-lg shadow-red-600/30'
+                      : 'bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                  ]"
+                >
+                  <span>Défaite</span>
+                </button>
+
+                <button
+                  type="button"
+                  @click="result = 'draw'"
+                  :class="[
+                    'py-2.5 rounded-xl font-bold text-xs sm:text-sm transition border flex items-center justify-center gap-1 cursor-pointer',
+                    result === 'draw'
+                      ? 'bg-amber-600 text-white border-amber-500 shadow-lg shadow-amber-600/30'
+                      : 'bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                  ]"
+                >
+                  <span>Nul</span>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+                Notes / Détails de partie (optionnel)
+              </label>
+              <textarea
+                v-model="notes"
+                rows="3"
+                placeholder="Ex: Main de départ parfaite, mauvaise sortie adverse, carte clé jouée au tour 4..."
+                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition text-sm resize-none"
+              />
+            </div>
+
+            <div v-if="errorMessage" class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 text-xs">
+              {{ errorMessage }}
+            </div>
+          </form>
+
+          <!-- Footer avec séparation et espacement safe area -->
+          <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900 flex items-center justify-end flex-shrink-0">
             <button
               type="submit"
+              form="edit-match-form"
               :disabled="isSubmitting"
-              class="px-4 py-2 rounded-xl text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-500 active:scale-95 transition disabled:opacity-50 shadow-md shadow-emerald-600/20 cursor-pointer"
+              class="w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-500 active:scale-95 transition disabled:opacity-50 shadow-md shadow-emerald-600/20 cursor-pointer"
             >
               {{ isSubmitting ? 'Enregistrement...' : 'Enregistrer les modifications' }}
             </button>
           </div>
-        </form>
+        </div>
       </div>
-    </div>
+    </Transition>
   </Teleport>
 </template>

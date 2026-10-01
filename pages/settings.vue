@@ -329,77 +329,87 @@ const handleLogout = async () => {
     </div>
 
     <!-- Modale de Confirmation Stricte de Suppression -->
-    <div
-      v-if="isDeleteModalOpen"
-      class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm"
-      @keydown.esc="closeDeleteModal"
-    >
-      <div
-        class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-150"
-      >
-        <div class="flex items-start gap-3.5">
-          <div class="w-10 h-10 rounded-xl bg-red-500/10 text-red-600 dark:text-red-400 flex items-center justify-center flex-shrink-0 border border-red-500/20">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M3 6h18"/>
-              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
-              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
-            </svg>
-          </div>
-          <div>
-            <h3 class="text-base font-bold text-slate-900 dark:text-white">
-              Supprimer définitivement le compte ?
-            </h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Cette action est immédiate et irrévocable. Toutes vos métas, vos archétypes et vos historiques de parties seront définitivement supprimés.
-            </p>
-          </div>
-        </div>
-
-        <div class="space-y-2 bg-red-500/5 border border-red-500/15 rounded-xl p-3.5">
-          <label for="delete-confirm" class="block text-xs font-semibold text-slate-800 dark:text-slate-200">
-            Pour confirmer, veuillez saisir votre pseudo <strong class="text-red-600 dark:text-red-400 underline">{{ user?.username }}</strong> ou le mot <strong class="text-red-600 dark:text-red-400">SUPPRIMER</strong> :
-          </label>
-          <input
-            id="delete-confirm"
-            v-model="deleteConfirmationInput"
-            type="text"
-            autocomplete="off"
-            :placeholder="user?.username || 'SUPPRIMER'"
-            class="w-full px-3 py-2 rounded-lg border border-red-300 dark:border-red-900/50 bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500 text-xs font-mono"
-          />
-        </div>
-
-        <div class="flex items-center justify-end gap-3 pt-2">
-          <button
-            type="button"
-            @click="closeDeleteModal"
-            :disabled="isDeletingAccount"
-            class="px-4 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+    <Teleport to="body">
+      <Transition name="bottom-sheet">
+        <div
+          v-if="isDeleteModalOpen"
+          class="fixed inset-0 z-[100] overflow-y-auto p-0 sm:p-4 flex items-end sm:items-center justify-center bg-slate-950/80 backdrop-blur-md"
+          @keydown.esc="closeDeleteModal"
+          @click.self="closeDeleteModal"
+        >
+          <div
+            class="modal-card relative w-full max-w-md rounded-t-3xl sm:rounded-2xl rounded-b-none sm:rounded-b-2xl bg-white dark:bg-slate-900 border-t sm:border border-slate-200 dark:border-slate-800 shadow-2xl p-5 sm:p-6 pb-safe sm:pb-6 space-y-5"
+            role="alertdialog"
+            aria-modal="true"
           >
-            Annuler
-          </button>
+            <!-- Poignée de glissement sur mobile -->
+            <div class="w-12 h-1 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-3 sm:hidden flex-shrink-0" />
 
-          <button
-            type="button"
-            @click="handleDeleteAccount"
-            :disabled="!isConfirmationValid || isDeletingAccount"
-            class="px-4 py-2 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed text-white transition shadow-sm flex items-center gap-2 cursor-pointer"
-          >
-            <svg
-              v-if="isDeletingAccount"
-              class="w-3.5 h-3.5 animate-spin"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-            >
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-            </svg>
-            <span>{{ isDeletingAccount ? 'Suppression en cours...' : 'Confirmer la suppression définitive' }}</span>
-          </button>
+            <div class="flex items-start gap-3.5">
+              <div class="w-10 h-10 rounded-xl bg-red-500/10 text-red-600 dark:text-red-400 flex items-center justify-center flex-shrink-0 border border-red-500/20">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 6h18"/>
+                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-base font-bold text-slate-900 dark:text-white">
+                  Supprimer définitivement le compte ?
+                </h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  Cette action est immédiate et irrévocable. Toutes vos métas, vos archétypes et vos historiques de parties seront définitivement supprimés.
+                </p>
+              </div>
+            </div>
+
+            <div class="space-y-2 bg-red-500/5 border border-red-500/15 rounded-xl p-3.5">
+              <label for="delete-confirm" class="block text-xs font-semibold text-slate-800 dark:text-slate-200">
+                Pour confirmer, veuillez saisir votre pseudo <strong class="text-red-600 dark:text-red-400 underline">{{ user?.username }}</strong> ou le mot <strong class="text-red-600 dark:text-red-400">SUPPRIMER</strong> :
+              </label>
+              <input
+                id="delete-confirm"
+                v-model="deleteConfirmationInput"
+                type="text"
+                autocomplete="off"
+                :placeholder="user?.username || 'SUPPRIMER'"
+                class="w-full px-3 py-2 rounded-lg border border-red-300 dark:border-red-900/50 bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500 text-xs font-mono"
+              />
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                @click="closeDeleteModal"
+                :disabled="isDeletingAccount"
+                class="px-4 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+              >
+                Annuler
+              </button>
+
+              <button
+                type="button"
+                @click="handleDeleteAccount"
+                :disabled="!isConfirmationValid || isDeletingAccount"
+                class="px-4 py-2 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed text-white transition shadow-sm flex items-center gap-2 cursor-pointer"
+              >
+                <svg
+                  v-if="isDeletingAccount"
+                  class="w-3.5 h-3.5 animate-spin"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                </svg>
+                <span>{{ isDeletingAccount ? 'Suppression en cours...' : 'Confirmer la suppression définitive' }}</span>
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </Transition>
+    </Teleport>
     </main>
   </div>
 </template>

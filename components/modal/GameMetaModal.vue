@@ -234,45 +234,51 @@ const handleDeleteMeta = async (meta: Meta) => {
 
 <template>
   <Teleport to="body">
-    <div
-      v-if="isOpen"
-      class="fixed inset-0 z-50 overflow-y-auto p-4 flex min-h-full items-center justify-center bg-slate-950/80 backdrop-blur-md animate-fade-in"
-      @click.self="emit('close')"
-    >
+    <Transition name="bottom-sheet">
       <div
-        class="relative w-full max-w-2xl rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden my-auto flex flex-col max-h-[90vh]"
-        role="dialog"
-        aria-modal="true"
+        v-if="isOpen"
+        class="fixed inset-0 z-50 overflow-y-auto p-0 sm:p-4 flex items-end sm:items-center justify-center bg-slate-950/80 backdrop-blur-md"
+        @click.self="emit('close')"
       >
-        <!-- Header de la Modale -->
-        <div class="px-6 py-5 border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between bg-slate-50 dark:bg-slate-950/50">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 text-white">
-              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect width="20" height="12" x="2" y="6" rx="6" />
-                <path d="M6 12h4m-2-2v4m9-2h.01m3 0h.01" />
-              </svg>
-            </div>
-            <div>
-              <h3 class="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-                Configuration Jeu & Méta
-              </h3>
-              <p class="text-xs text-slate-500 dark:text-slate-400">
-                Sélectionnez le jeu et l'extension active pour vos matchs et statistiques
-              </p>
+        <div
+          class="modal-card relative w-full max-w-2xl rounded-t-3xl sm:rounded-3xl rounded-b-none sm:rounded-b-3xl bg-white dark:bg-slate-900 border-t sm:border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh] sm:max-h-[85vh] pb-safe sm:pb-0"
+          role="dialog"
+          aria-modal="true"
+        >
+          <!-- Header de la Modale -->
+          <div class="px-6 pt-3 pb-4 sm:py-5 border-b border-slate-200 dark:border-slate-800/80 flex flex-col bg-white dark:bg-slate-900 flex-shrink-0">
+            <!-- Poignée de glissement sur mobile -->
+            <div class="w-12 h-1 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-3 sm:hidden flex-shrink-0" />
+
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 text-white flex-shrink-0">
+                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="20" height="12" x="2" y="6" rx="6" />
+                    <path d="M6 12h4m-2-2v4m9-2h.01m3 0h.01" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+                    Configuration Jeu & Méta
+                  </h3>
+                  <p class="text-xs text-slate-500 dark:text-slate-400">
+                    Sélectionnez le jeu et l'extension active pour vos matchs et statistiques
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                @click="emit('close')"
+                class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition cursor-pointer"
+              >
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
+              </button>
             </div>
           </div>
-
-          <button
-            type="button"
-            @click="emit('close')"
-            class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition cursor-pointer"
-          >
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M18 6 6 18M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
 
         <!-- Corps de la Modale -->
         <div class="p-6 overflow-y-auto space-y-6">
@@ -605,19 +611,13 @@ const handleDeleteMeta = async (meta: Meta) => {
         </div>
 
         <!-- Footer -->
-        <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950/40 flex items-center justify-between">
-          <span class="text-xs text-slate-500 dark:text-slate-400">
+        <div class="px-6 py-3.5 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 flex-shrink-0">
+          <span>
             Cliquez sur un format pour l'activer instantanément.
           </span>
-          <button
-            type="button"
-            @click="emit('close')"
-            class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
-          >
-            Fermer
-          </button>
         </div>
       </div>
     </div>
+    </Transition>
   </Teleport>
 </template>

@@ -22,9 +22,11 @@ const { toast } = useNotify()
 watch(() => props.isOpen, (open) => {
   if (open) {
     metaName.value = ''
-    nextTick(() => {
-      inputRef.value?.focus()
-    })
+    if (typeof window !== 'undefined' && window.innerWidth >= 640) {
+      nextTick(() => {
+        inputRef.value?.focus()
+      })
+    }
   }
 })
 
@@ -64,16 +66,19 @@ const handleCreate = async () => {
 
 <template>
   <Teleport to="body">
-    <div
-      v-if="isOpen"
-      class="fixed inset-0 z-50 overflow-y-auto p-4 flex min-h-full items-center justify-center bg-slate-950/80 backdrop-blur-sm animate-fade-in"
-      @click.self="emit('close')"
-    >
+    <Transition name="bottom-sheet">
       <div
-        class="relative w-full max-w-md rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-6 my-auto"
-        role="dialog"
-        aria-modal="true"
+        v-if="isOpen"
+        class="fixed inset-0 z-50 overflow-y-auto p-0 sm:p-4 flex items-end sm:items-center justify-center bg-slate-950/80 backdrop-blur-md"
+        @click.self="emit('close')"
       >
+        <div
+          class="modal-card relative w-full max-w-md rounded-t-3xl sm:rounded-2xl rounded-b-none sm:rounded-b-2xl bg-white dark:bg-slate-900 border-t sm:border border-slate-200 dark:border-slate-800 shadow-2xl p-5 sm:p-6 pb-safe sm:pb-6"
+          role="dialog"
+          aria-modal="true"
+        >
+          <!-- Poignée de glissement sur mobile -->
+          <div class="w-12 h-1 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-3 sm:hidden flex-shrink-0" />
         <div class="flex items-center justify-between pb-4 border-b border-slate-800/80">
           <div>
             <h3 class="text-base font-bold text-white flex items-center gap-2">
@@ -141,5 +146,6 @@ const handleCreate = async () => {
         </form>
       </div>
     </div>
+    </Transition>
   </Teleport>
 </template>

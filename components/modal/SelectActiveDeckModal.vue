@@ -19,9 +19,11 @@ const searchInputRef = ref<HTMLInputElement | null>(null)
 watch(() => props.isOpen, (open) => {
   if (open) {
     searchQuery.value = ''
-    nextTick(() => {
-      searchInputRef.value?.focus()
-    })
+    if (typeof window !== 'undefined' && window.innerWidth >= 640) {
+      nextTick(() => {
+        searchInputRef.value?.focus()
+      })
+    }
   }
 })
 
@@ -57,47 +59,53 @@ const handleSelect = (deckId: string) => {
 
 <template>
   <Teleport to="body">
-    <div
-      v-if="isOpen"
-      class="fixed inset-0 z-50 overflow-y-auto p-4 flex min-h-full items-center justify-center bg-slate-950/80 backdrop-blur-md transition-opacity"
-      @click.self="emit('close')"
-    >
+    <Transition name="bottom-sheet">
       <div
-        class="relative w-full max-w-2xl rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden my-auto flex flex-col max-h-[85vh]"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="select-deck-modal-title"
+        v-if="isOpen"
+        class="fixed inset-0 z-50 overflow-y-auto p-0 sm:p-4 flex items-end sm:items-center justify-center bg-slate-950/80 backdrop-blur-md"
+        @click.self="emit('close')"
       >
-        <!-- Header -->
-        <div class="px-6 py-5 border-b border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950/60 flex items-center justify-between flex-shrink-0">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm flex-shrink-0">
-              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect width="18" height="18" x="3" y="3" rx="2" />
-                <path d="m9 12 2 2 4-4" />
-              </svg>
-            </div>
-            <div>
-              <h3 id="select-deck-modal-title" class="text-base font-bold text-slate-900 dark:text-white">
-                Sélectionner le Deck Actif
-              </h3>
-              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Choisissez votre deck principal pour analyser vos matchups
-              </p>
+        <div
+          class="modal-card relative w-full max-w-2xl rounded-t-3xl sm:rounded-3xl rounded-b-none sm:rounded-b-3xl bg-white dark:bg-slate-900 border-t sm:border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh] sm:max-h-[85vh] pb-safe sm:pb-0"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="select-deck-modal-title"
+        >
+          <!-- Header -->
+          <div class="px-6 pt-3 pb-4 sm:py-5 border-b border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900 flex flex-col flex-shrink-0">
+            <!-- Poignée de glissement sur mobile -->
+            <div class="w-12 h-1 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-3 sm:hidden flex-shrink-0" />
+
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm flex-shrink-0">
+                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect width="18" height="18" x="3" y="3" rx="2" />
+                    <path d="m9 12 2 2 4-4" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 id="select-deck-modal-title" class="text-base font-bold text-slate-900 dark:text-white">
+                    Sélectionner le Deck Actif
+                  </h3>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Choisissez votre deck principal pour analyser vos matchups
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                @click="emit('close')"
+                class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition cursor-pointer"
+                aria-label="Fermer"
+              >
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
+              </button>
             </div>
           </div>
-
-          <button
-            type="button"
-            @click="emit('close')"
-            class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition cursor-pointer"
-            aria-label="Fermer"
-          >
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M18 6 6 18M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
 
         <!-- Champ de recherche instantanée -->
         <div class="p-4 sm:p-5 border-b border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-slate-900 flex-shrink-0">
@@ -246,29 +254,21 @@ const handleSelect = (deckId: string) => {
         </div>
 
         <!-- Footer -->
-        <div class="px-6 py-3.5 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950/60 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 flex-shrink-0">
+        <div class="px-6 py-3.5 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 flex-shrink-0">
           <span>
             {{ filteredDecks.length }} archétype{{ filteredDecks.length > 1 ? 's' : '' }} disponible{{ filteredDecks.length > 1 ? 's' : '' }}
           </span>
 
-          <div class="flex items-center gap-3">
-            <NuxtLink
-              to="/archetypes"
-              @click="emit('close')"
-              class="font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
-            >
-              Gérer les archétypes →
-            </NuxtLink>
-            <button
-              type="button"
-              @click="emit('close')"
-              class="px-3.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-medium transition cursor-pointer"
-            >
-              Fermer
-            </button>
-          </div>
+          <NuxtLink
+            to="/archetypes"
+            @click="emit('close')"
+            class="font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
+          >
+            Gérer les archétypes
+          </NuxtLink>
         </div>
       </div>
     </div>
+    </Transition>
   </Teleport>
 </template>

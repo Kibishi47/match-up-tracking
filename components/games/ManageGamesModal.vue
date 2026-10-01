@@ -50,16 +50,20 @@ const toggleGame = async (game: Game) => {
 
 <template>
   <Teleport to="body">
-    <div
-      v-if="isOpen"
-      class="fixed inset-0 z-50 overflow-y-auto p-4 flex min-h-full items-center justify-center bg-slate-950/80 backdrop-blur-sm animate-fade-in"
-      @click.self="emit('close')"
-    >
+    <Transition name="bottom-sheet">
       <div
-        class="relative w-full max-w-lg rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-6 flex flex-col max-h-[85vh] my-auto"
-        role="dialog"
-        aria-modal="true"
+        v-if="isOpen"
+        class="fixed inset-0 z-50 overflow-y-auto p-0 sm:p-4 flex items-end sm:items-center justify-center bg-slate-950/80 backdrop-blur-md"
+        @click.self="emit('close')"
       >
+        <div
+          class="modal-card relative w-full max-w-lg rounded-t-3xl sm:rounded-2xl rounded-b-none sm:rounded-b-2xl bg-white dark:bg-slate-900 border-t sm:border border-slate-200 dark:border-slate-800 shadow-2xl p-5 sm:p-6 flex flex-col max-h-[90vh] sm:max-h-[85vh] pb-safe sm:pb-6"
+          role="dialog"
+          aria-modal="true"
+        >
+        <!-- Poignée de glissement sur mobile -->
+        <div class="w-12 h-1 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-3 sm:hidden flex-shrink-0" />
+
         <!-- En-tête fixe -->
         <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800/80 flex-shrink-0">
           <div>
@@ -146,18 +150,8 @@ const toggleGame = async (game: Game) => {
             </button>
           </div>
         </div>
-
-        <!-- Pied de modale fixe -->
-        <div class="pt-4 border-t border-slate-200 dark:border-slate-800 flex justify-end flex-shrink-0">
-          <button
-            type="button"
-            @click="emit('close')"
-            class="px-4 py-2 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer"
-          >
-            Fermer
-          </button>
-        </div>
       </div>
     </div>
+    </Transition>
   </Teleport>
 </template>

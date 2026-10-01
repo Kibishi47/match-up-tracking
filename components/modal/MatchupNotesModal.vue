@@ -24,9 +24,11 @@ watch(() => props.isOpen, (open) => {
   if (open) {
     notesText.value = props.initialNotes || ''
     hasJustSaved.value = false
-    nextTick(() => {
-      textareaRef.value?.focus()
-    })
+    if (typeof window !== 'undefined' && window.innerWidth >= 640) {
+      nextTick(() => {
+        textareaRef.value?.focus()
+      })
+    }
   }
 })
 
@@ -76,52 +78,58 @@ const handleBlur = () => {
 
 <template>
   <Teleport to="body">
-    <div
-      v-if="isOpen"
-      class="fixed inset-0 z-50 overflow-y-auto p-4 flex min-h-full items-center justify-center bg-slate-950/80 backdrop-blur-md animate-fade-in"
-      @click.self="emit('close')"
-    >
+    <Transition name="bottom-sheet">
       <div
-        class="relative w-full max-w-lg rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden my-auto flex flex-col"
-        role="dialog"
-        aria-modal="true"
+        v-if="isOpen"
+        class="fixed inset-0 z-50 overflow-y-auto p-0 sm:p-4 flex items-end sm:items-center justify-center bg-slate-950/80 backdrop-blur-md"
+        @click.self="emit('close')"
       >
-        <!-- En-tête : Duel & Archétypes -->
-        <div class="px-6 py-5 border-b border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950/60 flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500 dark:text-amber-400 shadow-sm flex-shrink-0">
-              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 20h9"/>
-                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-              </svg>
-            </div>
-            <div>
-              <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <span>Notes de Matchup</span>
-              </h3>
-              <!-- Contexte des decks -->
-              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
-                <span class="text-emerald-600 dark:text-emerald-400 font-semibold truncate max-w-[140px]" :title="myArchetype?.name">
-                  {{ myArchetype?.name || 'Mon Deck' }}
-                </span>
-                <span class="text-slate-400 dark:text-slate-500 font-bold">vs</span>
-                <span class="text-indigo-600 dark:text-indigo-400 font-semibold truncate max-w-[140px]" :title="opponentArchetype?.name">
-                  {{ opponentArchetype?.name || 'Adversaire' }}
-                </span>
-              </p>
+        <div
+          class="modal-card relative w-full max-w-lg rounded-t-3xl sm:rounded-3xl rounded-b-none sm:rounded-b-3xl bg-white dark:bg-slate-900 border-t sm:border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh] sm:max-h-[85vh] pb-safe sm:pb-0"
+          role="dialog"
+          aria-modal="true"
+        >
+          <!-- En-tête : Duel & Archétypes -->
+          <div class="px-6 pt-3 pb-4 sm:py-5 border-b border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900 flex flex-col flex-shrink-0">
+            <!-- Poignée de glissement sur mobile -->
+            <div class="w-12 h-1 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-3 sm:hidden flex-shrink-0" />
+
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500 dark:text-amber-400 shadow-sm flex-shrink-0">
+                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 20h9"/>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <span>Notes de Matchup</span>
+                  </h3>
+                  <!-- Contexte des decks -->
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
+                    <span class="text-emerald-600 dark:text-emerald-400 font-semibold truncate max-w-[140px]" :title="myArchetype?.name">
+                      {{ myArchetype?.name || 'Mon Deck' }}
+                    </span>
+                    <span class="text-slate-400 dark:text-slate-500 font-bold">vs</span>
+                    <span class="text-indigo-600 dark:text-indigo-400 font-semibold truncate max-w-[140px]" :title="opponentArchetype?.name">
+                      {{ opponentArchetype?.name || 'Adversaire' }}
+                    </span>
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                @click="emit('close')"
+                class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition cursor-pointer"
+              >
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
+              </button>
             </div>
           </div>
-
-          <button
-            type="button"
-            @click="emit('close')"
-            class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition cursor-pointer"
-          >
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M18 6 6 18M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
 
         <!-- Corps : Textarea & Conseils -->
         <div class="p-6 space-y-4">
@@ -160,20 +168,12 @@ const handleBlur = () => {
         </div>
 
         <!-- Footer -->
-        <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950/40 flex items-center justify-between">
-          <button
-            type="button"
-            @click="emit('close')"
-            class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
-          >
-            Fermer
-          </button>
-
+        <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900 flex items-center justify-end">
           <button
             type="button"
             @click="saveNotes"
             :disabled="isSaving"
-            class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 active:scale-95 text-white font-bold text-xs transition disabled:opacity-50 shadow-md shadow-amber-950/20 flex items-center gap-2 cursor-pointer"
+            class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 active:scale-95 text-white font-bold text-xs transition disabled:opacity-50 shadow-md shadow-amber-950/20 flex items-center justify-center gap-2 cursor-pointer"
           >
             <svg v-if="!isSaving" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
@@ -186,5 +186,6 @@ const handleBlur = () => {
         </div>
       </div>
     </div>
+    </Transition>
   </Teleport>
 </template>
