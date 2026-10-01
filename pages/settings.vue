@@ -250,7 +250,7 @@ const handleLogout = async () => {
           type="button"
           @click="setTheme(theme.id)"
           :class="[
-            'p-4 rounded-xl border text-left transition duration-200 cursor-pointer flex flex-col justify-between gap-3 relative',
+            'p-4 rounded-xl border text-left transition duration-200 cursor-pointer flex flex-col justify-start gap-3 relative',
             colorMode.preference === theme.id
               ? 'border-emerald-500 bg-emerald-500/10 dark:bg-emerald-500/10 shadow-sm ring-1 ring-emerald-500'
               : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 hover:border-slate-300 dark:hover:border-slate-700'
