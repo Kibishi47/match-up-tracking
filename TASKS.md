@@ -38,6 +38,12 @@ Tâches critiques pour la fluidité et le confort d'utilisation au quotidien, en
   - *Problème :* Les carrés arrondis colorés avec icône dans les en-têtes peuvent faire datés ou chargés.
   - *Solution :* Explorer une approche plus légère (icône monochrome intégrée au titre, badge épuré, ou absence d'icône pour laisser respirer le titre).
 
+- [x] **Harmonisation de tous les boutons "Actualiser"**
+  - *Solution :* Standardisation de l'ensemble des boutons de rafraîchissement (Dashboard, Archétypes, Administration des jeux) sur le modèle du dashboard (icône SVG réactive compacte sur mobile, texte desktop, padding et styles de hover uniformes).
+
+- [x] **Alignement pleine largeur des actions de compte (Settings)**
+  - *Solution :* Suppression des contraintes `max-w-sm` / `sm:max-w-lg` sur les boutons *Se déconnecter* et *Supprimer mon compte* pour qu'ils épousent exactement la largeur des sections au-dessus sur mobile et desktop.
+
 ---
 
 ## 🟡 Priorité 3 — Ergonomie & Expérience d'Édition (Workflows)
