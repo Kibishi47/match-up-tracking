@@ -242,13 +242,15 @@ const deleteGame = async (game: Game) => {
             <div class="flex items-center justify-between mb-4">
               <h2 class="text-lg font-bold text-slate-900 dark:text-white">Jeux configurés ({{ gamesList?.length || 0 }})</h2>
               <button
+                type="button"
                 @click="refreshGames()"
-                class="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-1.5 cursor-pointer"
+                class="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white p-1.5 sm:px-2.5 sm:py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-1.5 flex-shrink-0 cursor-pointer"
+                title="Actualiser les jeux"
               >
                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
                 </svg>
-                Actualiser
+                <span class="hidden sm:inline">Actualiser</span>
               </button>
             </div>
 
