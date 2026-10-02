@@ -13,6 +13,8 @@ const emit = defineEmits<{
   (e: 'saved', newNotes: string): void
 }>()
 
+useScrollLock(toRef(props, 'isOpen'))
+
 const notesText = ref('')
 const isSaving = ref(false)
 const hasJustSaved = ref(false)

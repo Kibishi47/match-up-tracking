@@ -13,6 +13,8 @@ const emit = defineEmits<{
   (e: 'created', meta: Meta): void
 }>()
 
+useScrollLock(toRef(props, 'isOpen'))
+
 const metaName = ref('')
 const isSubmitting = ref(false)
 const inputRef = ref<HTMLInputElement | null>(null)

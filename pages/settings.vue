@@ -73,6 +73,7 @@ const setTheme = (themeId: string) => {
 
 // Modale de suppression sécurisée
 const isDeleteModalOpen = ref(false)
+useScrollLock(isDeleteModalOpen)
 const deleteConfirmationInput = ref('')
 const isDeletingAccount = ref(false)
 

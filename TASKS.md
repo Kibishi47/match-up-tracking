@@ -8,15 +8,15 @@ Ce document répertorie les tâches et évolutions futures du projet, classées 
 
 Tâches critiques pour la fluidité et le confort d'utilisation au quotidien, en particulier sur smartphone.
 
-- [ ] **Verrouillage du scroll arrière-plan (Body Scroll Lock)**
+- [x] **Verrouillage du scroll arrière-plan (Body Scroll Lock)**
   - *Problème :* Lorsqu'une modale, popup ou bottom sheet est ouverte, faire défiler le contenu entraîne souvent le scroll de la page située derrière.
   - *Solution :* Bloquer le scroll du `body` (via composable dédié `useScrollLock` ou `overflow: hidden` sur `body` / `html` avec compensation de la barre de défilement) à l'ouverture de n'importe quel composant modal ou bottom sheet.
 
-- [ ] **Correction des notifications d'annulation de match sur mobile**
+- [x] **Correction des notifications d'annulation de match sur mobile**
   - *Problème :* Le toast / bandeau d'annulation ("Annuler le match") peut être mal positionné, tronqué ou masquer des actions clés sur mobile.
   - *Solution :* Revoir l'ancrage, le z-index, la marge inférieure (`safe-area-inset-bottom`) et s'assurer que le toast d'undo reste parfaitement accessible sans gêner la navigation.
 
-- [ ] **Refonte mobile de la section "Historique Récent" (en-tête prioritaire & lignes)**
+- [x] **Refonte mobile de la section "Historique Récent" (en-tête prioritaire & lignes)**
   - *Problème :* Sur smartphone, l'en-tête de la section (titre "Historique Récent", sous-compteur de matchs et bouton "Actualiser") rend particulièrement mal visuellement (alignements rigides, texte tronqué ou tassé). La disposition des lignes de matchs peut également être perfectionnée.
   - *Solution :* Repenser en priorité l'en-tête mobile (titre épuré, badge compteur subtil, bouton actualiser compact avec icône optimisée) et harmoniser la structure des lignes de match en dessous pour un rendu fluide et équilibré.
 

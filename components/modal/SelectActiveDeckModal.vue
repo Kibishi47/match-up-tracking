@@ -12,6 +12,8 @@ const emit = defineEmits<{
   (e: 'select', deckId: string): void
 }>()
 
+useScrollLock(toRef(props, 'isOpen'))
+
 const searchQuery = ref('')
 const searchInputRef = ref<HTMLInputElement | null>(null)
 

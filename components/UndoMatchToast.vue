@@ -78,7 +78,7 @@ const handleEdit = () => {
   >
     <div
       v-if="match"
-      class="fixed bottom-20 md:bottom-6 right-4 md:right-6 left-4 md:left-auto z-50 max-w-md bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden p-4 text-slate-900 dark:text-white"
+      class="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 left-4 sm:left-auto z-[110] sm:max-w-md bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden p-3.5 sm:p-4 text-slate-900 dark:text-white"
     >
       <!-- Barre de progression 10s -->
       <div class="absolute top-0 left-0 right-0 h-1 bg-slate-100 dark:bg-slate-800">
@@ -88,12 +88,12 @@ const handleEdit = () => {
         />
       </div>
 
-      <div class="flex items-center justify-between gap-3 mt-1">
-        <div class="flex items-center gap-3 min-w-0">
+      <div class="flex items-center justify-between gap-2.5 sm:gap-3 mt-1">
+        <div class="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
           <!-- Badge Victoire, Défaite ou Nul -->
           <div
             :class="[
-              'w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shadow-md flex-shrink-0',
+              'w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center font-bold text-xs sm:text-sm shadow-md flex-shrink-0',
               match.result === 'win'
                 ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/40'
                 : (match.result === 'loss' ? 'bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/40' : 'bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/40')
@@ -102,11 +102,11 @@ const handleEdit = () => {
             {{ match.result === 'win' ? 'W' : (match.result === 'loss' ? 'L' : 'D') }}
           </div>
 
-          <div class="min-w-0">
-            <p class="text-xs text-slate-500 dark:text-slate-400">
+          <div class="min-w-0 flex-1">
+            <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">
               Match enregistré • {{ Math.ceil(timeLeft / 1000) }}s
             </p>
-            <p class="text-sm font-semibold truncate text-slate-900 dark:text-white">
+            <p class="text-xs sm:text-sm font-semibold truncate text-slate-900 dark:text-white">
               vs {{ match.opponentArchetype?.name || 'Adversaire' }}
             </p>
           </div>

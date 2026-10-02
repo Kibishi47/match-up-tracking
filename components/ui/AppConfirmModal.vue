@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const { confirmState, resolveConfirm } = useNotify()
+useScrollLock(computed(() => confirmState.value.isOpen))
 
 const handleKeydown = (e: KeyboardEvent) => {
   if (confirmState.value.isOpen && e.key === 'Escape') {

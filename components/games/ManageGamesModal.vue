@@ -10,6 +10,8 @@ const emit = defineEmits<{
   (e: 'updated'): void
 }>()
 
+useScrollLock(toRef(props, 'isOpen'))
+
 const { games: userGames, refreshGames } = useGameSession()
 
 // Récupérer tout le catalogue global de jeux

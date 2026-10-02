@@ -10,6 +10,8 @@ const emit = defineEmits<{
   (e: 'openManageGames'): void
 }>()
 
+useScrollLock(toRef(props, 'isOpen'))
+
 const { games, activeGameId, setActiveGame } = useGameSession()
 const { activeMetaId, setActiveMeta, refreshMetas: refreshSessionMetas } = useMetaSession()
 const { toast, confirmAction } = useNotify()

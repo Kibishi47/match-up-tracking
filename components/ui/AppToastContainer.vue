@@ -5,7 +5,7 @@ const { toasts, dismissToast } = useNotify()
 <template>
   <Teleport to="body">
     <div
-      class="fixed bottom-5 right-5 z-[110] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none"
+      class="fixed bottom-20 sm:bottom-6 left-4 right-4 sm:left-auto sm:right-6 z-[110] flex flex-col gap-2.5 sm:max-w-sm pointer-events-none"
       aria-live="polite"
     >
       <TransitionGroup
@@ -20,7 +20,7 @@ const { toasts, dismissToast } = useNotify()
           v-for="t in toasts"
           :key="t.id"
           :class="[
-            'pointer-events-auto p-4 rounded-2xl border shadow-2xl flex items-start gap-3 backdrop-blur-xl transition-all',
+            'pointer-events-auto p-3.5 sm:p-4 rounded-2xl border shadow-2xl flex items-center gap-3 backdrop-blur-xl transition-all',
             t.type === 'success' ? 'bg-slate-900/95 border-emerald-500/40 text-emerald-300' : '',
             t.type === 'error' ? 'bg-slate-900/95 border-red-500/40 text-red-300' : '',
             t.type === 'warning' ? 'bg-slate-900/95 border-amber-500/40 text-amber-300' : '',
@@ -28,7 +28,7 @@ const { toasts, dismissToast } = useNotify()
           ]"
         >
           <!-- Icône du Toast -->
-          <div class="flex-shrink-0 mt-0.5">
+          <div class="flex-shrink-0">
             <!-- Success SVG -->
             <svg v-if="t.type === 'success'" class="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>

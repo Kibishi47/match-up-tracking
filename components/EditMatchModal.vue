@@ -15,6 +15,8 @@ const emit = defineEmits<{
   (e: 'updated', match: Match): void
 }>()
 
+useScrollLock(computed(() => props.match !== null))
+
 const result = ref<'win' | 'loss' | 'draw'>('win')
 const notes = ref('')
 const isSubmitting = ref(false)

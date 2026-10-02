@@ -208,22 +208,31 @@ const formatDate = (dateStr: string | Date) => {
         <MatchHistorySkeleton v-if="isInitialLoading" />
         
         <div v-else class="glass-panel p-4 sm:p-6 lg:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900/60">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <span>Historique Récent</span>
-              <span class="text-xs text-slate-400 dark:text-slate-500 font-normal">
-                ({{ dashboardData?.recentMatches?.length || 0 }} derniers matchs)
+          <!-- En-tête de l'historique compact & réactif -->
+          <div class="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800/80">
+            <div class="flex items-center gap-2 sm:gap-2.5 min-w-0">
+              <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white whitespace-nowrap">
+                Historique Récent
+              </h3>
+              <span
+                v-if="dashboardData?.recentMatches?.length"
+                class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700/60 flex-shrink-0"
+                :title="`${dashboardData.recentMatches.length} derniers matchs`"
+              >
+                {{ dashboardData.recentMatches.length }}
               </span>
-            </h3>
+            </div>
 
             <button
+              type="button"
               @click="refreshDashboard()"
-              class="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-1.5 cursor-pointer"
+              class="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white p-1.5 sm:px-2.5 sm:py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-1.5 flex-shrink-0 cursor-pointer"
+              title="Actualiser l'historique"
             >
               <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
               </svg>
-              <span>Actualiser</span>
+              <span class="hidden sm:inline">Actualiser</span>
             </button>
           </div>
 
@@ -235,13 +244,13 @@ const formatDate = (dateStr: string | Date) => {
             <div
               v-for="m in dashboardData.recentMatches"
               :key="m.id"
-              class="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 group hover:bg-slate-50 dark:hover:bg-slate-900/40 px-3 rounded-xl transition"
+              class="py-3 flex items-center justify-between gap-2.5 sm:gap-4 group hover:bg-slate-50 dark:hover:bg-slate-900/40 px-2 sm:px-3 rounded-xl transition"
             >
               <!-- Info Match -->
-              <div class="flex items-center gap-3.5">
+              <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
                 <span
                   :class="[
-                    'w-12 h-8 rounded-lg flex items-center justify-center font-black text-xs uppercase flex-shrink-0 shadow-sm tracking-wide',
+                    'w-11 sm:w-12 h-7 sm:h-8 rounded-lg flex items-center justify-center font-black text-[10px] sm:text-xs uppercase flex-shrink-0 shadow-sm tracking-wide',
                     m.result === 'win'
                       ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30'
                       : (m.result === 'loss' ? 'bg-red-500/20 text-red-700 dark:text-red-400 border border-red-500/30' : 'bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30')
@@ -250,32 +259,37 @@ const formatDate = (dateStr: string | Date) => {
                   {{ m.result === 'win' ? 'WIN' : (m.result === 'loss' ? 'LOSS' : 'DRAW') }}
                 </span>
 
-                <div>
-                  <div class="text-sm font-semibold text-slate-900 dark:text-white">
+                <div class="min-w-0 flex-1">
+                  <div class="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white truncate">
                     vs {{ m.opponentArchetype?.name || 'Adversaire inconnu' }}
-                    <span class="text-xs font-normal text-slate-500 dark:text-slate-400 ml-2">avec {{ m.myArchetype?.name }}</span>
+                    <span class="text-[11px] sm:text-xs font-normal text-slate-500 dark:text-slate-400 ml-1.5 hidden sm:inline">avec {{ m.myArchetype?.name }}</span>
                   </div>
-                  <div class="flex items-center gap-3 text-xs text-slate-400 dark:text-slate-500 mt-0.5">
-                    <span>{{ formatDate(m.createdAt) }}</span>
-                    <span v-if="m.notes" class="text-slate-600 dark:text-slate-400 italic">"{{ m.notes }}"</span>
+                  <div class="flex items-center gap-2 text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
+                    <span class="flex-shrink-0">{{ formatDate(m.createdAt) }}</span>
+                    <span v-if="m.notes" class="text-slate-600 dark:text-slate-400 italic truncate" :title="m.notes">"{{ m.notes }}"</span>
                   </div>
                 </div>
               </div>
 
               <!-- Actions Édition & Suppression -->
-              <div class="flex items-center gap-2 self-end sm:self-center">
+              <div class="flex items-center gap-1 sm:gap-2 flex-shrink-0">
                 <button
+                  type="button"
                   @click="editingMatch = m"
-                  class="px-3 py-1 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer"
+                  class="px-2.5 py-1 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer"
                 >
                   Éditer
                 </button>
                 <button
+                  type="button"
                   @click="deleteMatchFromHistory(m.id)"
-                  class="px-3 py-1 rounded-lg text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-500/10 transition cursor-pointer"
+                  class="p-1 sm:px-2.5 sm:py-1 rounded-lg text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-500/10 transition cursor-pointer"
                   title="Supprimer ce match"
                 >
-                  Supprimer
+                  <span class="hidden sm:inline">Supprimer</span>
+                  <svg class="w-4 h-4 sm:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                  </svg>
                 </button>
               </div>
             </div>
