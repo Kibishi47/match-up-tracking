@@ -4,6 +4,7 @@ import { relations } from 'drizzle-orm'
 // Énumérations
 export const roleEnum = pgEnum('user_role', ['admin', 'user'])
 export const matchResultEnum = pgEnum('match_result', ['win', 'loss', 'draw'])
+export const matchFormatEnum = pgEnum('match_format', ['bo1', 'bo3'])
 
 // 1. Table Utilisateurs
 export const users = pgTable('users', {
@@ -86,7 +87,11 @@ export const matches = pgTable('matches', {
   id: uuid('id').defaultRandom().primaryKey(),
   matchupId: uuid('matchup_id').references(() => matchups.id, { onDelete: 'cascade' }).notNull(),
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  format: matchFormatEnum('format').default('bo1').notNull(),
   result: matchResultEnum('result').notNull(),
+  game1: matchResultEnum('game1'),
+  game2: matchResultEnum('game2'),
+  game3: matchResultEnum('game3'),
   notes: text('notes').default('').notNull(),
   playedAt: timestamp('played_at').defaultNow().notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull()
