@@ -25,7 +25,7 @@ const { activeMetaId, activeMeta } = useMetaSession()
 const isGameMetaModalOpen = ref(false)
 const searchQuery = ref('')
 const activeTab = ref<'all' | 'played' | 'faced'>('all')
-const sortBy = ref<'volume' | 'played_wr' | 'faced_wr' | 'showrate' | 'name'>('volume')
+const sortBy = ref<'volume' | 'overall_wr' | 'played_wr' | 'faced_wr' | 'showrate' | 'name'>('volume')
 
 // 2. Récupération réactive des statistiques de la méta
 interface MetaStatsApiResponse {
@@ -95,6 +95,8 @@ const filteredArchetypes = computed(() => {
     switch (sortBy.value) {
       case 'volume':
         return b.totalInvolvements - a.totalInvolvements
+      case 'overall_wr':
+        return b.overall.winrate - a.overall.winrate || b.totalInvolvements - a.totalInvolvements
       case 'played_wr':
         return b.played.winrate - a.played.winrate || b.played.total - a.played.total
       case 'faced_wr':
@@ -133,7 +135,7 @@ const getWinrateBarClass = (rate: number) => {
     <AppHeader />
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-24 md:pb-12 space-y-6 sm:space-y-8">
-      <!-- 1. En-tête de la page avec contexte Méta et Actions -->
+      <!-- 1. En-tête de la page avec contexte Méta et bouton Actualiser -->
       <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2">
         <div>
           <div class="flex items-center gap-2.5">
@@ -153,23 +155,7 @@ const getWinrateBarClass = (rate: number) => {
         </div>
 
         <div class="flex items-center gap-2 self-start sm:self-auto">
-          <!-- Bouton changer format -->
-          <button
-            type="button"
-            id="change-format-btn"
-            @click="isGameMetaModalOpen = true"
-            class="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm cursor-pointer"
-          >
-            <svg class="w-4 h-4 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m3 16 4 4 4-4" />
-              <path d="M7 20V4" />
-              <path d="m21 8-4-4-4 4" />
-              <path d="M17 4v16" />
-            </svg>
-            <span>{{ $t('stats_page.change_format') }}</span>
-          </button>
-
-          <!-- Bouton rafraîchir -->
+          <!-- Bouton rafraîchir compact et uniforme -->
           <button
             type="button"
             id="refresh-stats-btn"
@@ -363,41 +349,44 @@ const getWinrateBarClass = (rate: number) => {
           </template>
         </section>
 
-        <!-- 4. Barre de Contrôle : Onglets (Tous / Joués / Affrontés) + Recherche + Tri -->
-        <section class="glass-panel p-4 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 bg-white dark:bg-slate-900/60 shadow-sm space-y-4 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-4">
-          <!-- Onglets de filtre -->
-          <div class="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800/70 rounded-xl overflow-x-auto">
+        <!-- 4. Barre de Contrôle : Onglets (3 colonnes mobiles sans scroll) + Recherche + Tri explicite -->
+        <section class="glass-panel p-3.5 sm:p-4 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 bg-white dark:bg-slate-900/60 shadow-sm flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3.5">
+          <!-- Onglets de filtre : 3 colonnes égales sur mobile (zéro scroll), inline sur desktop -->
+          <div class="w-full sm:w-auto grid grid-cols-3 sm:inline-flex p-1 bg-slate-100 dark:bg-slate-800/70 rounded-xl gap-0.5">
             <button
               type="button"
               id="tab-all"
               @click="activeTab = 'all'"
-              class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition whitespace-nowrap cursor-pointer"
+              class="w-full text-center py-2 px-1 sm:px-3.5 rounded-lg text-xs sm:text-sm font-semibold transition cursor-pointer flex items-center justify-center"
               :class="activeTab === 'all' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
             >
-              {{ $t('stats_page.tabs.all') }}
+              <span class="sm:hidden">{{ $t('stats_page.tabs.all_short') }}</span>
+              <span class="hidden sm:inline">{{ $t('stats_page.tabs.all') }}</span>
             </button>
             <button
               type="button"
               id="tab-played"
               @click="activeTab = 'played'"
-              class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition whitespace-nowrap cursor-pointer"
+              class="w-full text-center py-2 px-1 sm:px-3.5 rounded-lg text-xs sm:text-sm font-semibold transition cursor-pointer flex items-center justify-center"
               :class="activeTab === 'played' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
             >
-              {{ $t('stats_page.tabs.played') }}
+              <span class="sm:hidden">{{ $t('stats_page.tabs.played_short') }}</span>
+              <span class="hidden sm:inline">{{ $t('stats_page.tabs.played') }}</span>
             </button>
             <button
               type="button"
               id="tab-faced"
               @click="activeTab = 'faced'"
-              class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition whitespace-nowrap cursor-pointer"
+              class="w-full text-center py-2 px-1 sm:px-3.5 rounded-lg text-xs sm:text-sm font-semibold transition cursor-pointer flex items-center justify-center"
               :class="activeTab === 'faced' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
             >
-              {{ $t('stats_page.tabs.faced') }}
+              <span class="sm:hidden">{{ $t('stats_page.tabs.faced_short') }}</span>
+              <span class="hidden sm:inline">{{ $t('stats_page.tabs.faced') }}</span>
             </button>
           </div>
 
-          <!-- Recherche instantanée et Sélecteur de Tri -->
-          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 flex-1 max-w-lg sm:justify-end">
+          <!-- Recherche instantanée et Sélecteur de Tri explicite -->
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 flex-1 lg:max-w-xl lg:justify-end">
             <!-- Champ de recherche -->
             <div class="relative flex-1 min-w-[200px]">
               <input
@@ -434,21 +423,31 @@ const getWinrateBarClass = (rate: number) => {
               </button>
             </div>
 
-            <!-- Dropdown Tri -->
-            <div class="relative flex-shrink-0">
+            <!-- Sélecteur de Tri Explicite avec icône et label visible -->
+            <div class="relative flex items-center bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs sm:text-sm shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition flex-shrink-0">
+              <div class="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 font-semibold pointer-events-none mr-2 flex-shrink-0">
+                <svg class="w-4 h-4 text-emerald-500 dark:text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m3 8 4-4 4 4" />
+                  <path d="M7 4v16" />
+                  <path d="m21 16-4 4-4-4" />
+                  <path d="M17 20V4" />
+                </svg>
+                <span>{{ $t('stats_page.sort.prefix') }}</span>
+              </div>
               <select
                 v-model="sortBy"
                 id="stats-sort-select"
-                class="w-full sm:w-auto px-3 py-2 pr-8 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition cursor-pointer appearance-none"
+                class="w-full bg-transparent font-medium text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer appearance-none pr-5 text-xs sm:text-sm"
               >
                 <option value="volume">{{ $t('stats_page.sort.volume_desc') }}</option>
+                <option value="overall_wr">{{ $t('stats_page.sort.overall_wr_desc') }}</option>
                 <option value="played_wr">{{ $t('stats_page.sort.played_wr_desc') }}</option>
                 <option value="faced_wr">{{ $t('stats_page.sort.faced_wr_desc') }}</option>
                 <option value="showrate">{{ $t('stats_page.sort.showrate_desc') }}</option>
                 <option value="name">{{ $t('stats_page.sort.name_asc') }}</option>
               </select>
               <svg
-                class="w-4 h-4 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none"
+                class="w-4 h-4 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -462,7 +461,7 @@ const getWinrateBarClass = (rate: number) => {
           </div>
         </section>
 
-        <!-- 5. Liste des Archétypes avec Statistiques Détaillées -->
+        <!-- 5. Liste des Archétypes avec Statistiques Détaillées (Overall + Joué + Affronté) -->
         <!-- État de chargement Skeleton -->
         <section v-if="isLoading" class="space-y-4">
           <div
@@ -470,14 +469,15 @@ const getWinrateBarClass = (rate: number) => {
             :key="i"
             class="glass-panel p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-white/70 dark:bg-slate-900/60 animate-pulse flex flex-col md:flex-row items-center gap-6"
           >
-            <div class="flex items-center gap-4 w-full md:w-1/3">
+            <div class="flex items-center gap-4 w-full md:w-1/4">
               <div class="w-14 h-16 bg-slate-200 dark:bg-slate-800 rounded-lg flex-shrink-0" />
               <div class="space-y-2 flex-1">
                 <div class="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded" />
                 <div class="h-3 w-20 bg-slate-200 dark:bg-slate-800 rounded" />
               </div>
             </div>
-            <div class="grid grid-cols-2 gap-4 w-full md:w-2/3">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full md:w-3/4">
+              <div class="h-16 bg-slate-200 dark:bg-slate-800 rounded-xl" />
               <div class="h-16 bg-slate-200 dark:bg-slate-800 rounded-xl" />
               <div class="h-16 bg-slate-200 dark:bg-slate-800 rounded-xl" />
             </div>
@@ -535,7 +535,7 @@ const getWinrateBarClass = (rate: number) => {
           >
             <div class="flex flex-col lg:flex-row lg:items-center gap-5">
               <!-- Colonne Gauche : Identité de l'archétype & Visuels Cartes Clés -->
-              <div class="flex items-center gap-3.5 lg:w-72 xl:w-80 flex-shrink-0">
+              <div class="flex items-center gap-3.5 lg:w-64 xl:w-72 flex-shrink-0">
                 <!-- Visuel éventail si 2 cartes ou simple carte -->
                 <div v-if="arch.card2ImageUrl || arch.card2Name" class="relative w-14 h-16 flex-shrink-0">
                   <div class="absolute left-0 top-1 w-10 h-14 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm transform -rotate-6 transition-transform flex items-center justify-center">
@@ -594,9 +594,64 @@ const getWinrateBarClass = (rate: number) => {
                 </div>
               </div>
 
-              <!-- Colonnes Droite : 2 Blocs (En tant que deck joué / En tant qu'adversaire) -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 flex-1">
-                <!-- Bloc 1 : En tant que Deck Joué -->
+              <!-- Colonnes Droite : 3 Blocs (Bilan Global / En tant que deck joué / En tant qu'adversaire) -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3.5 flex-1">
+                <!-- Bloc 1 : Overall (Bilan Global) -->
+                <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800/80 flex flex-col justify-between">
+                  <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                        {{ $t('stats_page.cards.overall') }}
+                      </span>
+                      <span
+                        v-if="arch.overall.total > 0"
+                        class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400"
+                        :title="$t('stats_page.cards.presence_rate_label')"
+                      >
+                        ({{ arch.overall.presenceRate }}%)
+                      </span>
+                    </div>
+
+                    <span
+                      class="px-2 py-0.5 rounded-md text-xs font-bold border"
+                      :class="getWinrateBadgeClass(arch.overall.winrate, arch.overall.total)"
+                    >
+                      {{ arch.overall.total > 0 ? `${arch.overall.winrate}% WR` : '—' }}
+                    </span>
+                  </div>
+
+                  <div v-if="arch.overall.total > 0" class="mt-2.5 space-y-2">
+                    <div class="flex items-center justify-between text-xs">
+                      <span class="font-medium text-slate-600 dark:text-slate-300">
+                        {{ $t('stats_page.cards.matches_count', { count: arch.overall.total }) }}
+                      </span>
+                      <span class="font-semibold text-slate-900 dark:text-slate-100">
+                        <span class="text-emerald-600 dark:text-emerald-400">{{ arch.overall.wins }}W</span>
+                        <span class="mx-1 text-slate-400">-</span>
+                        <span class="text-rose-600 dark:text-rose-400">{{ arch.overall.losses }}L</span>
+                        <template v-if="arch.overall.draws > 0">
+                          <span class="mx-1 text-slate-400">-</span>
+                          <span class="text-amber-600 dark:text-amber-400">{{ arch.overall.draws }}D</span>
+                        </template>
+                      </span>
+                    </div>
+
+                    <!-- Mini barre de progression WR global -->
+                    <div class="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                      <div
+                        class="h-full rounded-full transition-all duration-300"
+                        :class="getWinrateBarClass(arch.overall.winrate)"
+                        :style="{ width: `${arch.overall.winrate}%` }"
+                      />
+                    </div>
+                  </div>
+
+                  <div v-else class="mt-2 text-xs text-slate-400 dark:text-slate-500 italic">
+                    {{ $t('stats_page.cards.not_involved') }}
+                  </div>
+                </div>
+
+                <!-- Bloc 2 : En tant que Deck Joué -->
                 <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800/80 flex flex-col justify-between">
                   <div class="flex items-center justify-between gap-2">
                     <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
@@ -641,7 +696,7 @@ const getWinrateBarClass = (rate: number) => {
                   </div>
                 </div>
 
-                <!-- Bloc 2 : En tant qu'Adversaire -->
+                <!-- Bloc 3 : En tant qu'Adversaire -->
                 <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800/80 flex flex-col justify-between">
                   <div class="flex items-center justify-between gap-2">
                     <div class="flex items-center gap-1.5">
@@ -702,7 +757,7 @@ const getWinrateBarClass = (rate: number) => {
       </template>
     </main>
 
-    <!-- Modale de sélection Jeu & Méta -->
+    <!-- Modale de sélection Jeu & Méta si besoin -->
     <GameMetaModal
       :is-open="isGameMetaModalOpen"
       @close="isGameMetaModalOpen = false"

@@ -10,6 +10,14 @@ export interface ArchetypeMetaStats {
   card2Name: string | null
   card2ImageUrl: string | null
   isArchived: boolean
+  overall: {
+    total: number
+    wins: number
+    losses: number
+    draws: number
+    winrate: number
+    presenceRate: number
+  }
   played: {
     total: number
     wins: number
@@ -197,6 +205,13 @@ export default defineEventHandler(async (event) => {
     const facedWinrate = facedTotal > 0 ? Math.round((acc.facedWins / facedTotal) * 100) : 0
     const showRate = totalMetaMatches > 0 ? Math.round((facedTotal / totalMetaMatches) * 100) : 0
 
+    const totalInvolvements = playedTotal + facedTotal
+    const overallWins = acc.playedWins + acc.facedWins
+    const overallLosses = acc.playedLosses + acc.facedLosses
+    const overallDraws = acc.playedDraws + acc.facedDraws
+    const overallWinrate = totalInvolvements > 0 ? Math.round((overallWins / totalInvolvements) * 100) : 0
+    const presenceRate = totalMetaMatches > 0 ? Math.round((totalInvolvements / totalMetaMatches) * 100) : 0
+
     return {
       id: arch.id,
       name: arch.name,
@@ -205,6 +220,14 @@ export default defineEventHandler(async (event) => {
       card2Name: arch.card2Name,
       card2ImageUrl: arch.card2ImageUrl,
       isArchived: arch.isArchived,
+      overall: {
+        total: totalInvolvements,
+        wins: overallWins,
+        losses: overallLosses,
+        draws: overallDraws,
+        winrate: overallWinrate,
+        presenceRate
+      },
       played: {
         total: playedTotal,
         wins: acc.playedWins,
@@ -220,7 +243,7 @@ export default defineEventHandler(async (event) => {
         winrate: facedWinrate,
         showRate
       },
-      totalInvolvements: playedTotal + facedTotal
+      totalInvolvements
     }
   })
 

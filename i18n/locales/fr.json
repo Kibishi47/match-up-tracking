@@ -310,7 +310,6 @@
     "title": "Statistiques du Format",
     "subtitle": "Analyse globale des performances par archétype dans le format actif",
     "refresh": "Actualiser",
-    "change_format": "Changer de format",
     "kpi": {
       "total_matches": "Matchs Joués",
       "meta_winrate": "Win Rate Global",
@@ -321,24 +320,32 @@
     },
     "tabs": {
       "all": "Tous les archétypes",
+      "all_short": "Tous",
       "played": "Decks Joués",
-      "faced": "Adversaires Affrontés"
+      "played_short": "Joués",
+      "faced": "Adversaires Affrontés",
+      "faced_short": "Affrontés"
     },
     "search_placeholder": "Rechercher un archétype ou une carte clé...",
     "archetype_count": "{count} archétype | {count} archétypes",
     "sort": {
+      "prefix": "Trier :",
       "label": "Trier par",
       "volume_desc": "Volume total de matchs",
+      "overall_wr_desc": "Win Rate Global",
       "played_wr_desc": "Win Rate (Joué)",
       "faced_wr_desc": "Win Rate vs Deck",
       "showrate_desc": "Show Rate",
       "name_asc": "Nom (A-Z)"
     },
     "cards": {
+      "overall": "Bilan Global",
       "as_played": "En tant que deck joué",
       "as_faced": "En tant qu'adversaire",
+      "presence_rate_label": "Présence méta",
       "matches_count": "{count} match | {count} matchs",
       "show_rate_label": "Show Rate",
+      "not_involved": "Aucun match dans ce format",
       "not_played": "Jamais joué en deck actif",
       "not_faced": "Jamais affronté en match",
       "record_label": "Bilan",
