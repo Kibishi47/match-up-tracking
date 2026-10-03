@@ -28,7 +28,7 @@ const isLoginPage = computed(() => route.path === '/login')
           </svg>
         </div>
         <span class="text-[11px] leading-tight tracking-tight mt-0.5">
-          Dashboard
+          {{ $t('nav.dashboard') }}
         </span>
       </NuxtLink>
 
@@ -47,7 +47,7 @@ const isLoginPage = computed(() => route.path === '/login')
           </svg>
         </div>
         <span class="text-[11px] leading-tight tracking-tight mt-0.5">
-          Archétypes
+          {{ $t('nav.archetypes') }}
         </span>
       </NuxtLink>
 

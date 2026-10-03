@@ -74,7 +74,8 @@ const saveMatch = async () => {
     emit('updated', updated)
     emit('close')
   } catch (err: any) {
-    errorMessage.value = err?.data?.statusMessage || 'Erreur lors de la mise à jour'
+    const { t } = useI18n()
+    errorMessage.value = err?.data?.statusMessage || t('edit_match_modal.update_error')
   } finally {
     isSubmitting.value = false
   }
@@ -121,13 +122,13 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                   <path d="M12 20h9"/>
                   <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
                 </svg>
-                <span>Modifier le Match</span>
+                <span>{{ $t('edit_match_modal.title') }}</span>
               </h3>
               <button
                 type="button"
                 @click="emit('close')"
                 class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition cursor-pointer"
-                aria-label="Fermer"
+                :aria-label="$t('common.close')"
               >
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M18 6 6 18M6 6l12 12" />
@@ -140,25 +141,25 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
           <form id="edit-match-form" @submit.prevent="saveMatch" class="p-6 space-y-4 overflow-y-auto flex-1">
             <div class="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-800 text-sm">
               <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
-                <span>Deck : <strong class="text-slate-900 dark:text-white">{{ match.myArchetype?.name || 'Mon Deck' }}</strong></span>
+                <span>Deck : <strong class="text-slate-900 dark:text-white">{{ match.myArchetype?.name || $t('notes_modal.my_deck') }}</strong></span>
                 <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                  {{ format === 'bo3' ? 'Format BO3' : 'Format BO1' }}
+                  {{ format === 'bo3' ? $t('edit_match_modal.format_bo3') : $t('edit_match_modal.format_bo1') }}
                 </span>
-                <span>vs : <strong class="text-slate-900 dark:text-white">{{ match.opponentArchetype?.name || 'Adversaire' }}</strong></span>
+                <span>vs : <strong class="text-slate-900 dark:text-white">{{ match.opponentArchetype?.name || $t('notes_modal.opponent_deck') }}</strong></span>
               </div>
             </div>
 
             <!-- Détail des manches en BO3 -->
             <div v-if="format === 'bo3'" class="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
               <div class="flex items-center justify-between text-xs">
-                <span class="font-semibold text-slate-700 dark:text-slate-300">Détail des manches (BO3)</span>
+                <span class="font-semibold text-slate-700 dark:text-slate-300">{{ $t('edit_match_modal.bo3_details') }}</span>
                 <span class="text-[11px] font-mono font-bold text-slate-500">
-                  Score : {{ [game1, game2, game3].filter(g => g === 'win').length }} - {{ [game1, game2, game3].filter(g => g === 'loss').length }}
+                  {{ $t('edit_match_modal.score') }} : {{ [game1, game2, game3].filter(g => g === 'win').length }} - {{ [game1, game2, game3].filter(g => g === 'loss').length }}
                 </span>
               </div>
               <div class="grid grid-cols-3 gap-2">
                 <div class="text-center">
-                  <div class="text-[10px] uppercase font-bold text-slate-400 mb-1">Manche 1</div>
+                  <div class="text-[10px] uppercase font-bold text-slate-400 mb-1">{{ $t('edit_match_modal.game_1') }}</div>
                   <select v-model="game1" class="w-full text-xs font-semibold py-1.5 px-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white cursor-pointer">
                     <option value="win">Win</option>
                     <option value="loss">Loss</option>
@@ -166,7 +167,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                   </select>
                 </div>
                 <div class="text-center">
-                  <div class="text-[10px] uppercase font-bold text-slate-400 mb-1">Manche 2</div>
+                  <div class="text-[10px] uppercase font-bold text-slate-400 mb-1">{{ $t('edit_match_modal.game_2') }}</div>
                   <select v-model="game2" class="w-full text-xs font-semibold py-1.5 px-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white cursor-pointer">
                     <option value="win">Win</option>
                     <option value="loss">Loss</option>
@@ -174,9 +175,9 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                   </select>
                 </div>
                 <div class="text-center">
-                  <div class="text-[10px] uppercase font-bold text-slate-400 mb-1">Manche 3</div>
+                  <div class="text-[10px] uppercase font-bold text-slate-400 mb-1">{{ $t('edit_match_modal.game_3') }}</div>
                   <select v-model="game3" class="w-full text-xs font-semibold py-1.5 px-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white cursor-pointer">
-                    <option :value="null">Non jouée</option>
+                    <option :value="null">{{ $t('edit_match_modal.not_played') }}</option>
                     <option value="win">Win</option>
                     <option value="loss">Loss</option>
                     <option value="draw">Draw</option>
@@ -187,7 +188,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
 
             <div>
               <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
-                Résultat
+                {{ $t('edit_match_modal.result_label') }}
               </label>
               <div class="grid grid-cols-3 gap-2">
                 <button
@@ -233,12 +234,12 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
 
             <div>
               <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                Notes / Détails de partie (optionnel)
+                {{ $t('edit_match_modal.notes_label') }}
               </label>
               <textarea
                 v-model="notes"
                 rows="3"
-                placeholder="Ex: Main de départ parfaite, mauvaise sortie adverse, carte clé jouée au tour 4..."
+                :placeholder="$t('edit_match_modal.notes_placeholder')"
                 class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition text-sm resize-none"
               />
             </div>
@@ -256,7 +257,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
               :disabled="isSubmitting"
               class="w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-500 active:scale-95 transition disabled:opacity-50 shadow-md shadow-emerald-600/20 cursor-pointer"
             >
-              {{ isSubmitting ? 'Enregistrement...' : 'Enregistrer les modifications' }}
+              {{ isSubmitting ? $t('edit_match_modal.saving') : $t('edit_match_modal.save') }}
             </button>
           </div>
         </div>

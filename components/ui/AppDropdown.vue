@@ -18,8 +18,7 @@ const props = withDefaults(
     align?: 'left' | 'right'
     footerActionLabel?: string
   }>(),
-  {
-    placeholder: 'Sélectionner...',
+    placeholder: undefined,
     disabled: false,
     buttonClass: '',
     menuWidthClass: 'w-56',
@@ -106,7 +105,7 @@ onUnmounted(() => {
 
         <!-- Label -->
         <span :class="['truncate', selectedOption ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400']">
-          {{ selectedOption ? selectedOption.label : placeholder }}
+          {{ selectedOption ? selectedOption.label : (placeholder || $t('common.select')) }}
         </span>
       </div>
 
@@ -146,7 +145,7 @@ onUnmounted(() => {
         role="listbox"
       >
         <div v-if="options.length === 0" class="px-3 py-2 text-xs text-slate-400 text-center italic">
-          Aucune option disponible
+          {{ $t('common.no_options') }}
         </div>
 
         <button

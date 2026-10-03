@@ -12,7 +12,7 @@ withDefaults(defineProps<Props>(), {
   <NuxtLink
     to="/"
     class="group inline-flex items-center gap-2.5 select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-xl transition"
-    aria-label="Metadex - Accueil"
+    :aria-label="$t('nav.home_aria')"
   >
     <!-- Logo Icon with glow on hover -->
     <div class="relative flex items-center justify-center">

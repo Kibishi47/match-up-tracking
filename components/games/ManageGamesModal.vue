@@ -34,6 +34,7 @@ const isGameActive = (gameId: string) => {
 }
 
 const { toast } = useNotify()
+const { t } = useI18n()
 
 const toggleGame = async (game: Game) => {
   loadingToggleId.value = game.id
@@ -45,7 +46,7 @@ const toggleGame = async (game: Game) => {
     await refreshGames()
     emit('updated')
   } catch (err: any) {
-    toast.error(err?.data?.statusMessage || 'Erreur lors de la mise à jour du jeu')
+    toast.error(err?.data?.statusMessage || t('manage_games_modal.update_error'))
   } finally {
     loadingToggleId.value = null
   }
@@ -94,16 +95,17 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                 <rect width="20" height="12" x="2" y="6" rx="6" />
                 <path d="M6 12h4m-2-2v4m9-2h.01m3 0h.01" />
               </svg>
-              <span>Gérer ma collection de jeux</span>
+              <span>{{ $t('manage_games_modal.title') }}</span>
             </h3>
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Activez les jeux auxquels vous jouez pour les afficher dans votre sélecteur.
+              {{ $t('manage_games_modal.subtitle') }}
             </p>
           </div>
           <button
             type="button"
             @click="emit('close')"
             class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+            :aria-label="$t('common.close')"
           >
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -115,11 +117,11 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
         <!-- Corps : Liste des jeux du catalogue triée alphabétiquement -->
         <div class="py-4 overflow-y-auto space-y-2.5 flex-1 min-h-0 pr-1">
           <div v-if="catalogStatus === 'pending'" class="py-8 text-center text-xs text-slate-400 dark:text-slate-500">
-            Chargement du catalogue...
+            {{ $t('manage_games_modal.loading') }}
           </div>
 
           <div v-else-if="!sortedCatalogGames || sortedCatalogGames.length === 0" class="py-8 text-center text-xs text-slate-400 dark:text-slate-500">
-            Aucun jeu disponible dans le catalogue global.
+            {{ $t('manage_games_modal.no_games') }}
           </div>
 
           <div
@@ -164,10 +166,10 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
-                <span>Actif</span>
+                <span>{{ $t('manage_games_modal.active') }}</span>
               </template>
               <template v-else>
-                <span>+ Ajouter</span>
+                <span>{{ $t('manage_games_modal.add') }}</span>
               </template>
             </button>
           </div>

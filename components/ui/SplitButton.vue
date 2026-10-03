@@ -285,7 +285,7 @@ onUnmounted(() => {
         @touchmove="handleTouchMove"
         @touchend="handleTouchEnd"
         class="flex-1 flex items-center justify-center gap-1 px-1.5 h-full transition active:scale-[0.98] cursor-pointer"
-        :title="type === 'win' ? 'Enregistrer une Victoire BO1 (Clic simple, Clic droit ou appui long pour BO3)' : (type === 'loss' ? 'Enregistrer une Défaite BO1 (Clic simple, Clic droit ou appui long pour BO3)' : 'Enregistrer un Draw BO1 (Clic simple, Clic droit ou appui long pour BO3)')"
+        :title="type === 'win' ? $t('match_actions.quick_bo1_win') : (type === 'loss' ? $t('match_actions.quick_bo1_loss') : $t('match_actions.quick_bo1_draw'))"
       >
         <!-- Icône Flèche montante / descendante / signe égal -->
         <svg
@@ -341,7 +341,7 @@ onUnmounted(() => {
         :disabled="disabled"
         @click="togglePopover"
         class="w-6 sm:w-6.5 h-full flex items-center justify-center transition hover:bg-black/15 active:bg-black/25 cursor-pointer"
-        :title="type === 'win' ? 'Options BO3 (2-0, 2-1)' : (type === 'loss' ? 'Options BO3 (0-2, 1-2)' : 'Options BO3 Draw (1-1, Time)')"
+        :title="type === 'win' ? $t('match_actions.bo3_options_win') : (type === 'loss' ? $t('match_actions.bo3_options_loss') : $t('match_actions.bo3_options_draw'))"
       >
         <svg
           class="w-3 h-3 transition-transform duration-200"
@@ -375,8 +375,8 @@ onUnmounted(() => {
         ]"
       >
         <div class="px-2 py-1 flex items-center justify-between text-[10px] font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-800/80">
-          <span>Format BO3</span>
-          <span class="text-[9px] text-slate-500 font-mono">{{ type === 'win' ? 'Victoire' : (type === 'loss' ? 'Défaite' : 'Draw / Time') }}</span>
+          <span>{{ $t('match_actions.format_bo3') }}</span>
+          <span class="text-[9px] text-slate-500 font-mono">{{ type === 'win' ? 'Win' : (type === 'loss' ? 'Loss' : 'Draw / Time') }}</span>
         </div>
 
         <button

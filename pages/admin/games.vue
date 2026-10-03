@@ -54,7 +54,7 @@ const editGame = (game: Game) => {
 
 const submitForm = async () => {
   if (!form.name.trim()) {
-    errorMessage.value = 'Le nom du jeu est requis'
+    errorMessage.value = t('admin_games.name_required')
     return
   }
 
@@ -72,7 +72,7 @@ const submitForm = async () => {
           logoUrl: form.logoUrl
         }
       })
-      successMessage.value = 'Jeu mis à jour avec succès !'
+      successMessage.value = t('admin_games.updated_success')
     } else {
       await $fetch('/api/admin/games', {
         method: 'POST',
@@ -82,35 +82,36 @@ const submitForm = async () => {
           logoUrl: form.logoUrl
         }
       })
-      successMessage.value = 'Nouveau jeu créé avec succès !'
     }
     resetForm()
     await refreshGames()
     setTimeout(() => { successMessage.value = null }, 3500)
   } catch (err: any) {
-    errorMessage.value = err?.data?.statusMessage || err?.message || 'Une erreur est survenue'
+    errorMessage.value = err?.data?.statusMessage || err?.message || 'Error'
   } finally {
     isSubmitting.value = false
   }
 }
 
 const { toast, confirmAction } = useNotify()
+const { t } = useI18n()
 
 const deleteGame = async (game: Game) => {
   const confirmed = await confirmAction({
-    title: `Supprimer "${game.name}" ?`,
-    message: `Cette action est irréversible. Tous les archétypes et matchs associés à ce jeu seront définitivement supprimés.`,
-    confirmText: 'Supprimer définitivement',
+    title: t('admin_games.delete_confirm_title', { name: game.name }),
+    message: t('admin_games.delete_confirm_msg'),
+    confirmText: t('admin_games.delete_confirm_btn'),
+    cancelText: t('common.cancel'),
     isDestructive: true
   })
   if (!confirmed) return
 
   try {
     await $fetch(`/api/admin/games/${game.id}`, { method: 'DELETE' })
-    toast.success(`Le jeu "${game.name}" a été supprimé`)
+    toast.success(t('admin_games.deleted_success', { name: game.name }))
     await refreshGames()
   } catch (err: any) {
-    toast.error(err?.data?.statusMessage || 'Erreur lors de la suppression')
+    toast.error(err?.data?.statusMessage || t('admin_games.delete_error'))
   }
 }
 </script>
@@ -124,12 +125,12 @@ const deleteGame = async (game: Game) => {
         <div>
           <div class="flex items-center gap-2">
             <span class="px-2 py-0.5 rounded text-xs font-semibold bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/30 uppercase tracking-wider">
-              Administration
+              {{ $t('admin_games.badge') }}
             </span>
           </div>
-          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1">Catalogue Global des Jeux TCG</h1>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1">{{ $t('admin_games.title') }}</h1>
           <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-1">
-            Gérez les jeux supportés sur la plateforme. Les joueurs pourront ensuite les sélectionner et enregistrer leurs archétypes.
+            {{ $t('admin_games.subtitle') }}
           </p>
         </div>
       </div>
@@ -167,52 +168,52 @@ const deleteGame = async (game: Game) => {
           <div class="glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/60 shadow-sm sticky top-24">
             <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
               <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              {{ isEditing ? 'Modifier le jeu' : 'Ajouter un nouveau jeu' }}
+              {{ isEditing ? $t('admin_games.edit_game') : $t('admin_games.add_game') }}
             </h2>
 
             <form @submit.prevent="submitForm" class="space-y-4">
               <div>
                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                  Nom du TCG *
+                  {{ $t('admin_games.name_label') }}
                 </label>
                 <input
                   v-model="form.name"
                   @input="handleNameChange"
                   type="text"
                   required
-                  placeholder="Ex: One piece"
+                  :placeholder="$t('admin_games.name_placeholder')"
                   class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition text-sm"
                 />
               </div>
 
               <div>
                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                  Slug URL (identifiant unique)
+                  {{ $t('admin_games.slug_label') }}
                 </label>
                 <input
                   v-model="form.slug"
                   type="text"
-                  placeholder="ex: one-piece"
+                  :placeholder="$t('admin_games.slug_placeholder')"
                   class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition text-sm font-mono"
                 />
               </div>
 
               <div>
                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                  URL du Logo / Bannière (optionnel)
+                  {{ $t('admin_games.logo_label') }}
                 </label>
                 <input
                   v-model="form.logoUrl"
                   type="url"
-                  placeholder="https://..."
+                  :placeholder="$t('admin_games.logo_placeholder')"
                   class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition text-sm"
                 />
               </div>
 
               <!-- Prévisualisation du logo -->
               <div v-if="form.logoUrl" class="mt-2 p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center gap-3">
-                <img :src="form.logoUrl" alt="Aperçu logo" class="w-12 h-12 rounded-lg object-contain bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 p-1" />
-                <span class="text-xs text-slate-500 dark:text-slate-400">Aperçu du logo</span>
+                <img :src="form.logoUrl" :alt="$t('admin_games.logo_preview')" class="w-12 h-12 rounded-lg object-contain bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 p-1" />
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ $t('admin_games.logo_preview') }}</span>
               </div>
 
               <div class="pt-2 flex items-center gap-3">
@@ -221,7 +222,7 @@ const deleteGame = async (game: Game) => {
                   :disabled="isSubmitting"
                   class="flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-emerald-600/20 cursor-pointer"
                 >
-                  {{ isSubmitting ? 'Enregistrement...' : (isEditing ? 'Sauvegarder' : 'Créer le jeu') }}
+                  {{ isSubmitting ? $t('admin_games.saving') : (isEditing ? $t('admin_games.save') : $t('admin_games.create')) }}
                 </button>
                 <button
                   v-if="isEditing"
@@ -229,7 +230,7 @@ const deleteGame = async (game: Game) => {
                   @click="resetForm"
                   class="py-2.5 px-3 rounded-xl text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer"
                 >
-                  Annuler
+                  {{ $t('admin_games.cancel') }}
                 </button>
               </div>
             </form>
@@ -240,22 +241,22 @@ const deleteGame = async (game: Game) => {
         <div class="lg:col-span-2">
           <div class="glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/60 shadow-sm">
             <div class="flex items-center justify-between mb-4">
-              <h2 class="text-lg font-bold text-slate-900 dark:text-white">Jeux configurés ({{ gamesList?.length || 0 }})</h2>
+              <h2 class="text-lg font-bold text-slate-900 dark:text-white">{{ $t('admin_games.configured_games', { count: gamesList?.length || 0 }) }}</h2>
               <button
                 type="button"
                 @click="refreshGames()"
                 class="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white p-1.5 sm:px-2.5 sm:py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-1.5 flex-shrink-0 cursor-pointer"
-                title="Actualiser les jeux"
+                :title="$t('admin_games.refresh')"
               >
                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
                 </svg>
-                <span class="hidden sm:inline">Actualiser</span>
+                <span class="hidden sm:inline">{{ $t('admin_games.refresh') }}</span>
               </button>
             </div>
 
             <div v-if="status === 'pending'" class="py-12 text-center text-slate-400 dark:text-slate-500 text-sm">
-              Chargement des jeux...
+              {{ $t('admin_games.loading') }}
             </div>
 
             <div v-else-if="!gamesList || gamesList.length === 0" class="py-12 text-center">
@@ -265,8 +266,8 @@ const deleteGame = async (game: Game) => {
                   <path d="M6 12h4m-2-2v4m9-2h.01m3 0h.01" />
                 </svg>
               </div>
-              <p class="text-slate-500 dark:text-slate-400 text-sm">Aucun jeu TCG n'a encore été créé.</p>
-              <p class="text-slate-400 dark:text-slate-500 text-xs mt-1">Utilisez le formulaire ci-contre pour créer le premier jeu.</p>
+              <p class="text-slate-500 dark:text-slate-400 text-sm">{{ $t('admin_games.no_games') }}</p>
+              <p class="text-slate-400 dark:text-slate-500 text-xs mt-1">{{ $t('admin_games.no_games_desc') }}</p>
             </div>
 
             <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -304,13 +305,13 @@ const deleteGame = async (game: Game) => {
                     @click="editGame(game)"
                     class="px-2.5 py-1 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer"
                   >
-                    Modifier
+                    {{ $t('admin_games.modify') }}
                   </button>
                   <button
                     @click="deleteGame(game)"
                     class="px-2.5 py-1 rounded-lg text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-500/10 transition cursor-pointer"
                   >
-                    Supprimer
+                    {{ $t('admin_games.delete') }}
                   </button>
                 </div>
               </div>

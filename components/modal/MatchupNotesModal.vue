@@ -22,6 +22,7 @@ const isSaving = ref(false)
 const hasJustSaved = ref(false)
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
 const { toast } = useNotify()
+const { t } = useI18n()
 
 // Initialiser le contenu dès l'ouverture
 watch(() => props.isOpen, (open) => {
@@ -45,7 +46,7 @@ watch(() => props.initialNotes, (newVal) => {
 // Sauvegarde de la note
 const saveNotes = async () => {
   if (!props.myArchetype || !props.opponentArchetype) {
-    toast.error('Archétypes manquants pour enregistrer la note.')
+    toast.error(t('notes_modal.missing_archetypes'))
     return
   }
 
@@ -66,7 +67,7 @@ const saveNotes = async () => {
       hasJustSaved.value = false
     }, 2500)
   } catch (err: any) {
-    toast.error(err?.data?.statusMessage || err?.message || 'Erreur lors de la sauvegarde des notes')
+    toast.error(err?.data?.statusMessage || err?.message || t('notes_modal.save_error'))
   } finally {
     isSaving.value = false
   }
@@ -123,16 +124,16 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                     <path d="M12 20h9"/>
                     <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
                   </svg>
-                  <span>Notes de Matchup</span>
+                  <span>{{ $t('notes_modal.title') }}</span>
                 </h3>
                 <!-- Contexte des decks -->
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
                   <span class="text-emerald-600 dark:text-emerald-400 font-semibold truncate max-w-[140px]" :title="myArchetype?.name">
-                    {{ myArchetype?.name || 'Mon Deck' }}
+                    {{ myArchetype?.name || $t('notes_modal.my_deck') }}
                   </span>
                   <span class="text-slate-400 dark:text-slate-500 font-bold">vs</span>
                   <span class="text-indigo-600 dark:text-indigo-400 font-semibold truncate max-w-[140px]" :title="opponentArchetype?.name">
-                    {{ opponentArchetype?.name || 'Adversaire' }}
+                    {{ opponentArchetype?.name || $t('notes_modal.opponent_deck') }}
                   </span>
                 </p>
               </div>
@@ -141,6 +142,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                 type="button"
                 @click="emit('close')"
                 class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition cursor-pointer"
+                :aria-label="$t('common.close')"
               >
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M18 6 6 18M6 6l12 12" />
@@ -152,15 +154,15 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
         <!-- Corps : Textarea & Conseils -->
         <div class="p-6 space-y-4">
           <div class="flex items-center justify-between text-xs">
-            <span class="text-slate-500 dark:text-slate-400 font-medium">Plan de jeu, mulligans & conseils tactiques :</span>
+            <span class="text-slate-500 dark:text-slate-400 font-medium">{{ $t('notes_modal.description') }}</span>
             <span v-if="hasJustSaved" class="text-emerald-600 dark:text-emerald-400 font-bold animate-pulse flex items-center gap-1">
               <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
-              Enregistré !
+              {{ $t('notes_modal.saved_toast') }} !
             </span>
             <span v-else-if="isSaving" class="text-indigo-600 dark:text-indigo-400 font-medium animate-pulse">
-              Sauvegarde en cours...
+              {{ $t('common.loading') }}
             </span>
           </div>
 
@@ -171,6 +173,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
               rows="6"
               maxlength="2000"
               @blur="handleBlur"
+              :placeholder="$t('notes_modal.placeholder')"
               class="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:border-amber-500/80 focus:ring-1 focus:ring-amber-500/40 shadow-inner resize-y transition"
             ></textarea>
           </div>
@@ -181,7 +184,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
               <line x1="12" y1="16" x2="12" y2="12"/>
               <line x1="12" y1="8" x2="12.01" y2="8"/>
             </svg>
-            <span>Ces notes sont partagées par tous vos matchs entre ce deck et cet adversaire. Sauvegarde auto au clic en dehors.</span>
+            <span>{{ $t('notes_modal.hint') }}</span>
           </p>
         </div>
 
@@ -198,8 +201,8 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
               <polyline points="17 21 17 13 7 13 7 21"/>
               <polyline points="7 3 7 8 15 8"/>
             </svg>
-            <span v-if="isSaving">Sauvegarde...</span>
-            <span v-else>Sauvegarder</span>
+            <span v-if="isSaving">{{ $t('common.loading') }}</span>
+            <span v-else>{{ $t('common.save') }}</span>
           </button>
         </div>
       </div>

@@ -6,6 +6,7 @@ definePageMeta({
 const { user, fetch: refreshSession, clear } = useUserSession()
 const colorMode = useColorMode()
 const { showToast } = useNotify()
+const { locale, setLocale, t } = useI18n()
 
 // Formulaire Profil
 const usernameInput = ref(user.value?.username || '')
@@ -21,7 +22,7 @@ watch(() => user.value?.username, (newVal) => {
 const handleSaveProfile = async () => {
   const trimmed = usernameInput.value.trim()
   if (!trimmed || trimmed.length < 2 || trimmed.length > 32) {
-    showToast('Le nom d’utilisateur doit contenir entre 2 et 32 caractères.', 'warning')
+    showToast(t('settings.username_length_error'), 'warning')
     return
   }
 
@@ -34,10 +35,10 @@ const handleSaveProfile = async () => {
 
     if (res?.success) {
       await refreshSession()
-      showToast('Votre nom d’utilisateur a été mis à jour avec succès.', 'success')
+      showToast(t('settings.profile_saved'), 'success')
     }
   } catch (err: any) {
-    const msg = err?.data?.statusMessage || 'Erreur lors de la mise à jour du profil.'
+    const msg = err?.data?.statusMessage || t('settings.profile_update_error')
     showToast(msg, 'error')
   } finally {
     isSavingProfile.value = false
@@ -45,30 +46,30 @@ const handleSaveProfile = async () => {
 }
 
 // Thèmes disponibles
-const themes = [
+const themes = computed(() => [
   {
     id: 'light',
-    label: 'Clair',
-    description: 'Interface lumineuse et contrastée',
+    label: t('settings.theme_light'),
+    description: t('settings.theme_light_desc'),
     icon: 'sun'
   },
   {
     id: 'dark',
-    label: 'Sombre',
-    description: 'Interface sombre douce pour les yeux',
+    label: t('settings.theme_dark'),
+    description: t('settings.theme_dark_desc'),
     icon: 'moon'
   },
   {
     id: 'system',
-    label: 'Système',
-    description: 'S’adapte aux préférences de votre appareil',
+    label: t('settings.theme_system'),
+    description: t('settings.theme_system_desc'),
     icon: 'monitor'
   }
-]
+])
 
 const setTheme = (themeId: string) => {
   colorMode.preference = themeId
-  showToast(`Thème réglé sur "${themeId}".`, 'info', 2000)
+  showToast(t('settings.theme_set', { theme: themeId }), 'info', 2000)
 }
 
 // Modale de suppression sécurisée
@@ -78,8 +79,9 @@ const deleteConfirmationInput = ref('')
 const isDeletingAccount = ref(false)
 
 const isConfirmationValid = computed(() => {
-  const trimmed = deleteConfirmationInput.value.trim()
-  return trimmed === user.value?.username || trimmed === 'SUPPRIMER'
+  const trimmed = deleteConfirmationInput.value.trim().toUpperCase()
+  const expectedKeyword = locale.value === 'fr' ? 'SUPPRIMER' : 'DELETE'
+  return trimmed === (user.value?.username || '').toUpperCase() || trimmed === expectedKeyword || trimmed === 'DELETE' || trimmed === 'SUPPRIMER'
 })
 
 const openDeleteModal = () => {
@@ -104,10 +106,10 @@ const handleDeleteAccount = async () => {
     })
 
     await clear()
-    showToast('Votre compte et l’ensemble de vos données ont été définitivement supprimés.', 'success')
+    showToast(t('settings.delete_success'), 'success')
     navigateTo('/login')
   } catch (err: any) {
-    const msg = err?.data?.statusMessage || 'Erreur lors de la suppression du compte.'
+    const msg = err?.data?.statusMessage || t('settings.delete_error')
     showToast(msg, 'error')
     isDeletingAccount.value = false
   }
@@ -127,10 +129,10 @@ const handleLogout = async () => {
     <!-- En-tête de la page -->
     <div class="border-b border-slate-200 dark:border-slate-800 pb-4 sm:pb-6">
       <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-        Paramètres du compte
+        {{ $t('settings.title') }}
       </h1>
       <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-        Gérez vos informations personnelles, vos préférences visuelles et la sécurité de votre compte.
+        {{ $t('settings.subtitle') }}
       </p>
     </div>
 
@@ -141,10 +143,10 @@ const handleLogout = async () => {
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
           <circle cx="12" cy="7" r="4" />
         </svg>
-        Profil & Identité
+        {{ $t('settings.profile_title') }}
       </h2>
       <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">
-        Informations visibles sur votre espace personnel.
+        {{ $t('settings.profile_desc') }}
       </p>
 
       <div class="flex flex-col sm:flex-row sm:items-center gap-6 pb-6 border-b border-slate-100 dark:border-slate-800/80">
@@ -172,7 +174,7 @@ const handleLogout = async () => {
               v-if="user?.role === 'admin'"
               class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30"
             >
-              Admin
+              {{ $t('nav.admin') }}
             </span>
           </div>
         </div>
@@ -182,7 +184,7 @@ const handleLogout = async () => {
       <form @submit.prevent="handleSaveProfile" class="mt-6 space-y-4 max-w-lg">
         <div>
           <label for="username" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-            Nom d'affichage
+            {{ $t('settings.display_name') }}
           </label>
           <input
             id="username"
@@ -195,7 +197,7 @@ const handleLogout = async () => {
             class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 text-sm transition"
           />
           <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
-            Ce nom apparaîtra sur vos archétypes, vos parties et votre profil. Entre 2 et 32 caractères.
+            {{ $t('settings.display_name_desc') }}
           </p>
         </div>
 
@@ -225,7 +227,7 @@ const handleLogout = async () => {
             >
               <path d="M20 6 9 17l-5-5"/>
             </svg>
-            <span>{{ isSavingProfile ? 'Enregistrement...' : 'Enregistrer les modifications' }}</span>
+            <span>{{ isSavingProfile ? $t('settings.saving_profile') : $t('settings.save_profile') }}</span>
           </button>
         </div>
       </form>
@@ -238,10 +240,10 @@ const handleLogout = async () => {
           <circle cx="12" cy="12" r="4"/>
           <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
         </svg>
-        Préférences d'affichage
+        {{ $t('settings.theme_title') }}
       </h2>
       <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">
-        Personnalisez l’apparence visuelle de l’application selon vos besoins.
+        {{ $t('settings.theme_desc') }}
       </p>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -294,6 +296,77 @@ const handleLogout = async () => {
       </div>
     </section>
 
+    <!-- 3. Section Langue (i18n) -->
+    <section class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-sm">
+      <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-1 flex items-center gap-2.5">
+        <svg class="w-5 h-5 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="2" y1="12" x2="22" y2="12" />
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+        </svg>
+        {{ $t('settings.lang_title') }}
+      </h2>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">
+        {{ $t('settings.lang_desc') }}
+      </p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <button
+          type="button"
+          @click="setLocale('en')"
+          :class="[
+            'p-4 rounded-xl border text-left transition duration-200 cursor-pointer flex flex-col justify-start gap-3 relative',
+            locale === 'en'
+              ? 'border-emerald-500 bg-emerald-500/10 dark:bg-emerald-500/10 shadow-sm ring-1 ring-emerald-500'
+              : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 hover:border-slate-300 dark:hover:border-slate-700'
+          ]"
+        >
+          <div
+            v-if="locale === 'en'"
+            class="absolute top-3 right-3 w-2 h-2 rounded-full bg-emerald-500 ring-4 ring-emerald-500/20"
+          />
+          <div class="w-9 h-9 rounded-lg flex items-center justify-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm font-black text-xs text-emerald-600 dark:text-emerald-400">
+            EN
+          </div>
+          <div>
+            <div class="font-bold text-sm text-slate-900 dark:text-white">
+              English
+            </div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Default application language
+            </div>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          @click="setLocale('fr')"
+          :class="[
+            'p-4 rounded-xl border text-left transition duration-200 cursor-pointer flex flex-col justify-start gap-3 relative',
+            locale === 'fr'
+              ? 'border-emerald-500 bg-emerald-500/10 dark:bg-emerald-500/10 shadow-sm ring-1 ring-emerald-500'
+              : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 hover:border-slate-300 dark:hover:border-slate-700'
+          ]"
+        >
+          <div
+            v-if="locale === 'fr'"
+            class="absolute top-3 right-3 w-2 h-2 rounded-full bg-emerald-500 ring-4 ring-emerald-500/20"
+          />
+          <div class="w-9 h-9 rounded-lg flex items-center justify-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm font-black text-xs text-emerald-600 dark:text-emerald-400">
+            FR
+          </div>
+          <div>
+            <div class="font-bold text-sm text-slate-900 dark:text-white">
+              Français
+            </div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Langue française
+            </div>
+          </div>
+        </button>
+      </div>
+    </section>
+
     <!-- Actions du compte (Déconnexion & Suppression) -->
     <div class="pt-8 border-t border-slate-200 dark:border-slate-800/80 space-y-3.5">
       <!-- Bouton Déconnexion en danger au-dessus -->
@@ -307,7 +380,7 @@ const handleLogout = async () => {
           <polyline points="16 17 21 12 16 7" />
           <line x1="21" y1="12" x2="9" y2="12" />
         </svg>
-        <span>Se déconnecter</span>
+        <span>{{ $t('settings.logout') }}</span>
       </button>
 
       <!-- Bouton Danger Outline pour la suppression du compte en-dessous -->
@@ -323,7 +396,7 @@ const handleLogout = async () => {
           <line x1="10" x2="10" y1="11" y2="17"/>
           <line x1="14" x2="14" y1="11" y2="17"/>
         </svg>
-        <span>Supprimer mon compte</span>
+        <span>{{ $t('settings.delete_account') }}</span>
       </button>
     </div>
 
@@ -354,24 +427,24 @@ const handleLogout = async () => {
               </div>
               <div>
                 <h3 class="text-base font-bold text-slate-900 dark:text-white">
-                  Supprimer définitivement le compte ?
+                  {{ $t('settings.delete_modal_title') }}
                 </h3>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  Cette action est immédiate et irrévocable. Toutes vos métas, vos archétypes et vos historiques de parties seront définitivement supprimés.
+                  {{ $t('settings.delete_modal_desc') }}
                 </p>
               </div>
             </div>
 
             <div class="space-y-2 bg-red-500/5 border border-red-500/15 rounded-xl p-3.5">
               <label for="delete-confirm" class="block text-xs font-semibold text-slate-800 dark:text-slate-200">
-                Pour confirmer, veuillez saisir votre pseudo <strong class="text-red-600 dark:text-red-400 underline">{{ user?.username }}</strong> ou le mot <strong class="text-red-600 dark:text-red-400">SUPPRIMER</strong> :
+                {{ $t('settings.delete_modal_input_label', { username: user?.username, word: locale === 'fr' ? 'SUPPRIMER' : 'DELETE' }) }}
               </label>
               <input
                 id="delete-confirm"
                 v-model="deleteConfirmationInput"
                 type="text"
                 autocomplete="off"
-                :placeholder="user?.username || 'SUPPRIMER'"
+                :placeholder="user?.username || (locale === 'fr' ? 'SUPPRIMER' : 'DELETE')"
                 class="w-full px-3 py-2 rounded-lg border border-red-300 dark:border-red-900/50 bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500 text-xs font-mono"
               />
             </div>
@@ -383,7 +456,7 @@ const handleLogout = async () => {
                 :disabled="isDeletingAccount"
                 class="px-4 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
               >
-                Annuler
+                {{ $t('common.cancel') }}
               </button>
 
               <button
@@ -402,7 +475,7 @@ const handleLogout = async () => {
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                 </svg>
-                <span>{{ isDeletingAccount ? 'Suppression en cours...' : 'Confirmer la suppression définitive' }}</span>
+                <span>{{ isDeletingAccount ? $t('settings.deleting') : $t('settings.delete_confirm_btn') }}</span>
               </button>
             </div>
           </div>

@@ -105,10 +105,10 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                     <rect width="18" height="18" x="3" y="3" rx="2" />
                     <path d="m9 12 2 2 4-4" />
                   </svg>
-                  <span>Sélectionner le Deck Actif</span>
+                  <span>{{ $t('select_deck_modal.title') }}</span>
                 </h3>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Choisissez votre deck principal pour analyser vos matchups
+                  {{ $t('select_deck_modal.subtitle') }}
                 </p>
               </div>
 
@@ -116,7 +116,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                 type="button"
                 @click="emit('close')"
                 class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition cursor-pointer"
-                aria-label="Fermer"
+                :aria-label="$t('common.close')"
               >
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M18 6 6 18M6 6l12 12" />
@@ -142,7 +142,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
               ref="searchInputRef"
               v-model="searchQuery"
               type="text"
-              placeholder="Rechercher par nom de deck ou nom de carte..."
+              :placeholder="$t('select_deck_modal.search_placeholder')"
               class="w-full pl-10 pr-9 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-slate-900 dark:text-white placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
             />
             <button
@@ -150,7 +150,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
               type="button"
               @click="searchQuery = ''"
               class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5 rounded cursor-pointer"
-              title="Effacer la recherche"
+              :title="$t('select_deck_modal.clear_search')"
             >
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M18 6 6 18M6 6l12 12" />
@@ -169,30 +169,30 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                 <path d="M7 3v18" />
               </svg>
             </div>
-            <h4 class="text-sm font-bold text-slate-900 dark:text-white">Aucun archétype enregistré</h4>
+            <h4 class="text-sm font-bold text-slate-900 dark:text-white">{{ $t('select_deck_modal.no_decks') }}</h4>
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
-              Vous devez d'abord créer des archétypes dans ce jeu pour pouvoir définir votre deck actif.
+              {{ $t('select_deck_modal.no_decks_desc') }}
             </p>
             <NuxtLink
               to="/archetypes"
               @click="emit('close')"
               class="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition shadow-sm"
             >
-              <span>+ Gérer les archétypes</span>
+              <span>{{ $t('select_deck_modal.manage_archetypes') }}</span>
             </NuxtLink>
           </div>
 
           <!-- Aucun résultat de recherche -->
           <div v-else-if="filteredDecks.length === 0" class="text-center py-10">
             <p class="text-sm text-slate-500 dark:text-slate-400">
-              Aucun archétype ne correspond à « <strong class="text-slate-800 dark:text-slate-200">{{ searchQuery }}</strong> ».
+              {{ $t('select_deck_modal.no_search_results', { query: searchQuery }) }}
             </p>
             <button
               type="button"
               @click="searchQuery = ''"
               class="mt-3 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer"
             >
-              Réinitialiser la recherche
+              {{ $t('select_deck_modal.reset_search') }}
             </button>
           </div>
 
@@ -217,7 +217,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                   <img
                     v-if="d.card1ImageUrl"
                     :src="d.card1ImageUrl"
-                    :alt="d.card1Name || 'Carte 1'"
+                    :alt="d.card1Name || $t('common.card_1')"
                     class="w-full h-full object-cover"
                     @error="(e) => (e.target as HTMLElement).style.display = 'none'"
                   />
@@ -231,7 +231,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                   <img
                     v-if="d.card2ImageUrl"
                     :src="d.card2ImageUrl"
-                    :alt="d.card2Name || 'Carte 2'"
+                    :alt="d.card2Name || $t('common.card_2')"
                     class="w-full h-full object-cover"
                     @error="(e) => (e.target as HTMLElement).style.display = 'none'"
                   />
@@ -249,7 +249,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                 <img
                   v-if="d.card1ImageUrl"
                   :src="d.card1ImageUrl"
-                  :alt="d.card1Name || 'Carte 1'"
+                  :alt="d.card1Name || $t('common.card_1')"
                   class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                   @error="(e) => (e.target as HTMLElement).style.display = 'none'"
                 />
@@ -270,7 +270,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                   {{ [d.card1Name, d.card2Name].filter(Boolean).join(' // ') }}
                 </p>
                 <p v-else class="text-[11px] text-slate-400 dark:text-slate-500 italic mt-0.5">
-                  Aucune carte renseignée
+                  {{ $t('select_deck_modal.no_cards') }}
                 </p>
               </div>
 
@@ -278,7 +278,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
               <div
                 v-if="d.id === activeDeckId"
                 class="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-sm"
-                title="Deck actuellement actif"
+                :title="$t('select_deck_modal.active_deck_badge')"
               >
                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                   <polyline points="20 6 9 17 4 12" />
@@ -291,7 +291,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
         <!-- Footer -->
         <div class="px-6 py-3.5 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 flex-shrink-0">
           <span>
-            {{ filteredDecks.length }} archétype{{ filteredDecks.length > 1 ? 's' : '' }} disponible{{ filteredDecks.length > 1 ? 's' : '' }}
+            {{ $t('select_deck_modal.available_count', { count: filteredDecks.length }) }}
           </span>
 
           <NuxtLink
@@ -299,7 +299,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
             @click="emit('close')"
             class="font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
           >
-            Gérer les archétypes
+            {{ $t('select_deck_modal.manage_link') }}
           </NuxtLink>
         </div>
       </div>

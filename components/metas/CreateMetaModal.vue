@@ -22,6 +22,7 @@ const isSubmitting = ref(false)
 const inputRef = ref<HTMLInputElement | null>(null)
 
 const { toast } = useNotify()
+const { t } = useI18n()
 
 watch(() => props.isOpen, (open) => {
   if (open) {
@@ -37,12 +38,11 @@ watch(() => props.isOpen, (open) => {
 const handleCreate = async () => {
   const trimmed = metaName.value.trim()
   if (!trimmed) {
-    toast.warning('Veuillez saisir un nom pour la méta.')
+    toast.warning(t('common.name_required'))
     return
   }
 
   if (!props.gameId) {
-    toast.error('Aucun jeu sélectionné.')
     return
   }
 
@@ -57,11 +57,10 @@ const handleCreate = async () => {
       }
     })
 
-    toast.success(`Méta "${trimmed}" créée avec succès (archétypes dupliqués) !`)
     emit('created', newMeta)
     emit('close')
   } catch (err: any) {
-    toast.error(err?.data?.statusMessage || err?.message || 'Erreur lors de la création de la méta')
+    toast.error(err?.data?.statusMessage || err?.message || 'Error')
   } finally {
     isSubmitting.value = false
   }
@@ -107,17 +106,17 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
               <svg class="w-5 h-5 text-emerald-500 dark:text-emerald-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 5v14M5 12h14"/>
               </svg>
-              <span>Nouvelle Méta / Format</span>
+              <span>{{ $t('create_meta_modal.title') }}</span>
             </h3>
             <p v-if="gameName" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Jeu : <span class="text-emerald-600 dark:text-emerald-400 font-medium">{{ gameName }}</span>
+              {{ $t('create_meta_modal.game_label') }} : <span class="text-emerald-600 dark:text-emerald-400 font-medium">{{ gameName }}</span>
             </p>
           </div>
           <button
             type="button"
             @click="emit('close')"
             class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition cursor-pointer"
-            aria-label="Fermer"
+            :aria-label="$t('common.close')"
           >
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M18 6 6 18M6 6l12 12"/>
@@ -128,7 +127,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
         <form @submit.prevent="handleCreate" class="mt-5 space-y-4">
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
-              Nom de la méta ou du set *
+              {{ $t('create_meta_modal.name_label') }}
             </label>
             <input
               ref="inputRef"
@@ -136,18 +135,18 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
               type="text"
               required
               maxlength="100"
-              placeholder="Nom du set / format..."
+              :placeholder="$t('create_meta_modal.name_placeholder')"
               class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 text-sm shadow-inner"
             />
             <p class="text-[11px] text-slate-500 mt-1">
-              Permet de regrouper vos archétypes et statistiques par extension ou saison compétitive.
+              {{ $t('create_meta_modal.desc') }}
             </p>
             <div class="mt-3 p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center gap-2.5 text-xs text-slate-300">
               <svg class="w-4 h-4 text-emerald-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
                 <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
               </svg>
-              <span>Tous vos archétypes existants seront automatiquement dupliqués dans ce nouveau format.</span>
+              <span>{{ $t('create_meta_modal.duplicate_hint') }}</span>
             </div>
           </div>
 
@@ -157,15 +156,15 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
               @click="emit('close')"
               class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition"
             >
-              Annuler
+              {{ $t('create_meta_modal.cancel') }}
             </button>
             <button
               type="submit"
               :disabled="isSubmitting || !metaName.trim()"
               class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 active:scale-95 transition disabled:opacity-50 shadow-md shadow-emerald-950/40 cursor-pointer flex items-center gap-1.5"
             >
-              <span v-if="isSubmitting">Création...</span>
-              <span v-else>Créer la méta</span>
+              <span v-if="isSubmitting">{{ $t('create_meta_modal.creating') }}</span>
+              <span v-else>{{ $t('create_meta_modal.create_btn') }}</span>
             </button>
           </div>
         </form>

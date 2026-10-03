@@ -23,6 +23,7 @@ const isSubmitting = ref(false)
 const errorMessage = ref<string | null>(null)
 const nameInputRef = ref<HTMLInputElement | null>(null)
 const { toast } = useNotify()
+const { t } = useI18n()
 
 const form = reactive({
   name: '',
@@ -66,13 +67,12 @@ watch(
 
 const handleSubmit = async () => {
   if (!props.gameId || !props.metaId) {
-    errorMessage.value = 'Veuillez sélectionner un jeu et un format valides.'
     return
   }
 
   const trimmedName = form.name.trim()
   if (!trimmedName) {
-    errorMessage.value = "Le nom de l'archétype est requis."
+    errorMessage.value = t('common.name_required')
     return
   }
 
@@ -94,7 +94,6 @@ const handleSubmit = async () => {
           card2ImageUrl: form.card2ImageUrl.trim() || null
         }
       })
-      toast.success(`Archétype "${trimmedName}" mis à jour`)
     } else {
       savedArch = await $fetch<Archetype>('/api/archetypes', {
         method: 'POST',
@@ -108,13 +107,12 @@ const handleSubmit = async () => {
           card2ImageUrl: form.card2ImageUrl.trim() || null
         }
       })
-      toast.success(`Archétype "${trimmedName}" créé avec succès`)
     }
 
     emit('saved', savedArch)
     emit('close')
   } catch (err: any) {
-    errorMessage.value = err?.data?.statusMessage || err?.message || "Une erreur est survenue lors de l'enregistrement"
+    errorMessage.value = err?.data?.statusMessage || err?.message || 'Error'
   } finally {
     isSubmitting.value = false
   }
@@ -168,10 +166,10 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                     <rect width="18" height="18" x="3" y="3" rx="2" />
                     <path d="M12 8v8M8 12h8" />
                   </svg>
-                  <span>{{ isEditing ? "Modifier l'Archétype" : "Nouvel Archétype" }}</span>
+                  <span>{{ isEditing ? $t('archetype_modal.edit_title') : $t('archetype_modal.create_title') }}</span>
                 </h3>
                 <p v-if="metaName" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Format : <span class="text-emerald-600 dark:text-emerald-400 font-medium">{{ metaName }}</span>
+                  {{ $t('archetype_modal.format_label') }} : <span class="text-emerald-600 dark:text-emerald-400 font-medium">{{ metaName }}</span>
                 </p>
               </div>
 
@@ -179,7 +177,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                 type="button"
                 @click="emit('close')"
                 class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition cursor-pointer"
-                aria-label="Fermer"
+                :aria-label="$t('common.close')"
               >
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M18 6 6 18M6 6l12 12" />
@@ -197,7 +195,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
             <!-- Nom de l'archétype -->
             <div>
               <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                Nom de l'archétype *
+                {{ $t('archetype_modal.name_label') }}
               </label>
               <input
                 ref="nameInputRef"
@@ -205,7 +203,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                 type="text"
                 required
                 maxlength="100"
-                placeholder="Ex: Charizard ex, Raging Bolt, Lugia..."
+                :placeholder="$t('archetype_modal.name_placeholder')"
                 class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
               />
             </div>
@@ -214,30 +212,30 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
             <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/80 space-y-2.5">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
-                  Carte Clé 1 (Illustration principale)
+                  {{ $t('archetype_modal.card1_label') }}
                 </span>
-                <span class="text-[10px] text-slate-400">Optionnel</span>
+                <span class="text-[10px] text-slate-400">{{ $t('archetype_modal.optional') }}</span>
               </div>
               <input
                 v-model="form.card1Name"
                 type="text"
-                placeholder="Nom de la carte..."
+                :placeholder="$t('archetype_modal.card_name_placeholder')"
                 class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
               <input
                 v-model="form.card1ImageUrl"
                 type="url"
-                placeholder="URL de l'image (https://...)"
+                :placeholder="$t('archetype_modal.card_url_placeholder')"
                 class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
               <div v-if="form.card1ImageUrl" class="mt-2 flex items-center gap-2.5 p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
                 <img
                   :src="form.card1ImageUrl"
-                  :alt="form.card1Name || 'Carte 1'"
+                  :alt="form.card1Name || $t('archetype_modal.card1_preview')"
                   class="w-10 h-14 object-cover rounded border border-slate-200 dark:border-slate-700 flex-shrink-0"
                   @error="(e) => (e.target as HTMLElement).style.display = 'none'"
                 />
-                <span class="text-xs text-slate-600 dark:text-slate-300 truncate">{{ form.card1Name || 'Aperçu Carte 1' }}</span>
+                <span class="text-xs text-slate-600 dark:text-slate-300 truncate">{{ form.card1Name || $t('archetype_modal.card1_preview') }}</span>
               </div>
             </div>
 
@@ -245,30 +243,30 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
             <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/80 space-y-2.5">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
-                  Carte Clé 2 (Deuxième illustration)
+                  {{ $t('archetype_modal.card2_label') }}
                 </span>
-                <span class="text-[10px] text-slate-400">Optionnel</span>
+                <span class="text-[10px] text-slate-400">{{ $t('archetype_modal.optional') }}</span>
               </div>
               <input
                 v-model="form.card2Name"
                 type="text"
-                placeholder="Nom de la deuxième carte..."
+                :placeholder="$t('archetype_modal.card_name_placeholder')"
                 class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
               <input
                 v-model="form.card2ImageUrl"
                 type="url"
-                placeholder="URL de l'image (https://...)"
+                :placeholder="$t('archetype_modal.card_url_placeholder')"
                 class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
               <div v-if="form.card2ImageUrl" class="mt-2 flex items-center gap-2.5 p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
                 <img
                   :src="form.card2ImageUrl"
-                  :alt="form.card2Name || 'Carte 2'"
+                  :alt="form.card2Name || $t('archetype_modal.card2_preview')"
                   class="w-10 h-14 object-cover rounded border border-slate-200 dark:border-slate-700 flex-shrink-0"
                   @error="(e) => (e.target as HTMLElement).style.display = 'none'"
                 />
-                <span class="text-xs text-slate-600 dark:text-slate-300 truncate">{{ form.card2Name || 'Aperçu Carte 2' }}</span>
+                <span class="text-xs text-slate-600 dark:text-slate-300 truncate">{{ form.card2Name || $t('archetype_modal.card2_preview') }}</span>
               </div>
             </div>
           </form>
@@ -280,7 +278,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
               @click="emit('close')"
               class="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
             >
-              Annuler
+              {{ $t('archetype_modal.cancel') }}
             </button>
             <button
               type="submit"
@@ -289,7 +287,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
               class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] transition disabled:opacity-50 shadow-md shadow-emerald-600/20 cursor-pointer flex items-center gap-2"
             >
               <span v-if="isSubmitting" class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-              <span>{{ isSubmitting ? 'Enregistrement...' : (isEditing ? 'Mettre à jour' : "Créer l'archétype") }}</span>
+              <span>{{ isSubmitting ? $t('archetype_modal.saving') : (isEditing ? $t('archetype_modal.update_btn') : $t('archetype_modal.create_btn')) }}</span>
             </button>
           </div>
         </div>

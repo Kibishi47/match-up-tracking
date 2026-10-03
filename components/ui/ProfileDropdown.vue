@@ -119,13 +119,13 @@ const logout = async () => {
       >
         <!-- Info utilisateur -->
         <div class="px-4 py-2.5">
-          <div class="text-xs text-slate-400 dark:text-slate-500 font-medium">Connecté en tant que</div>
+          <div class="text-xs text-slate-400 dark:text-slate-500 font-medium">{{ $t('profile_menu.logged_in_as') }}</div>
           <div class="text-sm font-bold text-slate-900 dark:text-white truncate mt-0.5">
             {{ user.username }}
           </div>
           <div v-if="user.role === 'admin'" class="mt-1">
             <span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30">
-              Administrateur
+              {{ $t('profile_menu.admin') }}
             </span>
           </div>
         </div>
@@ -142,7 +142,7 @@ const logout = async () => {
               <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
               <circle cx="12" cy="12" r="3"/>
             </svg>
-            <span>Paramètres du compte</span>
+            <span>{{ $t('profile_menu.account_settings') }}</span>
           </NuxtLink>
 
           <!-- Toggle Thème rapide -->
@@ -161,10 +161,10 @@ const logout = async () => {
               <svg v-else class="w-4 h-4 text-indigo-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
               </svg>
-              <span>Thème {{ colorMode.value === 'dark' ? 'Sombre' : 'Clair' }}</span>
+              <span>{{ $t('profile_menu.theme') }} ({{ colorMode.value === 'dark' ? $t('settings.theme_dark') : $t('settings.theme_light') }})</span>
             </div>
             <span class="text-[10px] text-slate-400 uppercase font-semibold">
-              {{ colorMode.value === 'dark' ? 'Activer Clair' : 'Activer Sombre' }}
+              {{ colorMode.value === 'dark' ? $t('profile_menu.activate_light') : $t('profile_menu.activate_dark') }}
             </span>
           </button>
         </div>
@@ -181,7 +181,7 @@ const logout = async () => {
               <polyline points="16 17 21 12 16 7" />
               <line x1="21" y1="12" x2="9" y2="12" />
             </svg>
-            <span>Déconnexion</span>
+            <span>{{ $t('profile_menu.logout') }}</span>
           </button>
         </div>
       </div>

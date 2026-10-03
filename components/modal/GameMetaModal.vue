@@ -17,6 +17,7 @@ useScrollLock(toRef(props, 'isOpen'))
 const { games, activeGameId, setActiveGame } = useGameSession()
 const { activeMetaId, setActiveMeta, refreshMetas: refreshSessionMetas } = useMetaSession()
 const { toast, confirmAction } = useNotify()
+const { t } = useI18n()
 
 // Jeu sélectionné temporairement dans la modale
 const selectedGameId = ref<string | null>(null)
@@ -72,7 +73,7 @@ const loadMetasForSelectedGame = async () => {
     })
     localMetas.value = data || []
   } catch (err: any) {
-    toast.error('Impossible de charger les métas de ce jeu')
+    toast.error(err?.data?.statusMessage || err?.message || 'Error')
   } finally {
     isLoadingMetas.value = false
   }
@@ -93,7 +94,7 @@ const selectMeta = (meta: Meta) => {
     localStorage.setItem('tcg_active_meta', meta.id)
   } catch {}
 
-  toast.info(`Format actif : ${selectedGame.value?.name || 'Jeu'} — ${meta.name}`)
+  toast.info(t('game_meta_modal.meta_active_toast', { game: selectedGame.value?.name || '', meta: meta.name }))
   emit('close')
 }
 
@@ -101,12 +102,11 @@ const selectMeta = (meta: Meta) => {
 const handleCreateMeta = async () => {
   const trimmed = newMetaName.value.trim()
   if (!trimmed) {
-    toast.warning('Veuillez saisir un nom pour la méta.')
+    toast.warning(t('common.name_required'))
     return
   }
 
   if (!selectedGameId.value) {
-    toast.error('Veuillez d\'abord choisir un jeu.')
     return
   }
 
@@ -121,7 +121,6 @@ const handleCreateMeta = async () => {
       }
     })
 
-    toast.success(`Méta "${trimmed}" créée avec succès !`)
     newMetaName.value = ''
     await loadMetasForSelectedGame()
     if (selectedGameId.value === activeGameId.value) {
@@ -130,7 +129,7 @@ const handleCreateMeta = async () => {
     // Sélectionner automatiquement la méta fraîchement créée
     selectMeta(created)
   } catch (err: any) {
-    toast.error(err?.data?.statusMessage || err?.message || 'Erreur lors de la création de la méta')
+    toast.error(err?.data?.statusMessage || err?.message || 'Error')
   } finally {
     isCreatingMeta.value = false
   }
@@ -145,7 +144,7 @@ const startRename = (meta: Meta) => {
 const saveRename = async (meta: Meta) => {
   const trimmed = editingMetaName.value.trim()
   if (!trimmed) {
-    toast.warning('Le nom de la méta ne peut pas être vide.')
+    toast.warning(t('common.name_required'))
     return
   }
   if (trimmed === meta.name) {
@@ -160,12 +159,11 @@ const saveRename = async (meta: Meta) => {
     })
     meta.name = updated.name
     cancelRename()
-    toast.success('Méta renommée avec succès !')
     if (selectedGameId.value === activeGameId.value) {
       await refreshSessionMetas()
     }
   } catch (err: any) {
-    toast.error(err?.data?.statusMessage || err?.message || 'Erreur lors du renommage')
+    toast.error(err?.data?.statusMessage || err?.message || 'Error')
   }
 }
 
@@ -199,7 +197,7 @@ const persistMetaOrder = async () => {
       await refreshSessionMetas()
     }
   } catch (err: any) {
-    toast.error('Erreur lors de la réorganisation des métas')
+    toast.error(err?.data?.statusMessage || err?.message || 'Error')
   } finally {
     isSavingOrder.value = false
   }
@@ -208,16 +206,16 @@ const persistMetaOrder = async () => {
 // Suppression
 const handleDeleteMeta = async (meta: Meta) => {
   const confirmed = await confirmAction({
-    title: `Supprimer la méta "${meta.name}" ?`,
-    message: 'Cette action supprimera définitivement cette méta ainsi que ses archétypes et statistiques associés.',
-    confirmText: 'Supprimer',
+    title: t('game_meta_modal.delete_confirm_title', { name: meta.name }),
+    message: t('game_meta_modal.delete_confirm_msg'),
+    confirmText: t('common.delete'),
+    cancelText: t('common.cancel'),
     isDestructive: true
   })
   if (!confirmed) return
 
   try {
     await $fetch(`/api/metas/${meta.id}`, { method: 'DELETE' })
-    toast.success(`Méta "${meta.name}" supprimée`)
     localMetas.value = localMetas.value.filter(m => m.id !== meta.id)
 
     if (selectedGameId.value === activeGameId.value) {
@@ -231,7 +229,7 @@ const handleDeleteMeta = async (meta: Meta) => {
       }
     }
   } catch (err: any) {
-    toast.error(err?.data?.statusMessage || err?.message || 'Erreur lors de la suppression de la méta')
+    toast.error(err?.data?.statusMessage || err?.message || 'Error')
   }
 }
 
@@ -279,10 +277,10 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                     <rect width="20" height="12" x="2" y="6" rx="6" />
                     <path d="M6 12h4m-2-2v4m9-2h.01m3 0h.01" />
                   </svg>
-                  <span>Configuration Jeu & Méta</span>
+                  <span>{{ $t('game_meta_modal.title') }}</span>
                 </h3>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Sélectionnez le jeu et l'extension active pour vos matchs et statistiques
+                  {{ $t('game_meta_modal.subtitle') }}
                 </p>
               </div>
 
@@ -290,6 +288,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                 type="button"
                 @click="emit('close')"
                 class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition cursor-pointer"
+                :aria-label="$t('common.close')"
               >
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M18 6 6 18M6 6l12 12" />
@@ -305,14 +304,14 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
             <div class="flex items-center justify-between mb-3">
               <label class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
-                1. Choisissez votre TCG
+                {{ $t('game_meta_modal.section_games') }}
               </label>
               <button
                 type="button"
                 @click="emit('openManageGames')"
                 class="text-xs text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium flex items-center gap-1 hover:underline cursor-pointer"
               >
-                <span>+ Gérer ma collection</span>
+                <span>{{ $t('game_meta_modal.manage_collection') }}</span>
                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M5 12h14m-7-7 7 7-7 7"/>
                 </svg>
@@ -351,7 +350,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                       v-if="game.id === activeGameId"
                       class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
                     >
-                      En cours
+                      {{ $t('game_meta_modal.current_badge') }}
                     </span>
                   </div>
                   <span class="text-xs text-slate-400 dark:text-slate-500">{{ game.slug }}</span>
@@ -365,13 +364,13 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
               v-else
               class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-dashed border-slate-200 dark:border-slate-800 text-center space-y-2"
             >
-              <p class="text-xs text-slate-500 dark:text-slate-400">Aucun jeu activé dans votre collection.</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400">{{ $t('game_meta_modal.no_games') }}</p>
               <button
                 type="button"
                 @click="emit('openManageGames')"
                 class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition cursor-pointer"
               >
-                Sélectionner des jeux
+                {{ $t('game_meta_modal.select_games_btn') }}
               </button>
             </div>
           </div>
@@ -383,7 +382,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
             <div class="flex items-center justify-between mb-3">
               <label class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                2. Formats & Métas
+                {{ $t('game_meta_modal.section_metas') }}
                 <span v-if="selectedGame" class="text-emerald-600 dark:text-emerald-400 normal-case font-medium">
                   ({{ selectedGame.name }})
                 </span>
@@ -407,7 +406,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                 <svg v-else class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                   <path d="M20 6 9 17l-5-5"/>
                 </svg>
-                <span>{{ isEditMode ? 'Terminer' : 'Gérer les métas' }}</span>
+                <span>{{ isEditMode ? $t('game_meta_modal.finish') : $t('game_meta_modal.manage_metas') }}</span>
               </button>
             </div>
 
@@ -417,7 +416,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
               </svg>
-              <span class="text-xs">Chargement des métas...</span>
+              <span class="text-xs">{{ $t('game_meta_modal.loading_metas') }}</span>
             </div>
 
             <!-- Aucune méta trouvée -->
@@ -433,9 +432,9 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                 </svg>
               </div>
               <div>
-                <h4 class="text-sm font-bold text-amber-600 dark:text-amber-300">Aucune méta configurée</h4>
+                <h4 class="text-sm font-bold text-amber-600 dark:text-amber-300">{{ $t('game_meta_modal.no_metas') }}</h4>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
-                  Ce jeu ne possède pas encore de méta ou extension. Créez-en une directement pour commencer à suivre vos matchs.
+                  {{ $t('game_meta_modal.no_metas_desc') }}
                 </p>
               </div>
 
@@ -444,7 +443,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                 <input
                   v-model="newMetaName"
                   type="text"
-                  placeholder="Nom du set / format..."
+                  :placeholder="$t('game_meta_modal.new_meta_placeholder')"
                   required
                   class="flex-1 px-3.5 py-2 rounded-xl bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500"
                 />
@@ -453,8 +452,8 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                   :disabled="isCreatingMeta || !newMetaName.trim()"
                   class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
                 >
-                  <span v-if="isCreatingMeta">Création...</span>
-                  <span v-else>Créer</span>
+                  <span v-if="isCreatingMeta">{{ $t('game_meta_modal.creating') }}</span>
+                  <span v-else>+ {{ $t('game_meta_modal.create_meta_btn') }}</span>
                 </button>
               </form>
             </div>
@@ -475,7 +474,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                       @click="moveMetaUp(index)"
                       :disabled="index === 0"
                       class="p-1 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-20 disabled:hover:bg-transparent transition cursor-pointer"
-                      title="Monter d'une position"
+                      :title="$t('game_meta_modal.move_up')"
                     >
                       <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                         <path d="m18 15-6-6-6 6"/>
@@ -486,7 +485,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                       @click="moveMetaDown(index)"
                       :disabled="index === localMetas.length - 1"
                       class="p-1 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-20 disabled:hover:bg-transparent transition cursor-pointer"
-                      title="Descendre d'une position"
+                      :title="$t('game_meta_modal.move_down')"
                     >
                       <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                         <path d="m6 9 6 6 6-6"/>
@@ -509,7 +508,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                         type="button"
                         @click="saveRename(meta)"
                         class="p-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition flex-shrink-0 cursor-pointer"
-                        title="Enregistrer"
+                        :title="$t('common.save')"
                       >
                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                           <polyline points="20 6 9 17 4 12"/>
@@ -519,7 +518,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                         type="button"
                         @click="cancelRename"
                         class="p-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition flex-shrink-0 cursor-pointer"
-                        title="Annuler"
+                        :title="$t('common.cancel')"
                       >
                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                           <line x1="18" y1="6" x2="6" y2="18"/>
@@ -533,7 +532,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                         v-if="meta.id === activeMetaId && selectedGameId === activeGameId"
                         class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex-shrink-0"
                       >
-                        Actif
+                        {{ $t('game_meta_modal.active') }}
                       </span>
                     </div>
                   </div>
@@ -544,7 +543,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                       type="button"
                       @click="startRename(meta)"
                       class="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 transition cursor-pointer"
-                      title="Renommer cette méta"
+                      :title="$t('game_meta_modal.rename_title')"
                     >
                       <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
@@ -554,7 +553,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                       type="button"
                       @click="handleDeleteMeta(meta)"
                       class="p-1.5 rounded-lg text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-500/10 transition cursor-pointer"
-                      title="Supprimer définitivement cette méta"
+                      :title="$t('game_meta_modal.delete_title')"
                     >
                       <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
@@ -589,13 +588,13 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                       v-if="meta.id === activeMetaId && selectedGameId === activeGameId"
                       class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
                     >
-                      Actif
+                      {{ $t('game_meta_modal.active') }}
                     </span>
                     <span
                       v-else
                       class="text-xs text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 opacity-0 group-hover:opacity-100 transition"
                     >
-                      Activer →
+                      {{ $t('game_meta_modal.activate') }} →
                     </span>
                   </div>
                 </button>
@@ -610,7 +609,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                   <input
                     v-model="newMetaName"
                     type="text"
-                    placeholder="Nouveau set / format..."
+                    :placeholder="$t('game_meta_modal.new_meta_placeholder')"
                     maxlength="100"
                     class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500 shadow-inner"
                   />
@@ -620,8 +619,8 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                   :disabled="isCreatingMeta || !newMetaName.trim()"
                   class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold text-xs transition disabled:opacity-50 shadow-md shadow-emerald-950/20 cursor-pointer flex items-center gap-1.5 flex-shrink-0"
                 >
-                  <span v-if="isCreatingMeta">Création...</span>
-                  <span v-else>+ Créer</span>
+                  <span v-if="isCreatingMeta">{{ $t('game_meta_modal.creating') }}</span>
+                  <span v-else>+ {{ $t('game_meta_modal.create_meta_btn') }}</span>
                 </button>
               </form>
             </div>
@@ -631,7 +630,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
         <!-- Footer -->
         <div class="px-6 py-3.5 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 flex-shrink-0">
           <span>
-            Cliquez sur un format pour l'activer instantanément.
+            {{ $t('game_meta_modal.click_to_activate') }}
           </span>
         </div>
       </div>

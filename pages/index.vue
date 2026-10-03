@@ -83,6 +83,7 @@ const handleNotesSaved = (newNotes: string) => {
 }
 
 const { toast, confirmAction } = useNotify()
+const { t, locale } = useI18n()
 
 // Formateur de score et infobulle pour match BO3
 const getBo3Score = (m: MatchWithRelations) => {
@@ -113,7 +114,7 @@ const logMatch = async (
   }
 ) => {
   if (!activeGameId.value || !activeDeckId.value) {
-    toast.warning('Veuillez d’abord sélectionner un jeu et votre deck actif.')
+    toast.warning(t('matchups.select_game_deck_warning'))
     return
   }
 
@@ -150,7 +151,7 @@ const logMatch = async (
     // Rafraîchir les stats consolidées en arrière-plan sans flash
     await refreshDashboard()
   } catch (err: any) {
-    toast.error(err?.data?.statusMessage || 'Erreur lors de l’enregistrement du match')
+    toast.error(err?.data?.statusMessage || t('matchups.save_error'))
   }
 }
 
@@ -159,10 +160,10 @@ const handleUndoMatch = async (matchId: string) => {
   try {
     await $fetch(`/api/matches/${matchId}`, { method: 'DELETE' })
     pendingUndoMatch.value = null
-    toast.info('Match annulé')
+    toast.info(t('history.cancelled'))
     await refreshDashboard()
   } catch (err: any) {
-    toast.error(err?.data?.statusMessage || 'Erreur lors de l’annulation')
+    toast.error(err?.data?.statusMessage || err?.message || 'Error')
   }
 }
 
@@ -175,9 +176,9 @@ const handleEditFromToast = (match: MatchWithRelations) => {
 // Supprimer un match depuis l'historique
 const deleteMatchFromHistory = async (matchId: string) => {
   const confirmed = await confirmAction({
-    title: 'Supprimer ce match ?',
-    message: 'Cette action supprimera définitivement le match de votre historique et recalculera vos statistiques.',
-    confirmText: 'Supprimer',
+    title: t('history.confirm_delete_title'),
+    message: t('history.confirm_delete_msg'),
+    confirmText: t('common.delete'),
     isDestructive: true
   })
   if (!confirmed) return
@@ -187,16 +188,17 @@ const deleteMatchFromHistory = async (matchId: string) => {
     if (pendingUndoMatch.value?.id === matchId) {
       pendingUndoMatch.value = null
     }
-    toast.success('Match supprimé avec succès')
+    toast.success(t('history.delete_success'))
     await refreshDashboard()
   } catch (err: any) {
-    toast.error(err?.data?.statusMessage || 'Erreur lors de la suppression')
+    toast.error(err?.data?.statusMessage || 'Error')
   }
 }
 
 const formatDate = (dateStr: string | Date) => {
   const d = new Date(dateStr)
-  return new Intl.DateTimeFormat('fr-FR', {
+  const loc = locale.value === 'fr' ? 'fr-FR' : 'en-US'
+  return new Intl.DateTimeFormat(loc, {
     day: 'numeric',
     month: 'short',
     hour: '2-digit',
@@ -227,10 +229,10 @@ const formatDate = (dateStr: string | Date) => {
         <div class="flex items-center justify-between mb-4">
           <div>
             <h3 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
-              Matchups
+              {{ $t('matchups.title') }}
             </h3>
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Taux de victoire (WR) et taux de présence (SR) face aux archétypes adverses
+              {{ $t('matchups.subtitle') }}
             </p>
           </div>
         </div>
@@ -254,12 +256,12 @@ const formatDate = (dateStr: string | Date) => {
           <div class="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800/80">
             <div class="flex items-center gap-2 sm:gap-2.5 min-w-0">
               <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white whitespace-nowrap">
-                Historique Récent
+                {{ $t('history.title') }}
               </h3>
               <span
                 v-if="dashboardData?.recentMatches?.length"
                 class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700/60 flex-shrink-0"
-                :title="`${dashboardData.recentMatches.length} derniers matchs`"
+                :title="`${dashboardData.recentMatches.length} ${$t('history.title')}`"
               >
                 {{ dashboardData.recentMatches.length }}
               </span>
@@ -269,17 +271,17 @@ const formatDate = (dateStr: string | Date) => {
               type="button"
               @click="refreshDashboard()"
               class="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white p-1.5 sm:px-2.5 sm:py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-1.5 flex-shrink-0 cursor-pointer"
-              title="Actualiser l'historique"
+              :title="$t('nav.refresh')"
             >
               <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
               </svg>
-              <span class="hidden sm:inline">Actualiser</span>
+              <span class="hidden sm:inline">{{ $t('nav.refresh') }}</span>
             </button>
           </div>
 
           <div v-if="!dashboardData?.recentMatches || dashboardData.recentMatches.length === 0" class="py-8 text-center text-slate-400 dark:text-slate-500 text-sm">
-            Aucun match enregistré pour ce deck.
+            {{ $t('history.no_matches') }}
           </div>
 
           <div v-else class="divide-y divide-slate-100 dark:divide-slate-800/80">
@@ -307,8 +309,8 @@ const formatDate = (dateStr: string | Date) => {
 
                 <div class="min-w-0 flex-1">
                   <div class="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white truncate">
-                    vs {{ m.opponentArchetype?.name || 'Adversaire inconnu' }}
-                    <span class="text-[11px] sm:text-xs font-normal text-slate-500 dark:text-slate-400 ml-1.5 hidden sm:inline">avec {{ m.myArchetype?.name }}</span>
+                    vs {{ m.opponentArchetype?.name || $t('history.unknown_opponent') }}
+                    <span class="text-[11px] sm:text-xs font-normal text-slate-500 dark:text-slate-400 ml-1.5 hidden sm:inline">{{ $t('history.with') }} {{ m.myArchetype?.name }}</span>
                   </div>
                   <div class="flex items-center flex-wrap gap-x-2 gap-y-0.5 text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
                     <span class="flex-shrink-0">{{ formatDate(m.createdAt) }}</span>
@@ -342,15 +344,15 @@ const formatDate = (dateStr: string | Date) => {
                   @click="editingMatch = m"
                   class="px-2.5 py-1 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer"
                 >
-                  Éditer
+                  {{ $t('history.edit') }}
                 </button>
                 <button
                   type="button"
                   @click="deleteMatchFromHistory(m.id)"
                   class="p-1 sm:px-2.5 sm:py-1 rounded-lg text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-500/10 transition cursor-pointer"
-                  title="Supprimer ce match"
+                  :title="$t('history.delete')"
                 >
-                  <span class="hidden sm:inline">Supprimer</span>
+                  <span class="hidden sm:inline">{{ $t('history.delete') }}</span>
                   <svg class="w-4 h-4 sm:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
                   </svg>

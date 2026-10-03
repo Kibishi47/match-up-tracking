@@ -33,7 +33,7 @@ const isGameMetaModalOpen = ref(false)
             type="button"
             @click="isGameMetaModalOpen = true"
             class="h-9 max-w-[200px] min-[390px]:max-w-[240px] sm:max-w-[340px] px-2.5 sm:px-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900/90 dark:hover:bg-slate-800/90 border border-slate-300 dark:border-slate-700/80 hover:border-emerald-500/60 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white transition duration-200 flex items-center gap-1.5 sm:gap-2 shadow-sm cursor-pointer group flex-shrink-0"
-            title="Changer de jeu ou de format/méta"
+            :title="$t('game_meta_modal.title')"
           >
             <!-- Logo du jeu ou icône SVG professionnelle -->
             <img
@@ -59,7 +59,7 @@ const isGameMetaModalOpen = ref(false)
             <!-- Nom du Jeu — Méta -->
             <div class="flex items-center gap-1.5 text-xs truncate">
               <span class="font-bold text-slate-900 dark:text-white truncate">
-                {{ activeGame?.name || 'Aucun jeu' }}
+                {{ activeGame?.name || $t('common.no_game') }}
               </span>
               <span class="text-slate-400 dark:text-slate-500 font-semibold flex-shrink-0">—</span>
               <span
@@ -68,27 +68,27 @@ const isGameMetaModalOpen = ref(false)
                   activeMeta ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400/90 italic'
                 ]"
               >
-                {{ activeMeta?.name || 'Aucune méta' }}
+                {{ activeMeta?.name || $t('common.no_meta') }}
               </span>
             </div>
           </button>
         </div>
 
-        <!-- Liens de navigation -->
+          <!-- Liens de navigation -->
         <nav class="hidden lg:flex items-center gap-1">
           <NuxtLink
             to="/"
             class="px-3 py-1.5 rounded-lg text-sm font-medium transition text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
             active-class="!text-emerald-600 dark:!text-emerald-400 !bg-emerald-500/10"
           >
-            Dashboard
+            {{ $t('nav.dashboard') }}
           </NuxtLink>
           <NuxtLink
             to="/archetypes"
             class="px-3 py-1.5 rounded-lg text-sm font-medium transition text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
             active-class="!text-emerald-600 dark:!text-emerald-400 !bg-emerald-500/10"
           >
-            Archétypes
+            {{ $t('nav.archetypes') }}
           </NuxtLink>
           <NuxtLink
             v-if="user?.role === 'admin'"
@@ -96,23 +96,25 @@ const isGameMetaModalOpen = ref(false)
             class="px-3 py-1.5 rounded-lg text-sm font-medium transition text-purple-600 dark:text-purple-300 hover:text-purple-900 dark:hover:text-white hover:bg-purple-500/10"
             active-class="!text-purple-600 dark:!text-purple-400 !bg-purple-500/20"
           >
-            Admin Jeux
+            {{ $t('nav.admin_games') }}
           </NuxtLink>
         </nav>
       </div>
 
-      <!-- Menu Déroulant du Profil Utilisateur -->
-      <div v-if="user" class="flex-shrink-0">
-        <ProfileDropdown />
-      </div>
+      <!-- Actions Droite : Profil & Connexion -->
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <div v-if="user">
+          <ProfileDropdown />
+        </div>
 
-      <div v-else class="flex-shrink-0">
-        <NuxtLink
-          to="/login"
-          class="px-4 py-2 rounded-xl text-sm font-medium bg-emerald-600 hover:bg-emerald-500 text-white transition shadow-sm"
-        >
-          Connexion
-        </NuxtLink>
+        <div v-else>
+          <NuxtLink
+            to="/login"
+            class="px-4 py-2 rounded-xl text-sm font-medium bg-emerald-600 hover:bg-emerald-500 text-white transition shadow-sm"
+          >
+            {{ $t('login.login_btn') }}
+          </NuxtLink>
+        </div>
       </div>
     </div>
     <!-- Modale de gestion des jeux de l'utilisateur -->

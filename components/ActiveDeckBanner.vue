@@ -37,9 +37,9 @@ const isSelectModalOpen = ref(false)
           <path d="M10 7.5h4" />
         </svg>
       </div>
-      <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Aucun deck actif sélectionné</h3>
+      <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">{{ $t('deck_banner.no_active_deck') }}</h3>
       <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-md mx-auto">
-        Créez ou sélectionnez votre deck pour commencer à enregistrer vos confrontations.
+        {{ $t('deck_banner.no_active_deck_desc') }}
       </p>
       <div class="flex flex-wrap items-center justify-center gap-2.5 mt-3.5">
         <button
@@ -48,13 +48,13 @@ const isSelectModalOpen = ref(false)
           @click="isSelectModalOpen = true"
           class="inline-flex items-center gap-2 px-4 py-2 sm:py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm transition shadow-lg shadow-emerald-600/20 active:scale-95 cursor-pointer"
         >
-          <span>Choisir mon deck actif</span>
+          <span>{{ $t('deck_banner.choose_active_deck') }}</span>
         </button>
         <NuxtLink
           to="/archetypes"
           class="inline-flex items-center gap-2 px-4 py-2 sm:py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-xs sm:text-sm transition shadow-sm active:scale-95"
         >
-          <span>+ Configurer mes decks</span>
+          <span>+ {{ $t('deck_banner.configure_decks') }}</span>
         </NuxtLink>
       </div>
     </div>
@@ -71,7 +71,7 @@ const isSelectModalOpen = ref(false)
             <img
               v-if="deck.card1ImageUrl"
               :src="deck.card1ImageUrl"
-              :alt="deck.card1Name || 'Carte clé 1'"
+              :alt="deck.card1Name || $t('common.card_1')"
               class="w-full h-full object-cover"
               @error="(e) => (e.target as HTMLElement).style.display = 'none'"
             />
@@ -87,7 +87,7 @@ const isSelectModalOpen = ref(false)
             <img
               v-if="deck.card2ImageUrl"
               :src="deck.card2ImageUrl"
-              :alt="deck.card2Name || 'Carte clé 2'"
+              :alt="deck.card2Name || $t('common.card_2')"
               class="w-full h-full object-cover"
               @error="(e) => (e.target as HTMLElement).style.display = 'none'"
             />
@@ -105,7 +105,7 @@ const isSelectModalOpen = ref(false)
           <img
             v-if="deck.card1ImageUrl"
             :src="deck.card1ImageUrl"
-            :alt="deck.card1Name || 'Carte clé'"
+            :alt="deck.card1Name || $t('common.key_card')"
             class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
             @error="(e) => (e.target as HTMLElement).style.display = 'none'"
           />
@@ -118,7 +118,7 @@ const isSelectModalOpen = ref(false)
         <div class="min-w-0 flex-1">
           <div class="flex items-center gap-2 mb-1">
             <span class="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black tracking-wider uppercase bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex-shrink-0">
-              Deck Actif
+              {{ $t('deck_banner.active_deck') }}
             </span>
             <span v-if="deck.card1Name || deck.card2Name" class="hidden sm:inline text-xs text-slate-500 dark:text-slate-400 truncate max-w-xs" :title="[deck.card1Name, deck.card2Name].filter(Boolean).join(' // ')">
               {{ [deck.card1Name, deck.card2Name].filter(Boolean).join(' // ') }}
@@ -140,13 +140,13 @@ const isSelectModalOpen = ref(false)
               type="button"
               @click="isSelectModalOpen = true"
               class="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700/80 border border-slate-300 dark:border-slate-700/80 text-slate-800 dark:text-slate-200 text-xs font-semibold transition active:scale-95 shadow-sm cursor-pointer group"
-              title="Changer de deck actif"
+              :title="$t('deck_banner.switch_deck')"
             >
               <svg class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect width="14" height="18" x="5" y="3" rx="2" />
                 <path d="M9 7h6M9 11h6M9 15h4" />
               </svg>
-              <span>Changer de deck</span>
+              <span>{{ $t('deck_banner.switch_deck') }}</span>
               <span class="text-[10px] text-slate-400 dark:text-slate-500 font-normal">({{ allDecks.length }})</span>
             </button>
           </div>
@@ -157,7 +157,7 @@ const isSelectModalOpen = ref(false)
       <div class="flex items-center gap-4 sm:gap-6 border-t lg:border-t-0 lg:border-l border-slate-200/80 dark:border-slate-800/80 pt-2.5 lg:pt-0 lg:pl-8 justify-between lg:justify-end">
         <div class="text-left lg:text-right">
           <span class="text-[10px] sm:text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 block">
-            Taux de victoire
+            {{ $t('deck_banner.win_rate') }}
           </span>
           <div class="flex items-baseline gap-2 mt-0.5 lg:justify-end">
             <span
@@ -180,7 +180,7 @@ const isSelectModalOpen = ref(false)
 
         <div class="text-right">
           <span class="text-[10px] sm:text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 block">
-            Parties
+            {{ $t('deck_banner.volume') }}
           </span>
           <div class="flex items-baseline justify-end gap-1 mt-0.5">
             <span class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-none">
@@ -188,7 +188,7 @@ const isSelectModalOpen = ref(false)
             </span>
           </div>
           <span class="text-xs text-slate-500 dark:text-slate-400 mt-1 block">
-            {{ stats.total > 1 ? 'matchs' : 'match' }}
+            {{ stats.total > 1 ? $t('deck_banner.matches') : $t('deck_banner.match') }}
           </span>
         </div>
       </div>

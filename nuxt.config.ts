@@ -27,8 +27,26 @@ export default defineNuxtConfig({
   modules: [
     '@nuxtjs/tailwindcss',
     '@nuxtjs/color-mode',
-    'nuxt-auth-utils'
+    'nuxt-auth-utils',
+    '@nuxtjs/i18n'
   ],
+  i18n: {
+    locales: [
+      { code: 'en', name: 'English', file: 'en.json' },
+      { code: 'fr', name: 'Français', file: 'fr.json' }
+    ],
+    lazy: true,
+    langDir: 'locales',
+    defaultLocale: 'en',
+    strategy: 'no_prefix',
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'tcg_i18n_locale',
+      redirectOn: 'root',
+      alwaysRedirect: false,
+      fallbackLocale: 'en'
+    }
+  },
   colorMode: {
     classSuffix: '',
     preference: 'system',

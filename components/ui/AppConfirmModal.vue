@@ -94,7 +94,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
             @click="resolveConfirm(false)"
             class="px-4 py-2 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer"
           >
-            {{ confirmState.cancelText }}
+            {{ confirmState.cancelText || $t('common.cancel') }}
           </button>
           <button
             type="button"
@@ -106,7 +106,7 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                 : 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/20'
             ]"
           >
-            {{ confirmState.confirmText }}
+            {{ confirmState.confirmText || $t('common.confirm') }}
           </button>
         </div>
       </div>

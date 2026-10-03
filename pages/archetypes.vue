@@ -29,6 +29,7 @@ const { data: archetypesList, refresh: refreshArchetypes, status: loadingArchety
 })
 
 const { toast, confirmAction } = useNotify()
+const { t } = useI18n()
 
 const openCreateModal = () => {
   if (!activeGameId.value || !activeMetaId.value) {
@@ -64,37 +65,37 @@ const filteredArchetypes = computed(() => {
 
 const archiveArchetype = async (arch: Archetype) => {
   const confirmed = await confirmAction({
-    title: `Archiver l'archétype "${arch.name}" ?`,
-    message: `Il ne sera plus proposé pour enregistrer de nouveaux matchs, mais l'historique et les statistiques associées seront préservés.`,
-    confirmText: 'Archiver',
+    title: t('archetypes_page.archive_confirm_title', { name: arch.name }),
+    message: t('archetypes_page.archive_confirm_msg'),
+    confirmText: t('archetypes_page.archive'),
     isDestructive: false
   })
   if (!confirmed) return
 
   try {
     await $fetch(`/api/archetypes/${arch.id}`, { method: 'DELETE' })
-    toast.success(`Archétype "${arch.name}" archivé`)
+    toast.success(t('archetypes_page.archived_success', { name: arch.name }))
     await refreshArchetypes()
   } catch (err: any) {
-    toast.error(err?.data?.statusMessage || "Erreur lors de l'archivage")
+    toast.error(err?.data?.statusMessage || "Error")
   }
 }
 
 const deleteArchetype = async (arch: Archetype) => {
   const confirmed = await confirmAction({
-    title: `Supprimer l'archétype "${arch.name}" ?`,
-    message: `Cette action supprimera définitivement cet archétype ainsi que ses matchs et statistiques associés.`,
-    confirmText: 'Supprimer',
+    title: t('archetypes_page.delete_confirm_title', { name: arch.name }),
+    message: t('archetypes_page.delete_confirm_msg'),
+    confirmText: t('common.delete'),
     isDestructive: true
   })
   if (!confirmed) return
 
   try {
     await $fetch(`/api/archetypes/${arch.id}?force=true`, { method: 'DELETE' })
-    toast.success(`Archétype "${arch.name}" supprimé`)
+    toast.success(t('archetypes_page.deleted_success', { name: arch.name }))
     await refreshArchetypes()
   } catch (err: any) {
-    toast.error(err?.data?.statusMessage || 'Erreur lors de la suppression')
+    toast.error(err?.data?.statusMessage || 'Error')
   }
 }
 </script>
@@ -109,7 +110,7 @@ const deleteArchetype = async (arch: Archetype) => {
         <div>
           <div class="flex items-center gap-2.5 flex-wrap">
             <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Mes Archétypes & Decks
+              {{ $t('archetypes_page.title') }}
             </h1>
             <span
               v-if="activeGame"
@@ -125,7 +126,7 @@ const deleteArchetype = async (arch: Archetype) => {
             </span>
           </div>
           <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-1">
-            Gérez vos decks personnels et les archétypes du metagame que vous affrontez pour le format actif.
+            {{ $t('archetypes_page.subtitle') }}
           </p>
         </div>
 
@@ -139,19 +140,19 @@ const deleteArchetype = async (arch: Archetype) => {
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M12 5v14M5 12h14" />
             </svg>
-            <span>Nouvel Archétype</span>
+            <span>{{ $t('archetypes_page.new_archetype') }}</span>
           </button>
 
           <button
             type="button"
             @click="refreshArchetypes()"
             class="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white p-2 sm:px-3 sm:py-2 rounded-xl border border-slate-300 dark:border-slate-800 hover:bg-slate-200 dark:hover:bg-slate-800 transition flex items-center gap-1.5 cursor-pointer shadow-sm"
-            title="Actualiser les archétypes"
+            :title="$t('nav.refresh')"
           >
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
             </svg>
-            <span class="hidden sm:inline">Actualiser</span>
+            <span class="hidden sm:inline">{{ $t('nav.refresh') }}</span>
           </button>
         </div>
       </div>
@@ -168,9 +169,9 @@ const deleteArchetype = async (arch: Archetype) => {
           </svg>
         </div>
         <div>
-          <h3 class="text-base font-bold text-slate-900 dark:text-white">Sélection Jeu & Méta requise</h3>
+          <h3 class="text-base font-bold text-slate-900 dark:text-white">{{ $t('archetypes_page.no_game_meta_title') }}</h3>
           <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
-            Un archétype doit obligatoirement être rattaché à un jeu et à une extension / méta active.
+            {{ $t('archetypes_page.no_game_meta_desc') }}
           </p>
         </div>
         <button
@@ -178,7 +179,7 @@ const deleteArchetype = async (arch: Archetype) => {
           @click="isGameMetaModalOpen = true"
           class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs sm:text-sm transition shadow-md shadow-indigo-950/20 flex items-center justify-center gap-2 cursor-pointer"
         >
-          <span>Choisir Jeu & Format</span>
+          <span>{{ $t('archetypes_page.choose_game_format') }}</span>
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M5 12h14m-7-7 7 7-7 7" />
           </svg>
@@ -203,7 +204,7 @@ const deleteArchetype = async (arch: Archetype) => {
             <input
               v-model="searchQuery"
               type="text"
-              placeholder="Rechercher par nom d'archétype ou carte clé..."
+              :placeholder="$t('archetypes_page.search_placeholder')"
               class="w-full pl-10 pr-9 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-slate-900 dark:text-white placeholder:text-slate-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
             />
             <button
@@ -211,7 +212,7 @@ const deleteArchetype = async (arch: Archetype) => {
               type="button"
               @click="searchQuery = ''"
               class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-              title="Effacer la recherche"
+              :title="$t('common.cancel')"
             >
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M18 6 6 18M6 6l12 12" />
@@ -220,16 +221,16 @@ const deleteArchetype = async (arch: Archetype) => {
           </div>
 
           <div class="text-xs text-slate-500 dark:text-slate-400 font-medium flex items-center gap-2">
-            <span>{{ filteredArchetypes.length }} archétype{{ filteredArchetypes.length > 1 ? 's' : '' }}</span>
+            <span>{{ $t('archetypes_page.archetypes_count', { count: filteredArchetypes.length }, filteredArchetypes.length) }}</span>
             <span v-if="searchQuery" class="text-emerald-600 dark:text-emerald-400">
-              (filtré sur {{ archetypesList?.length || 0 }})
+              {{ $t('archetypes_page.filtered_on', { total: archetypesList?.length || 0 }) }}
             </span>
           </div>
         </div>
 
         <!-- Chargement -->
         <div v-if="loadingArchetypes === 'pending'" class="py-16 text-center text-slate-400 dark:text-slate-500 text-sm">
-          Chargement des archétypes...
+          {{ $t('common.loading') }}
         </div>
 
         <!-- Aucun archétype du tout pour ce format -->
@@ -244,16 +245,16 @@ const deleteArchetype = async (arch: Archetype) => {
               <path d="M10 7.5h4" />
             </svg>
           </div>
-          <h3 class="text-base font-bold text-slate-900 dark:text-white">Aucun archétype enregistré</h3>
+          <h3 class="text-base font-bold text-slate-900 dark:text-white">{{ $t('archetypes_page.no_archetypes_registered') }}</h3>
           <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-1 max-w-sm mx-auto">
-            Créez votre deck ou les archétypes adverses pour la méta {{ activeMeta ? `« ${activeMeta.name} »` : 'actuelle' }}.
+            {{ $t('archetypes_page.no_archetypes_registered_desc') }}
           </p>
           <button
             type="button"
             @click="openCreateModal"
             class="mt-4 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm transition shadow-md shadow-emerald-600/20 active:scale-[0.98] cursor-pointer"
           >
-            <span>+ Créer le premier archétype</span>
+            <span>+ {{ $t('archetypes_page.create_first_archetype') }}</span>
           </button>
         </div>
 
@@ -263,14 +264,14 @@ const deleteArchetype = async (arch: Archetype) => {
           class="glass-panel p-10 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 text-center shadow-sm"
         >
           <p class="text-slate-600 dark:text-slate-300 text-sm font-semibold">
-            Aucun archétype ne correspond à votre recherche « {{ searchQuery }} »
+            {{ $t('archetypes_page.no_search_results', { query: searchQuery }) }}
           </p>
           <button
             type="button"
             @click="searchQuery = ''"
             class="mt-3 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer"
           >
-            Réinitialiser le filtre
+            {{ $t('archetypes_page.reset_filter') }}
           </button>
         </div>
 
@@ -291,7 +292,7 @@ const deleteArchetype = async (arch: Archetype) => {
                     <img
                       v-if="arch.card1ImageUrl"
                       :src="arch.card1ImageUrl"
-                      :alt="arch.card1Name || 'Carte 1'"
+                      :alt="arch.card1Name || $t('common.card_1')"
                       class="w-full h-full object-cover"
                       @error="(e) => (e.target as HTMLElement).style.display = 'none'"
                     />
@@ -303,7 +304,7 @@ const deleteArchetype = async (arch: Archetype) => {
                     <img
                       v-if="arch.card2ImageUrl"
                       :src="arch.card2ImageUrl"
-                      :alt="arch.card2Name || 'Carte 2'"
+                      :alt="arch.card2Name || $t('common.card_2')"
                       class="w-full h-full object-cover"
                       @error="(e) => (e.target as HTMLElement).style.display = 'none'"
                     />
@@ -316,7 +317,7 @@ const deleteArchetype = async (arch: Archetype) => {
                   <img
                     v-if="arch.card1ImageUrl"
                     :src="arch.card1ImageUrl"
-                    :alt="arch.card1Name || 'Carte 1'"
+                    :alt="arch.card1Name || $t('common.card_1')"
                     class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                     @error="(e) => (e.target as HTMLElement).style.display = 'none'"
                   />
@@ -340,23 +341,23 @@ const deleteArchetype = async (arch: Archetype) => {
                 @click="openEditModal(arch)"
                 class="px-2.5 py-1 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer"
               >
-                Modifier
+                {{ $t('archetypes_page.modify') }}
               </button>
               <button
                 type="button"
                 @click="archiveArchetype(arch)"
                 class="px-2.5 py-1 rounded-lg text-xs font-medium text-amber-600 dark:text-amber-400/80 hover:text-amber-700 dark:hover:text-amber-300 hover:bg-amber-500/10 transition cursor-pointer"
-                title="Archiver l'archétype (masqué mais conserve l'historique)"
+                :title="$t('archetypes_page.archive')"
               >
-                Archiver
+                {{ $t('archetypes_page.archive') }}
               </button>
               <button
                 type="button"
                 @click="deleteArchetype(arch)"
                 class="px-2.5 py-1 rounded-lg text-xs font-medium text-red-600 dark:text-red-400/80 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-500/10 transition cursor-pointer"
-                title="Supprimer définitivement l'archétype et ses données"
+                :title="$t('common.delete')"
               >
-                Supprimer
+                {{ $t('common.delete') }}
               </button>
             </div>
           </div>

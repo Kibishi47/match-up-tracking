@@ -27,8 +27,8 @@ const confirmModalState = ref<{
   isOpen: false,
   title: '',
   message: '',
-  confirmText: 'Confirmer',
-  cancelText: 'Annuler',
+  confirmText: '',
+  cancelText: '',
   isDestructive: true,
   resolve: null
 })
@@ -55,8 +55,8 @@ export function useNotify() {
         isOpen: true,
         title: options.title,
         message: options.message,
-        confirmText: options.confirmText || 'Confirmer',
-        cancelText: options.cancelText || 'Annuler',
+        confirmText: options.confirmText || '',
+        cancelText: options.cancelText || '',
         isDestructive: options.isDestructive ?? true,
         resolve
       }

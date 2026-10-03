@@ -111,10 +111,10 @@ const bo3Score = computed(() => {
 
           <div class="min-w-0 flex-1">
             <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">
-              Match enregistré <span v-if="match.format === 'bo3'" class="font-semibold text-slate-700 dark:text-slate-300">• BO3 {{ bo3Score }}</span> • {{ Math.ceil(timeLeft / 1000) }}s
+              {{ $t('undo_toast.recorded') }} <span v-if="match.format === 'bo3'" class="font-semibold text-slate-700 dark:text-slate-300">• BO3 {{ bo3Score }}</span> • {{ Math.ceil(timeLeft / 1000) }}s
             </p>
             <p class="text-xs sm:text-sm font-semibold truncate text-slate-900 dark:text-white">
-              vs {{ match.opponentArchetype?.name || 'Adversaire' }}
+              {{ $t('undo_toast.vs') }} {{ match.opponentArchetype?.name || $t('history.unknown_opponent') }}
             </p>
           </div>
         </div>
@@ -125,14 +125,14 @@ const bo3Score = computed(() => {
             @click="handleEdit"
             class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer"
           >
-            Modifier
+            {{ $t('undo_toast.edit') }}
           </button>
           <button
             @click="handleUndo"
             :disabled="isCancelling"
             class="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-red-600 hover:bg-red-500 active:scale-95 transition shadow-sm cursor-pointer"
           >
-            {{ isCancelling ? 'Annulation...' : 'Annuler' }}
+            {{ isCancelling ? $t('undo_toast.undoing') : $t('undo_toast.undo') }}
           </button>
         </div>
       </div>
