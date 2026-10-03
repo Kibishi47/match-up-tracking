@@ -29,12 +29,69 @@ const emit = defineEmits<{
   (e: 'log-match', opponentId: string, matchData: 'win' | 'loss' | 'draw' | MatchLogPayload): void
   (e: 'open-notes', opponent: Archetype): void
 }>()
+
+const searchQuery = ref('')
+
+const filteredOpponents = computed(() => {
+  const q = searchQuery.value.trim().toLowerCase()
+  if (!q) return props.opponents
+
+  return props.opponents.filter((opp) => {
+    const nameMatch = opp.name.toLowerCase().includes(q)
+    const card1Match = opp.card1Name?.toLowerCase().includes(q) || false
+    const card2Match = opp.card2Name?.toLowerCase().includes(q) || false
+    return nameMatch || card1Match || card2Match
+  })
+})
 </script>
 
 <template>
-  <div>
+  <div class="space-y-3.5">
+    <!-- Barre de recherche rapide de Matchup -->
+    <div
+      v-if="opponents.length > 0"
+      class="glass-panel p-2.5 sm:p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm flex items-center justify-between gap-3"
+    >
+      <div class="relative flex-1 max-w-sm">
+        <svg
+          class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.3-4.3" />
+        </svg>
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Rechercher un matchup ou carte adverse..."
+          class="w-full pl-9 pr-8 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-slate-900 dark:text-white placeholder:text-slate-400 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+        />
+        <button
+          v-if="searchQuery"
+          type="button"
+          @click="searchQuery = ''"
+          class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+          title="Effacer la recherche"
+        >
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+        <span>{{ filteredOpponents.length }} matchup{{ filteredOpponents.length > 1 ? 's' : '' }}</span>
+        <span v-if="searchQuery" class="text-emerald-600 dark:text-emerald-400 ml-1">
+          / {{ opponents.length }}
+        </span>
+      </div>
+    </div>
+
     <!-- État 0 archétype dans le jeu -->
-    <div v-if="opponents.length === 0" class="glass-panel p-8 sm:p-12 rounded-3xl border border-slate-200 dark:border-slate-800 text-center bg-white/80 dark:bg-slate-900/60 shadow-sm">
+    <div v-if="opponents.length === 0" class="glass-panel p-8 sm:p-12 rounded-2xl border border-slate-200 dark:border-slate-800 text-center bg-white/80 dark:bg-slate-900/60 shadow-sm">
       <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center mx-auto text-emerald-600 dark:text-emerald-400 mb-3 shadow-inner">
         <svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
           <rect width="14" height="18" x="3" y="3" rx="2" />
@@ -54,10 +111,27 @@ const emit = defineEmits<{
       </NuxtLink>
     </div>
 
+    <!-- Aucun résultat de recherche -->
+    <div
+      v-else-if="filteredOpponents.length === 0"
+      class="glass-panel p-8 rounded-2xl border border-slate-200 dark:border-slate-800 text-center bg-white/80 dark:bg-slate-900/60 shadow-sm"
+    >
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium">
+        Aucun matchup ne correspond à « {{ searchQuery }} »
+      </p>
+      <button
+        type="button"
+        @click="searchQuery = ''"
+        class="mt-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer"
+      >
+        Réinitialiser la recherche
+      </button>
+    </div>
+
     <!-- Grille des cartes adverses (Gabarit 1:1 rigoureusement aligné avec le skeleton) -->
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       <div
-        v-for="opp in opponents"
+        v-for="opp in filteredOpponents"
         :key="opp.id"
         class="glass-panel rounded-2xl border border-slate-200/90 dark:border-slate-800/90 hover:border-slate-300 dark:hover:border-slate-700 transition flex flex-col justify-between p-4 group bg-white dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-900/80 min-h-[156px] shadow-sm relative hover:z-20 focus-within:z-30"
       >
