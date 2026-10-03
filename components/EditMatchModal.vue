@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { Match, Archetype } from '~/server/db/schema'
+import { useScrollLock } from '~/composables/useScrollLock'
+import { useBottomSheetDrag } from '~/composables/useBottomSheetDrag'
 
 interface MatchWithRelations extends Match {
   myArchetype?: Archetype
@@ -77,17 +79,41 @@ const saveMatch = async () => {
     isSubmitting.value = false
   }
 }
+
+const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDragClosed } = useBottomSheetDrag(() => emit('close'))
 </script>
 
 <template>
   <Teleport to="body">
     <Transition name="bottom-sheet">
-      <div v-if="match" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto" @click.self="emit('close')">
-        <div class="modal-card relative w-full max-w-lg rounded-t-3xl sm:rounded-2xl rounded-b-none sm:rounded-b-2xl border-t sm:border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl overflow-hidden flex flex-col max-h-[90vh] sm:max-h-[85vh] pb-safe sm:pb-0">
+      <div
+        v-if="match"
+        class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto"
+        :style="backdropStyle"
+        @click.self="emit('close')"
+      >
+        <div
+          ref="sheetRef"
+          :class="[
+            'modal-card relative w-full max-w-lg rounded-t-3xl sm:rounded-2xl rounded-b-none sm:rounded-b-2xl border-t sm:border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl overflow-hidden flex flex-col max-h-[90vh] sm:max-h-[85vh] pb-safe sm:pb-0',
+            { 'is-drag-closed': isDragClosed }
+          ]"
+          :style="sheetStyle"
+        >
           <!-- Header -->
-          <div class="px-6 pt-3 pb-4 sm:py-5 border-b border-slate-200 dark:border-slate-800/80 flex flex-col bg-white dark:bg-slate-900 flex-shrink-0">
+          <div class="px-6 pt-2 pb-4 sm:py-5 border-b border-slate-200 dark:border-slate-800/80 flex flex-col bg-white dark:bg-slate-900 flex-shrink-0">
             <!-- Poignée de glissement sur mobile -->
-            <div class="w-12 h-1 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-3 sm:hidden flex-shrink-0" />
+            <div
+              class="w-full pt-1 pb-3 -mt-1 sm:hidden flex justify-center items-center cursor-grab active:cursor-grabbing touch-none select-none flex-shrink-0"
+              v-bind="dragHandleProps"
+            >
+              <div
+                :class="[
+                  'w-12 h-1.5 rounded-full transition-all duration-150',
+                  isDragging ? 'bg-slate-400 dark:bg-slate-500 w-14' : 'bg-slate-300 dark:bg-slate-700'
+                ]"
+              />
+            </div>
 
             <div class="flex items-center justify-between">
               <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">

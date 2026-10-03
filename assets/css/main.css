@@ -132,11 +132,17 @@
     transform-origin: bottom center;
   }
 
-  .bottom-sheet-leave-active .modal-card {
+  .bottom-sheet-leave-active .modal-card:not(.is-drag-closed) {
     animation: sheet-slide-down 0.22s cubic-bezier(0.32, 0.72, 0, 1) forwards !important;
     will-change: transform;
     opacity: 1 !important;
     transform-origin: bottom center;
+  }
+
+  .bottom-sheet-leave-active .modal-card.is-drag-closed {
+    opacity: 0 !important;
+    transform: translate3d(0, 100%, 0) !important;
+    animation: none !important;
   }
 }
 

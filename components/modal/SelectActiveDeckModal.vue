@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { Archetype } from '~/server/db/schema'
+import { useScrollLock } from '~/composables/useScrollLock'
+import { useBottomSheetDrag } from '~/composables/useBottomSheetDrag'
 
 const props = defineProps<{
   isOpen: boolean
@@ -57,6 +59,8 @@ const handleSelect = (deckId: string) => {
   emit('select', deckId)
   emit('close')
 }
+
+const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDragClosed } = useBottomSheetDrag(() => emit('close'))
 </script>
 
 <template>
@@ -65,18 +69,34 @@ const handleSelect = (deckId: string) => {
       <div
         v-if="isOpen"
         class="fixed inset-0 z-50 overflow-y-auto p-0 sm:p-4 flex items-end sm:items-center justify-center bg-slate-950/80 backdrop-blur-md"
+        :style="backdropStyle"
         @click.self="emit('close')"
       >
         <div
-          class="modal-card relative w-full max-w-2xl rounded-t-3xl sm:rounded-3xl rounded-b-none sm:rounded-b-3xl bg-white dark:bg-slate-900 border-t sm:border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh] sm:max-h-[85vh] pb-safe sm:pb-0"
+          ref="sheetRef"
+          :class="[
+            'modal-card relative w-full max-w-2xl rounded-t-3xl sm:rounded-2xl rounded-b-none sm:rounded-b-2xl bg-white dark:bg-slate-900 border-t sm:border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh] sm:max-h-[85vh] pb-safe sm:pb-0',
+            { 'is-drag-closed': isDragClosed }
+          ]"
+          :style="sheetStyle"
           role="dialog"
           aria-modal="true"
           aria-labelledby="select-deck-modal-title"
         >
           <!-- Header -->
-          <div class="px-6 pt-3 pb-4 sm:py-5 border-b border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900 flex flex-col flex-shrink-0">
+          <div class="px-6 pt-2 pb-4 sm:py-5 border-b border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900 flex flex-col flex-shrink-0">
             <!-- Poignée de glissement sur mobile -->
-            <div class="w-12 h-1 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-3 sm:hidden flex-shrink-0" />
+            <div
+              class="w-full pt-1 pb-3 -mt-1 sm:hidden flex justify-center items-center cursor-grab active:cursor-grabbing touch-none select-none flex-shrink-0"
+              v-bind="dragHandleProps"
+            >
+              <div
+                :class="[
+                  'w-12 h-1.5 rounded-full transition-all duration-150',
+                  isDragging ? 'bg-slate-400 dark:bg-slate-500 w-14' : 'bg-slate-300 dark:bg-slate-700'
+                ]"
+              />
+            </div>
 
             <div class="flex items-center justify-between">
               <div>
