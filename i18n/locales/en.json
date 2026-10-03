@@ -339,9 +339,9 @@
       "name_asc": "Name (A-Z)"
     },
     "cards": {
-      "overall": "Overall",
-      "as_played": "As Played Deck",
-      "as_faced": "As Opponent",
+      "overall": "Global",
+      "as_played": "Deck Played",
+      "as_faced": "Opponent",
       "presence_rate_label": "Meta presence",
       "matches_count": "{count} match | {count} matches",
       "show_rate_label": "Show Rate",

@@ -162,10 +162,10 @@ const getWinrateBarClass = (rate: number) => {
             @click="refreshStats"
             :disabled="pending"
             :title="$t('stats_page.refresh')"
-            class="inline-flex items-center justify-center p-2 sm:px-3 sm:py-2 rounded-xl text-xs sm:text-sm font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm cursor-pointer disabled:opacity-50"
+            class="inline-flex items-center justify-center px-3 py-2 rounded-xl text-xs sm:text-sm font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm cursor-pointer disabled:opacity-50"
           >
             <svg
-              class="w-4 h-4 text-slate-500 dark:text-slate-400"
+              class="w-4 h-4 text-slate-500 dark:text-slate-400 flex-shrink-0"
               :class="{ 'animate-spin': pending }"
               viewBox="0 0 24 24"
               fill="none"
@@ -179,7 +179,7 @@ const getWinrateBarClass = (rate: number) => {
               <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
               <path d="M16 21h5v-5" />
             </svg>
-            <span class="hidden sm:inline sm:ml-1.5">{{ $t('stats_page.refresh') }}</span>
+            <span class="ml-1.5 whitespace-nowrap">{{ $t('stats_page.refresh') }}</span>
           </button>
         </div>
       </header>
@@ -351,37 +351,37 @@ const getWinrateBarClass = (rate: number) => {
 
         <!-- 4. Barre de Contrôle : Onglets (3 colonnes mobiles sans scroll) + Recherche + Tri explicite -->
         <section class="glass-panel p-3.5 sm:p-4 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 bg-white dark:bg-slate-900/60 shadow-sm flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3.5">
-          <!-- Onglets de filtre : 3 colonnes égales sur mobile (zéro scroll), inline sur desktop -->
-          <div class="w-full sm:w-auto grid grid-cols-3 sm:inline-flex p-1 bg-slate-100 dark:bg-slate-800/70 rounded-xl gap-0.5">
+          <!-- Onglets de filtre : 3 colonnes égales sur mobile (zéro scroll), 1 ligne sans retour à la ligne sur desktop -->
+          <div class="w-full sm:w-auto grid grid-cols-3 sm:flex sm:items-center p-1 bg-slate-100 dark:bg-slate-800/70 rounded-xl gap-1 flex-shrink-0">
             <button
               type="button"
               id="tab-all"
               @click="activeTab = 'all'"
-              class="w-full text-center py-2 px-1 sm:px-3.5 rounded-lg text-xs sm:text-sm font-semibold transition cursor-pointer flex items-center justify-center"
+              class="w-full sm:w-auto text-center py-2 px-1.5 sm:px-3.5 rounded-lg text-xs sm:text-sm font-semibold transition cursor-pointer flex items-center justify-center whitespace-nowrap flex-shrink-0"
               :class="activeTab === 'all' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
             >
               <span class="sm:hidden">{{ $t('stats_page.tabs.all_short') }}</span>
-              <span class="hidden sm:inline">{{ $t('stats_page.tabs.all') }}</span>
+              <span class="hidden sm:inline whitespace-nowrap">{{ $t('stats_page.tabs.all') }}</span>
             </button>
             <button
               type="button"
               id="tab-played"
               @click="activeTab = 'played'"
-              class="w-full text-center py-2 px-1 sm:px-3.5 rounded-lg text-xs sm:text-sm font-semibold transition cursor-pointer flex items-center justify-center"
+              class="w-full sm:w-auto text-center py-2 px-1.5 sm:px-3.5 rounded-lg text-xs sm:text-sm font-semibold transition cursor-pointer flex items-center justify-center whitespace-nowrap flex-shrink-0"
               :class="activeTab === 'played' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
             >
               <span class="sm:hidden">{{ $t('stats_page.tabs.played_short') }}</span>
-              <span class="hidden sm:inline">{{ $t('stats_page.tabs.played') }}</span>
+              <span class="hidden sm:inline whitespace-nowrap">{{ $t('stats_page.tabs.played') }}</span>
             </button>
             <button
               type="button"
               id="tab-faced"
               @click="activeTab = 'faced'"
-              class="w-full text-center py-2 px-1 sm:px-3.5 rounded-lg text-xs sm:text-sm font-semibold transition cursor-pointer flex items-center justify-center"
+              class="w-full sm:w-auto text-center py-2 px-1.5 sm:px-3.5 rounded-lg text-xs sm:text-sm font-semibold transition cursor-pointer flex items-center justify-center whitespace-nowrap flex-shrink-0"
               :class="activeTab === 'faced' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
             >
               <span class="sm:hidden">{{ $t('stats_page.tabs.faced_short') }}</span>
-              <span class="hidden sm:inline">{{ $t('stats_page.tabs.faced') }}</span>
+              <span class="hidden sm:inline whitespace-nowrap">{{ $t('stats_page.tabs.faced') }}</span>
             </button>
           </div>
 
@@ -598,26 +598,25 @@ const getWinrateBarClass = (rate: number) => {
               <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3.5 flex-1">
                 <!-- Bloc 1 : Overall (Bilan Global) -->
                 <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800/80 flex flex-col justify-between">
-                  <div class="flex items-center justify-between gap-2">
-                    <div class="flex items-center gap-1.5">
-                      <span class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                        {{ $t('stats_page.cards.overall') }}
-                      </span>
+                  <div class="flex items-center justify-between gap-2 min-w-0">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 truncate">
+                      {{ $t('stats_page.cards.overall') }}
+                    </span>
+                    <div class="flex items-center gap-1.5 flex-shrink-0">
                       <span
                         v-if="arch.overall.total > 0"
-                        class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400"
+                        class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 whitespace-nowrap"
                         :title="$t('stats_page.cards.presence_rate_label')"
                       >
-                        ({{ arch.overall.presenceRate }}%)
+                        {{ arch.overall.presenceRate }}%
+                      </span>
+                      <span
+                        class="px-2 py-0.5 rounded-md text-xs font-bold border whitespace-nowrap"
+                        :class="getWinrateBadgeClass(arch.overall.winrate, arch.overall.total)"
+                      >
+                        {{ arch.overall.total > 0 ? `${arch.overall.winrate}% WR` : '—' }}
                       </span>
                     </div>
-
-                    <span
-                      class="px-2 py-0.5 rounded-md text-xs font-bold border"
-                      :class="getWinrateBadgeClass(arch.overall.winrate, arch.overall.total)"
-                    >
-                      {{ arch.overall.total > 0 ? `${arch.overall.winrate}% WR` : '—' }}
-                    </span>
                   </div>
 
                   <div v-if="arch.overall.total > 0" class="mt-2.5 space-y-2">
@@ -653,16 +652,18 @@ const getWinrateBarClass = (rate: number) => {
 
                 <!-- Bloc 2 : En tant que Deck Joué -->
                 <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800/80 flex flex-col justify-between">
-                  <div class="flex items-center justify-between gap-2">
-                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  <div class="flex items-center justify-between gap-2 min-w-0">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">
                       {{ $t('stats_page.cards.as_played') }}
                     </span>
-                    <span
-                      class="px-2 py-0.5 rounded-md text-xs font-bold border"
-                      :class="getWinrateBadgeClass(arch.played.winrate, arch.played.total)"
-                    >
-                      {{ arch.played.total > 0 ? `${arch.played.winrate}% WR` : '—' }}
-                    </span>
+                    <div class="flex items-center gap-1.5 flex-shrink-0">
+                      <span
+                        class="px-2 py-0.5 rounded-md text-xs font-bold border whitespace-nowrap"
+                        :class="getWinrateBadgeClass(arch.played.winrate, arch.played.total)"
+                      >
+                        {{ arch.played.total > 0 ? `${arch.played.winrate}% WR` : '—' }}
+                      </span>
+                    </div>
                   </div>
 
                   <div v-if="arch.played.total > 0" class="mt-2.5 space-y-2">
@@ -698,27 +699,26 @@ const getWinrateBarClass = (rate: number) => {
 
                 <!-- Bloc 3 : En tant qu'Adversaire -->
                 <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800/80 flex flex-col justify-between">
-                  <div class="flex items-center justify-between gap-2">
-                    <div class="flex items-center gap-1.5">
-                      <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                        {{ $t('stats_page.cards.as_faced') }}
-                      </span>
+                  <div class="flex items-center justify-between gap-2 min-w-0">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">
+                      {{ $t('stats_page.cards.as_faced') }}
+                    </span>
+                    <div class="flex items-center gap-1.5 flex-shrink-0">
                       <span
                         v-if="arch.faced.total > 0"
-                        class="text-[11px] font-semibold text-purple-600 dark:text-purple-400"
+                        class="text-[11px] font-semibold text-purple-600 dark:text-purple-400 whitespace-nowrap"
                         :title="$t('stats_page.cards.show_rate_label')"
                       >
-                        ({{ arch.faced.showRate }}% SR)
+                        {{ arch.faced.showRate }}% SR
+                      </span>
+                      <span
+                        class="px-2 py-0.5 rounded-md text-xs font-bold border whitespace-nowrap"
+                        :class="getWinrateBadgeClass(arch.faced.winrate, arch.faced.total)"
+                        :title="$t('matchups.subtitle')"
+                      >
+                        {{ arch.faced.total > 0 ? `${arch.faced.winrate}% WR` : '—' }}
                       </span>
                     </div>
-
-                    <span
-                      class="px-2 py-0.5 rounded-md text-xs font-bold border"
-                      :class="getWinrateBadgeClass(arch.faced.winrate, arch.faced.total)"
-                      :title="$t('matchups.subtitle')"
-                    >
-                      {{ arch.faced.total > 0 ? `${arch.faced.winrate}% WR` : '—' }}
-                    </span>
                   </div>
 
                   <div v-if="arch.faced.total > 0" class="mt-2.5 space-y-2">
