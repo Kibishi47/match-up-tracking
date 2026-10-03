@@ -3,14 +3,14 @@ import { ref, onMounted, onUnmounted, computed } from 'vue'
 
 export interface Bo3Payload {
   format: 'bo3'
-  result: 'win' | 'loss'
-  game1: 'win' | 'loss'
-  game2: 'win' | 'loss'
-  game3: 'win' | 'loss' | null
+  result: 'win' | 'loss' | 'draw'
+  game1: 'win' | 'loss' | 'draw'
+  game2?: 'win' | 'loss' | 'draw' | null
+  game3?: 'win' | 'loss' | 'draw' | null
 }
 
 const props = defineProps<{
-  type: 'win' | 'loss'
+  type: 'win' | 'loss' | 'draw'
   disabled?: boolean
 }>()
 
@@ -101,8 +101,61 @@ const lossOptions = [
   }
 ]
 
+const drawOptions = [
+  {
+    score: '1-1',
+    detail: 'G1 W (Time)',
+    sequence: ['W', 'L'],
+    payload: {
+      format: 'bo3' as const,
+      result: 'draw' as const,
+      game1: 'win' as const,
+      game2: 'loss' as const,
+      game3: null
+    }
+  },
+  {
+    score: '1-1',
+    detail: 'G2 W (Time)',
+    sequence: ['L', 'W'],
+    payload: {
+      format: 'bo3' as const,
+      result: 'draw' as const,
+      game1: 'loss' as const,
+      game2: 'win' as const,
+      game3: null
+    }
+  },
+  {
+    score: '1-1',
+    detail: 'G3 Time',
+    sequence: ['W', 'L', 'D'],
+    payload: {
+      format: 'bo3' as const,
+      result: 'draw' as const,
+      game1: 'win' as const,
+      game2: 'loss' as const,
+      game3: 'draw' as const
+    }
+  },
+  {
+    score: '0-0',
+    detail: 'G1 Time',
+    sequence: ['D'],
+    payload: {
+      format: 'bo3' as const,
+      result: 'draw' as const,
+      game1: 'draw' as const,
+      game2: null,
+      game3: null
+    }
+  }
+]
+
 const currentOptions = computed(() => {
-  return props.type === 'win' ? winOptions : lossOptions
+  if (props.type === 'win') return winOptions
+  if (props.type === 'loss') return lossOptions
+  return drawOptions
 })
 
 // Détection de l'appui long tactile mobile (> 400ms)
@@ -219,7 +272,7 @@ onUnmounted(() => {
         'flex h-full w-full rounded-lg font-bold text-xs text-white shadow-sm overflow-hidden transition-all',
         type === 'win'
           ? 'bg-emerald-600 hover:bg-emerald-500'
-          : 'bg-red-600 hover:bg-red-500',
+          : (type === 'loss' ? 'bg-red-600 hover:bg-red-500' : 'bg-amber-600 hover:bg-amber-500'),
         disabled ? 'opacity-60 cursor-not-allowed' : ''
       ]"
     >
@@ -232,9 +285,9 @@ onUnmounted(() => {
         @touchmove="handleTouchMove"
         @touchend="handleTouchEnd"
         class="flex-1 flex items-center justify-center gap-1 px-1.5 h-full transition active:scale-[0.98] cursor-pointer"
-        :title="type === 'win' ? 'Enregistrer une Victoire BO1 (Clic simple, Clic droit ou appui long pour BO3)' : 'Enregistrer une Défaite BO1 (Clic simple, Clic droit ou appui long pour BO3)'"
+        :title="type === 'win' ? 'Enregistrer une Victoire BO1 (Clic simple, Clic droit ou appui long pour BO3)' : (type === 'loss' ? 'Enregistrer une Défaite BO1 (Clic simple, Clic droit ou appui long pour BO3)' : 'Enregistrer un Draw BO1 (Clic simple, Clic droit ou appui long pour BO3)')"
       >
-        <!-- Icône Flèche montante / descendante -->
+        <!-- Icône Flèche montante / descendante / signe égal -->
         <svg
           v-if="type === 'win'"
           class="w-3.5 h-3.5 flex-shrink-0"
@@ -249,7 +302,7 @@ onUnmounted(() => {
           <path d="M12 19V5" />
         </svg>
         <svg
-          v-else
+          v-else-if="type === 'loss'"
           class="w-3.5 h-3.5 flex-shrink-0"
           viewBox="0 0 24 24"
           fill="none"
@@ -261,7 +314,20 @@ onUnmounted(() => {
           <path d="m19 12-7 7-7-7" />
           <path d="M12 5v14" />
         </svg>
-        <span>{{ type === 'win' ? 'Win' : 'Loss' }}</span>
+        <svg
+          v-else
+          class="w-3.5 h-3.5 flex-shrink-0"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="5" y1="9" x2="19" y2="9" />
+          <line x1="5" y1="15" x2="19" y2="15" />
+        </svg>
+        <span>{{ type === 'win' ? 'Win' : (type === 'loss' ? 'Loss' : 'Draw') }}</span>
       </button>
 
       <!-- Séparateur visuel fin -->
@@ -275,7 +341,7 @@ onUnmounted(() => {
         :disabled="disabled"
         @click="togglePopover"
         class="w-6 sm:w-6.5 h-full flex items-center justify-center transition hover:bg-black/15 active:bg-black/25 cursor-pointer"
-        :title="type === 'win' ? 'Options BO3 (2-0, 2-1)' : 'Options BO3 (0-2, 1-2)'"
+        :title="type === 'win' ? 'Options BO3 (2-0, 2-1)' : (type === 'loss' ? 'Options BO3 (0-2, 1-2)' : 'Options BO3 Draw (1-1, Time)')"
       >
         <svg
           class="w-3 h-3 transition-transform duration-200"
@@ -305,12 +371,12 @@ onUnmounted(() => {
         v-if="isOpen"
         :class="[
           'absolute bottom-full mb-1.5 min-w-[176px] bg-slate-900/95 dark:bg-slate-900 border border-slate-700/80 dark:border-slate-800 rounded-xl p-1.5 shadow-2xl z-50 space-y-1 backdrop-blur-md',
-          type === 'win' ? 'left-0' : '-left-10 sm:left-1/2 sm:-translate-x-1/2'
+          type === 'win' ? 'left-0' : (type === 'loss' ? '-left-10 sm:left-1/2 sm:-translate-x-1/2' : 'right-0')
         ]"
       >
         <div class="px-2 py-1 flex items-center justify-between text-[10px] font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-800/80">
           <span>Format BO3</span>
-          <span class="text-[9px] text-slate-500 font-mono">{{ type === 'win' ? 'Victoire' : 'Défaite' }}</span>
+          <span class="text-[9px] text-slate-500 font-mono">{{ type === 'win' ? 'Victoire' : (type === 'loss' ? 'Défaite' : 'Draw / Time') }}</span>
         </div>
 
         <button
@@ -334,7 +400,7 @@ onUnmounted(() => {
                 'w-4 h-4 rounded text-[9px] font-bold flex items-center justify-center font-mono',
                 g === 'W'
                   ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-                  : 'bg-red-500/20 text-red-400 border border-red-500/40'
+                  : (g === 'L' ? 'bg-red-500/20 text-red-400 border border-red-500/40' : 'bg-amber-500/20 text-amber-400 border border-amber-500/40')
               ]"
             >
               {{ g }}

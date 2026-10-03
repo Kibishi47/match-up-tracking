@@ -118,7 +118,24 @@ async function runTests() {
     }
     console.log('[PASS] BO3 1-2 (G1) recorded with format=bo3 and sequence [win, loss, loss]')
 
-    // 5. Verification of Fundamental Statistical Rule: Match Win Rate (MWR)
+    // 5. Test BO3 insertion: 1-1 Draw (Time / G1 win, G2 loss, G3 null)
+    const [bo3Draw11] = await db.insert(matches).values({
+      userId: testUserId,
+      matchupId: testMatchupId,
+      format: 'bo3',
+      result: 'draw',
+      game1: 'win',
+      game2: 'loss',
+      game3: null
+    }).returning()
+    createdMatchIds.push(bo3Draw11.id)
+
+    if (bo3Draw11.format !== 'bo3' || bo3Draw11.result !== 'draw' || bo3Draw11.game1 !== 'win' || bo3Draw11.game2 !== 'loss' || bo3Draw11.game3 !== null) {
+      throw new Error(`BO3 1-1 Draw match insertion failed assertions: ${JSON.stringify(bo3Draw11)}`)
+    }
+    console.log('[PASS] BO3 1-1 Draw (Time) recorded with format=bo3 and sequence [win, loss, null]')
+
+    // 6. Verification of Fundamental Statistical Rule: Match Win Rate (MWR)
     // Only test the BO3 2-1 match alone first:
     const singleBo3Query = await db
       .select({ result: matches.result })
@@ -135,21 +152,22 @@ async function runTests() {
     }
     console.log('[PASS] Single BO3 2-1 win yields exactly 1 match, 1 win, 0 losses (100% MWR, NOT 67%)')
 
-    // Test combined stats: 1 BO3 Win (2-1) + 1 BO3 Loss (1-2) = 2 matches, 1 win, 1 loss, 50% Win Rate
+    // Test combined stats: 1 BO3 Win (2-1) + 1 BO3 Loss (1-2) + 1 BO3 Draw (1-1) = 3 matches, 1 win, 1 loss, 1 draw, 33% Win Rate
     const combinedBo3Query = await db
       .select({ result: matches.result })
       .from(matches)
-      .where(inArray(matches.id, [bo3Win21.id, bo3Loss12.id]))
+      .where(inArray(matches.id, [bo3Win21.id, bo3Loss12.id, bo3Draw11.id]))
 
     const combinedWins = combinedBo3Query.filter(m => m.result === 'win').length
     const combinedLosses = combinedBo3Query.filter(m => m.result === 'loss').length
+    const combinedDraws = combinedBo3Query.filter(m => m.result === 'draw').length
     const combinedTotal = combinedBo3Query.length
     const combinedWinrate = Math.round((combinedWins / combinedTotal) * 100)
 
-    if (combinedTotal !== 2 || combinedWins !== 1 || combinedLosses !== 1 || combinedWinrate !== 50) {
-      throw new Error(`MWR Combined Rule Violation: Expected 2 matches, 1 win, 1 loss (50% WR), got total=${combinedTotal}, wins=${combinedWins}, losses=${combinedLosses}, winrate=${combinedWinrate}%`)
+    if (combinedTotal !== 3 || combinedWins !== 1 || combinedLosses !== 1 || combinedDraws !== 1 || combinedWinrate !== 33) {
+      throw new Error(`MWR Combined Rule Violation: Expected 3 matches, 1 win, 1 loss, 1 draw (33% WR), got total=${combinedTotal}, wins=${combinedWins}, losses=${combinedLosses}, draws=${combinedDraws}, winrate=${combinedWinrate}%`)
     }
-    console.log('[PASS] Combined BO3 matches (1x 2-1 Win + 1x 1-2 Loss) count as 2 matches: 1 Win, 1 Loss, 50% MWR')
+    console.log('[PASS] Combined BO3 matches (1x 2-1 Win + 1x 1-2 Loss + 1x 1-1 Draw) count as 3 matches: 1 Win, 1 Loss, 1 Draw, 33% MWR')
 
     console.log('--- All BO3 & MWR Consistency Tests PASSED successfully! ---')
   } finally {

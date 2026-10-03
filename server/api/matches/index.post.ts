@@ -33,10 +33,16 @@ export default defineEventHandler(async (event) => {
         statusMessage: "La manche 1 (game1) est requise pour un match en BO3 ('win', 'loss' ou 'draw')"
       })
     }
-    if (!game2 || (game2 !== 'win' && game2 !== 'loss' && game2 !== 'draw')) {
+    if (!game2 && game1 !== 'draw') {
       throw createError({
         statusCode: 400,
         statusMessage: "La manche 2 (game2) est requise pour un match en BO3 ('win', 'loss' ou 'draw')"
+      })
+    }
+    if (game2 && game2 !== 'win' && game2 !== 'loss' && game2 !== 'draw') {
+      throw createError({
+        statusCode: 400,
+        statusMessage: "La manche 2 (game2) doit être 'win', 'loss', 'draw' ou null"
       })
     }
     if (game3 && game3 !== 'win' && game3 !== 'loss' && game3 !== 'draw') {
@@ -56,7 +62,7 @@ export default defineEventHandler(async (event) => {
       computedResult = 'win'
     } else if (lossesCount >= 2) {
       computedResult = 'loss'
-    } else if (winsCount === lossesCount && gamesList.length >= 2) {
+    } else if (winsCount === lossesCount) {
       computedResult = 'draw'
     } else {
       computedResult = result || (winsCount > lossesCount ? 'win' : (lossesCount > winsCount ? 'loss' : 'draw'))

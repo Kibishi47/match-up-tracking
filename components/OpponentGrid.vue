@@ -203,19 +203,12 @@ const emit = defineEmits<{
             @select-bo3="(payload) => emit('log-match', opp.id, payload)"
           />
 
-          <!-- Match Draw avec signe égal -->
-          <button
-            type="button"
-            @click="emit('log-match', opp.id, { format: 'bo1', result: 'draw', game1: 'draw' })"
-            class="h-8 px-1 rounded-lg font-bold text-xs text-white bg-amber-600 hover:bg-amber-500 active:scale-95 transition flex items-center justify-center gap-1 shadow-sm cursor-pointer"
-            title="Enregistrer un Draw"
-          >
-            <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="5" y1="9" x2="19" y2="9"/>
-              <line x1="5" y1="15" x2="19" y2="15"/>
-            </svg>
-            <span>Draw</span>
-          </button>
+          <!-- SplitButton Draw (BO1 au clic simple / BO3 1-1 au dropdown, clic droit ou appui long) -->
+          <SplitButton
+            type="draw"
+            @click-bo1="emit('log-match', opp.id, { format: 'bo1', result: 'draw', game1: 'draw' })"
+            @select-bo3="(payload) => emit('log-match', opp.id, payload)"
+          />
         </div>
       </div>
     </div>
