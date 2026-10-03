@@ -1,6 +1,7 @@
 {
   "nav": {
     "dashboard": "Dashboard",
+    "stats": "Statistics",
     "archetypes": "Archetypes",
     "settings": "Settings",
     "game_meta": "Game & Format",
@@ -304,6 +305,58 @@
     "missing_creds_desc": "Please set NUXT_OAUTH_DISCORD_CLIENT_ID and NUXT_OAUTH_DISCORD_CLIENT_SECRET in your .env file.",
     "login_failed": "Authentication failed: An error occurred with Discord.",
     "login_btn": "Sign In"
+  },
+  "stats_page": {
+    "title": "Format Statistics",
+    "subtitle": "Global performance analysis per archetype in the active format",
+    "refresh": "Refresh",
+    "change_format": "Change Format",
+    "kpi": {
+      "total_matches": "Total Matches",
+      "meta_winrate": "Overall Win Rate",
+      "most_played": "Most Played Deck",
+      "most_faced": "Most Faced Opponent",
+      "no_data": "No data",
+      "show_rate": "Show Rate: {rate}%"
+    },
+    "tabs": {
+      "all": "All Archetypes",
+      "played": "Decks Played",
+      "faced": "Opponents Faced"
+    },
+    "search_placeholder": "Search archetype or key card...",
+    "archetype_count": "{count} archetype | {count} archetypes",
+    "sort": {
+      "label": "Sort by",
+      "volume_desc": "Total matches",
+      "played_wr_desc": "Played Win Rate",
+      "faced_wr_desc": "Win Rate vs Deck",
+      "showrate_desc": "Show Rate",
+      "name_asc": "Name (A-Z)"
+    },
+    "cards": {
+      "as_played": "As Played Deck",
+      "as_faced": "As Opponent",
+      "matches_count": "{count} match | {count} matches",
+      "show_rate_label": "Show Rate",
+      "not_played": "Never played as active deck",
+      "not_faced": "Never faced in matches",
+      "record_label": "Record",
+      "involvements": "{count} total match | {count} total matches"
+    },
+    "empty": {
+      "no_selection_title": "No game or format selected",
+      "no_selection_desc": "Select a game and format from the top bar to inspect global statistics.",
+      "select_format_btn": "Select Game & Format",
+      "no_archetypes_title": "No archetypes registered",
+      "no_archetypes_desc": "Add archetypes to this format to start analyzing performance.",
+      "create_archetype_btn": "Add an Archetype",
+      "no_matches_title": "No matches recorded yet",
+      "no_matches_desc": "Log matches from your dashboard to populate global statistics for this format.",
+      "go_to_dashboard": "Go to Dashboard",
+      "no_search_results": "No archetype found for \"{query}\"",
+      "reset_search": "Reset search"
+    }
   },
   "common": {
     "close": "Close",

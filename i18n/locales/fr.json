@@ -1,6 +1,7 @@
 {
   "nav": {
     "dashboard": "Dashboard",
+    "stats": "Statistiques",
     "archetypes": "Archétypes",
     "settings": "Paramètres",
     "game_meta": "Jeu & Format",
@@ -304,6 +305,58 @@
     "missing_creds_desc": "Veuillez renseigner NUXT_OAUTH_DISCORD_CLIENT_ID et NUXT_OAUTH_DISCORD_CLIENT_SECRET dans votre fichier .env.",
     "login_failed": "Échec de la connexion : Une erreur est survenue lors de l'authentification avec Discord.",
     "login_btn": "Connexion"
+  },
+  "stats_page": {
+    "title": "Statistiques du Format",
+    "subtitle": "Analyse globale des performances par archétype dans le format actif",
+    "refresh": "Actualiser",
+    "change_format": "Changer de format",
+    "kpi": {
+      "total_matches": "Matchs Joués",
+      "meta_winrate": "Win Rate Global",
+      "most_played": "Deck le plus joué",
+      "most_faced": "Adversaire le plus affronté",
+      "no_data": "Aucune donnée",
+      "show_rate": "Show Rate : {rate}%"
+    },
+    "tabs": {
+      "all": "Tous les archétypes",
+      "played": "Decks Joués",
+      "faced": "Adversaires Affrontés"
+    },
+    "search_placeholder": "Rechercher un archétype ou une carte clé...",
+    "archetype_count": "{count} archétype | {count} archétypes",
+    "sort": {
+      "label": "Trier par",
+      "volume_desc": "Volume total de matchs",
+      "played_wr_desc": "Win Rate (Joué)",
+      "faced_wr_desc": "Win Rate vs Deck",
+      "showrate_desc": "Show Rate",
+      "name_asc": "Nom (A-Z)"
+    },
+    "cards": {
+      "as_played": "En tant que deck joué",
+      "as_faced": "En tant qu'adversaire",
+      "matches_count": "{count} match | {count} matchs",
+      "show_rate_label": "Show Rate",
+      "not_played": "Jamais joué en deck actif",
+      "not_faced": "Jamais affronté en match",
+      "record_label": "Bilan",
+      "involvements": "{count} match total | {count} matchs totaux"
+    },
+    "empty": {
+      "no_selection_title": "Aucun jeu ou format sélectionné",
+      "no_selection_desc": "Sélectionnez un jeu et un format depuis la barre supérieure pour consulter les statistiques globales.",
+      "select_format_btn": "Sélectionner Jeu & Format",
+      "no_archetypes_title": "Aucun archétype enregistré",
+      "no_archetypes_desc": "Ajoutez des archétypes à ce format pour commencer à analyser leurs performances.",
+      "create_archetype_btn": "Ajouter un archétype",
+      "no_matches_title": "Aucun match enregistré",
+      "no_matches_desc": "Enregistrez des matchs depuis votre dashboard pour alimenter les statistiques globales de ce format.",
+      "go_to_dashboard": "Aller au Dashboard",
+      "no_search_results": "Aucun archétype trouvé pour \"{query}\"",
+      "reset_search": "Réinitialiser la recherche"
+    }
   },
   "common": {
     "close": "Fermer",

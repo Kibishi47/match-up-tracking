@@ -32,7 +32,25 @@ const isLoginPage = computed(() => route.path === '/login')
         </span>
       </NuxtLink>
 
-      <!-- 2. Archétypes -->
+      <!-- 2. Statistiques -->
+      <NuxtLink
+        to="/stats"
+        class="flex flex-col items-center justify-center flex-1 py-1 px-1 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition duration-150 active:scale-95 group"
+        active-class="!text-emerald-600 dark:!text-emerald-400 font-semibold"
+      >
+        <div class="relative p-1">
+          <svg class="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10" />
+            <line x1="12" y1="20" x2="12" y2="4" />
+            <line x1="6" y1="20" x2="6" y2="14" />
+          </svg>
+        </div>
+        <span class="text-[11px] leading-tight tracking-tight mt-0.5">
+          {{ $t('nav.stats') }}
+        </span>
+      </NuxtLink>
+
+      <!-- 3. Archétypes -->
       <NuxtLink
         to="/archetypes"
         class="flex flex-col items-center justify-center flex-1 py-1 px-1 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition duration-150 active:scale-95 group"

@@ -84,6 +84,13 @@ const isGameMetaModalOpen = ref(false)
             {{ $t('nav.dashboard') }}
           </NuxtLink>
           <NuxtLink
+            to="/stats"
+            class="px-3 py-1.5 rounded-lg text-sm font-medium transition text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
+            active-class="!text-emerald-600 dark:!text-emerald-400 !bg-emerald-500/10"
+          >
+            {{ $t('nav.stats') }}
+          </NuxtLink>
+          <NuxtLink
             to="/archetypes"
             class="px-3 py-1.5 rounded-lg text-sm font-medium transition text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
             active-class="!text-emerald-600 dark:!text-emerald-400 !bg-emerald-500/10"

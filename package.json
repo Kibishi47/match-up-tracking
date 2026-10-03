@@ -16,7 +16,8 @@
     "db:seed": "tsx server/db/seed.ts",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "test:mwr": "tsx scripts/test-bo3-mwr.ts"
+    "test:mwr": "tsx scripts/test-bo3-mwr.ts",
+    "test:stats": "tsx scripts/test-meta-stats.ts"
   },
   "dependencies": {
     "@nuxtjs/color-mode": "^4.0.1",
