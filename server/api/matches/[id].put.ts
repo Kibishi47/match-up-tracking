@@ -24,6 +24,21 @@ export default defineEventHandler(async (event) => {
     }
     updateData.result = body.result
   }
+  if (body.format !== undefined) {
+    if (body.format !== 'bo1' && body.format !== 'bo3') {
+      throw createError({ statusCode: 400, statusMessage: "Le format doit être 'bo1' ou 'bo3'" })
+    }
+    updateData.format = body.format
+  }
+  if (body.game1 !== undefined) {
+    updateData.game1 = body.game1
+  }
+  if (body.game2 !== undefined) {
+    updateData.game2 = body.game2
+  }
+  if (body.game3 !== undefined) {
+    updateData.game3 = body.game3
+  }
   if (body.notes !== undefined) {
     updateData.notes = String(body.notes || '').trim()
   }
