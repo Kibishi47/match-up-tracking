@@ -249,7 +249,7 @@ const formatDate = (dateStr: string | Date) => {
       <section>
         <MatchHistorySkeleton v-if="isInitialLoading" />
         
-        <div v-else class="glass-panel p-4 sm:p-6 lg:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900/60">
+        <div v-else class="glass-panel p-4 sm:p-6 lg:p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900/60">
           <!-- En-tête de l'historique compact & réactif -->
           <div class="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800/80">
             <div class="flex items-center gap-2 sm:gap-2.5 min-w-0">
@@ -286,7 +286,7 @@ const formatDate = (dateStr: string | Date) => {
             <div
               v-for="m in dashboardData.recentMatches"
               :key="m.id"
-              class="py-3 flex items-center justify-between gap-2.5 sm:gap-4 group hover:bg-slate-50 dark:hover:bg-slate-900/40 px-2 sm:px-3 rounded-xl transition"
+              class="py-3.5 px-2 sm:px-3 -mx-2 sm:-mx-3 flex items-center justify-between gap-2.5 sm:gap-4 group hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors"
             >
               <!-- Info Match -->
               <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">

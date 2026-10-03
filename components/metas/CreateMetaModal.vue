@@ -81,20 +81,23 @@ const handleCreate = async () => {
         >
           <!-- Poignée de glissement sur mobile -->
           <div class="w-12 h-1 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-3 sm:hidden flex-shrink-0" />
-        <div class="flex items-center justify-between pb-4 border-b border-slate-800/80">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800/80">
           <div>
-            <h3 class="text-base font-bold text-white flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              Nouvelle Méta / Format
+            <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <svg class="w-5 h-5 text-emerald-500 dark:text-emerald-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 5v14M5 12h14"/>
+              </svg>
+              <span>Nouvelle Méta / Format</span>
             </h3>
-            <p v-if="gameName" class="text-xs text-slate-400 mt-0.5">
-              Jeu : <span class="text-emerald-400 font-medium">{{ gameName }}</span>
+            <p v-if="gameName" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Jeu : <span class="text-emerald-600 dark:text-emerald-400 font-medium">{{ gameName }}</span>
             </p>
           </div>
           <button
             type="button"
             @click="emit('close')"
-            class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition"
+            class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition cursor-pointer"
+            aria-label="Fermer"
           >
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M18 6 6 18M6 6l12 12"/>

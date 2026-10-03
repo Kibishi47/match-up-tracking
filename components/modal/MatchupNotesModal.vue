@@ -97,28 +97,24 @@ const handleBlur = () => {
             <div class="w-12 h-1 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-3 sm:hidden flex-shrink-0" />
 
             <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500 dark:text-amber-400 shadow-sm flex-shrink-0">
-                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <div>
+                <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <svg class="w-5 h-5 text-amber-500 dark:text-amber-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 20h9"/>
                     <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
                   </svg>
-                </div>
-                <div>
-                  <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <span>Notes de Matchup</span>
-                  </h3>
-                  <!-- Contexte des decks -->
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
-                    <span class="text-emerald-600 dark:text-emerald-400 font-semibold truncate max-w-[140px]" :title="myArchetype?.name">
-                      {{ myArchetype?.name || 'Mon Deck' }}
-                    </span>
-                    <span class="text-slate-400 dark:text-slate-500 font-bold">vs</span>
-                    <span class="text-indigo-600 dark:text-indigo-400 font-semibold truncate max-w-[140px]" :title="opponentArchetype?.name">
-                      {{ opponentArchetype?.name || 'Adversaire' }}
-                    </span>
-                  </p>
-                </div>
+                  <span>Notes de Matchup</span>
+                </h3>
+                <!-- Contexte des decks -->
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
+                  <span class="text-emerald-600 dark:text-emerald-400 font-semibold truncate max-w-[140px]" :title="myArchetype?.name">
+                    {{ myArchetype?.name || 'Mon Deck' }}
+                  </span>
+                  <span class="text-slate-400 dark:text-slate-500 font-bold">vs</span>
+                  <span class="text-indigo-600 dark:text-indigo-400 font-semibold truncate max-w-[140px]" :title="opponentArchetype?.name">
+                    {{ opponentArchetype?.name || 'Adversaire' }}
+                  </span>
+                </p>
               </div>
 
               <button

@@ -26,15 +26,15 @@ Tâches critiques pour la fluidité et le confort d'utilisation au quotidien, en
 
 Épuration de l'interface graphique pour un rendu plus moderne, sobre et respirant.
 
-- [ ] **Allègement de la hiérarchie et suppression de la sur-imbrication ("blocs dans des blocs")**
+- [x] **Allègement de la hiérarchie et suppression de la sur-imbrication ("blocs dans des blocs")**
   - *Problème :* Trop de panneaux imbriqués les uns dans les autres (panneau principal > bloc de section > cartes > sous-blocs) alourdissent la lisibilité.
   - *Solution :* Aérer l'espace avec de simples séparateurs subtils, un contraste de fond mesuré ou des espaces négatifs plutôt que d'empiler des conteneurs encadrés.
 
-- [ ] **Retrait des bordures et arrondis superflus**
+- [x] **Retrait des bordures et arrondis superflus**
   - *Problème :* Trop de `rounded-*` et bordures cumulées (notamment dans la liste de l'historique récent des matchs).
   - *Solution :* Adopter un style de liste continue plus épuré (diviseurs simples `divide-y`, sans cartes arrondies isolées pour chaque ligne d'historique).
 
-- [ ] **Harmonisation des icônes d'en-tête de modale / bottom sheet**
+- [x] **Harmonisation des icônes d'en-tête de modale / bottom sheet**
   - *Problème :* Les carrés arrondis colorés avec icône dans les en-têtes peuvent faire datés ou chargés.
   - *Solution :* Explorer une approche plus légère (icône monochrome intégrée au titre, badge épuré, ou absence d'icône pour laisser respirer le titre).
 

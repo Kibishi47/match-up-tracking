@@ -22,9 +22,9 @@ const isSelectModalOpen = ref(false)
 </script>
 
 <template>
-  <div class="glass-panel p-4 sm:p-6 lg:p-8 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-xl relative bg-white/90 dark:bg-gradient-to-r dark:from-slate-900/90 dark:via-slate-900/70 dark:to-slate-950 flex flex-col justify-center transition-colors">
+  <div class="glass-panel p-4 sm:p-6 lg:p-8 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xl relative bg-white/90 dark:bg-gradient-to-r dark:from-slate-900/90 dark:via-slate-900/70 dark:to-slate-950 flex flex-col justify-center transition-colors">
     <!-- Ambient glow behind cards (isolé dans son propre conteneur clippé) -->
-    <div class="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
+    <div class="absolute inset-0 overflow-hidden rounded-2xl pointer-events-none">
       <div class="absolute -left-12 -top-12 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
       <div class="absolute -right-12 -bottom-12 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
     </div>
@@ -153,37 +153,43 @@ const isSelectModalOpen = ref(false)
         </div>
       </div>
 
-      <!-- Stats Showcase compacte horizontale sur mobile -->
+      <!-- Stats Showcase compacte et épurée -->
       <div class="flex items-center gap-4 sm:gap-6 border-t lg:border-t-0 lg:border-l border-slate-200/80 dark:border-slate-800/80 pt-2.5 lg:pt-0 lg:pl-8 justify-between lg:justify-end">
         <div class="text-left lg:text-right">
           <span class="text-[10px] sm:text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 block">
             Taux de victoire
           </span>
-          <div class="flex items-baseline gap-2 mt-0.5">
+          <div class="flex items-baseline gap-2 mt-0.5 lg:justify-end">
             <span
               :class="[
-                'text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight',
+                'text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight leading-none',
                 stats.winrate >= 55 ? 'text-emerald-600 dark:text-emerald-400' : (stats.winrate >= 45 ? 'text-slate-900 dark:text-white' : 'text-red-600 dark:text-red-400')
               ]"
             >
               {{ stats.winrate }}%
             </span>
           </div>
-          <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1.5 lg:justify-end">
+          <div class="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1.5 lg:justify-end">
             <strong class="text-emerald-600 dark:text-emerald-400">{{ stats.wins }}W</strong> -
             <strong class="text-red-600 dark:text-red-400">{{ stats.losses }}L</strong>
             <span v-if="stats.draws" class="text-amber-600 dark:text-amber-400">- <strong>{{ stats.draws }}D</strong></span>
           </div>
         </div>
 
-        <div
-          class="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex flex-col items-center justify-center font-black border shadow-sm"
-          :class="stats.winrate >= 50
-            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400'
-            : 'bg-slate-100 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'"
-        >
-          <span class="text-base sm:text-lg leading-none">{{ stats.total }}</span>
-          <span class="text-[9px] sm:text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 mt-0.5">matchs</span>
+        <div class="h-10 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block"></div>
+
+        <div class="text-right">
+          <span class="text-[10px] sm:text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 block">
+            Parties
+          </span>
+          <div class="flex items-baseline justify-end gap-1 mt-0.5">
+            <span class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-none">
+              {{ stats.total }}
+            </span>
+          </div>
+          <span class="text-xs text-slate-500 dark:text-slate-400 mt-1 block">
+            {{ stats.total > 1 ? 'matchs' : 'match' }}
+          </span>
         </div>
       </div>
     </div>

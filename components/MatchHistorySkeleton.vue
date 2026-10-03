@@ -1,5 +1,5 @@
 <template>
-  <div class="glass-panel p-4 sm:p-6 lg:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm animate-pulse bg-white/80 dark:bg-slate-900/60">
+  <div class="glass-panel p-4 sm:p-6 lg:p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm animate-pulse bg-white/80 dark:bg-slate-900/60">
     <div class="flex items-center justify-between mb-4">
       <div class="h-6 w-48 bg-slate-300 dark:bg-slate-700 rounded-lg" />
       <div class="h-4 w-20 bg-slate-200 dark:bg-slate-800 rounded-full" />

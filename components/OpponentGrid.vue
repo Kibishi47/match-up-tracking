@@ -180,7 +180,7 @@ const emit = defineEmits<{
         <!-- Note de matchup affichée directement sur la carte -->
         <div
           v-if="statsByOpponent?.[opp.id]?.notes"
-          class="mt-2.5 px-2.5 py-1.5 rounded-xl bg-amber-500/10 dark:bg-amber-400/10 border border-amber-500/20 dark:border-amber-400/20"
+          class="mt-2.5 pl-2.5 py-0.5 border-l-2 border-amber-500/70"
         >
           <p class="text-xs text-amber-900 dark:text-amber-200/90 leading-snug line-clamp-2 break-words italic">
             {{ statsByOpponent[opp.id].notes }}

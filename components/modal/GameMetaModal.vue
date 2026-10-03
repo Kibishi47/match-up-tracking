@@ -253,21 +253,17 @@ const handleDeleteMeta = async (meta: Meta) => {
             <div class="w-12 h-1 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-3 sm:hidden flex-shrink-0" />
 
             <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 text-white flex-shrink-0">
-                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <div>
+                <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                  <svg class="w-5 h-5 text-emerald-500 dark:text-emerald-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect width="20" height="12" x="2" y="6" rx="6" />
                     <path d="M6 12h4m-2-2v4m9-2h.01m3 0h.01" />
                   </svg>
-                </div>
-                <div>
-                  <h3 class="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-                    Configuration Jeu & Méta
-                  </h3>
-                  <p class="text-xs text-slate-500 dark:text-slate-400">
-                    Sélectionnez le jeu et l'extension active pour vos matchs et statistiques
-                  </p>
-                </div>
+                  <span>Configuration Jeu & Méta</span>
+                </h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Sélectionnez le jeu et l'extension active pour vos matchs et statistiques
+                </p>
               </div>
 
               <button

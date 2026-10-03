@@ -79,21 +79,17 @@ const handleSelect = (deckId: string) => {
             <div class="w-12 h-1 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-3 sm:hidden flex-shrink-0" />
 
             <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm flex-shrink-0">
-                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <div>
+                <h3 id="select-deck-modal-title" class="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                  <svg class="w-5 h-5 text-emerald-500 dark:text-emerald-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect width="18" height="18" x="3" y="3" rx="2" />
                     <path d="m9 12 2 2 4-4" />
                   </svg>
-                </div>
-                <div>
-                  <h3 id="select-deck-modal-title" class="text-base font-bold text-slate-900 dark:text-white">
-                    Sélectionner le Deck Actif
-                  </h3>
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    Choisissez votre deck principal pour analyser vos matchups
-                  </p>
-                </div>
+                  <span>Sélectionner le Deck Actif</span>
+                </h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Choisissez votre deck principal pour analyser vos matchups
+                </p>
               </div>
 
               <button
