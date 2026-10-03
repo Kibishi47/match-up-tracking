@@ -137,7 +137,7 @@ const emit = defineEmits<{
                         ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
                         : 'bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/30')
                   ]"
-                  :title="`Taux de victoire : ${statsByOpponent[opp.id].wins}V - ${statsByOpponent[opp.id].losses}D${statsByOpponent[opp.id].draws ? ' - ' + statsByOpponent[opp.id].draws + 'N' : ''}`"
+                  :title="`Bilan : ${statsByOpponent[opp.id].wins}W - ${statsByOpponent[opp.id].losses}L${statsByOpponent[opp.id].draws ? ' - ' + statsByOpponent[opp.id].draws + 'D' : ''}`"
                 >
                   WR {{ statsByOpponent[opp.id].winrate }}%
                 </span>
@@ -208,18 +208,18 @@ const emit = defineEmits<{
             <span>Loss</span>
           </button>
 
-          <!-- Match Nul avec signe égal -->
+          <!-- Match Draw avec signe égal -->
           <button
             type="button"
             @click="emit('log-match', opp.id, 'draw')"
             class="h-8 px-1 rounded-lg font-bold text-xs text-white bg-amber-600 hover:bg-amber-500 active:scale-95 transition flex items-center justify-center gap-1 shadow-sm cursor-pointer"
-            title="Enregistrer un Match Nul"
+            title="Enregistrer un Draw"
           >
             <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="5" y1="9" x2="19" y2="9"/>
               <line x1="5" y1="15" x2="19" y2="15"/>
             </svg>
-            <span>Nul</span>
+            <span>Draw</span>
           </button>
         </div>
       </div>

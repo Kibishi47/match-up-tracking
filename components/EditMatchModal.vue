@@ -104,7 +104,7 @@ const saveMatch = async () => {
                       : 'bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
                   ]"
                 >
-                  <span>Victoire</span>
+                  <span>Win</span>
                 </button>
 
                 <button
@@ -117,7 +117,7 @@ const saveMatch = async () => {
                       : 'bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
                   ]"
                 >
-                  <span>Défaite</span>
+                  <span>Loss</span>
                 </button>
 
                 <button
@@ -130,7 +130,7 @@ const saveMatch = async () => {
                       : 'bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
                   ]"
                 >
-                  <span>Nul</span>
+                  <span>Draw</span>
                 </button>
               </div>
             </div>
