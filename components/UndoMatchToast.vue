@@ -65,6 +65,13 @@ const handleEdit = () => {
   clearInterval(timerInterval)
   emit('edit', props.match)
 }
+const bo3Score = computed(() => {
+  if (props.match?.format !== 'bo3') return ''
+  const games = [props.match.game1, props.match.game2, props.match.game3].filter(Boolean)
+  const wins = games.filter(g => g === 'win').length
+  const losses = games.filter(g => g === 'loss').length
+  return `${wins}-${losses}`
+})
 </script>
 
 <template>
@@ -104,7 +111,7 @@ const handleEdit = () => {
 
           <div class="min-w-0 flex-1">
             <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">
-              Match enregistré • {{ Math.ceil(timeLeft / 1000) }}s
+              Match enregistré <span v-if="match.format === 'bo3'" class="font-semibold text-slate-700 dark:text-slate-300">• BO3 {{ bo3Score }}</span> • {{ Math.ceil(timeLeft / 1000) }}s
             </p>
             <p class="text-xs sm:text-sm font-semibold truncate text-slate-900 dark:text-white">
               vs {{ match.opponentArchetype?.name || 'Adversaire' }}

@@ -84,12 +84,54 @@ const handleNotesSaved = (newNotes: string) => {
 
 const { toast, confirmAction } = useNotify()
 
-// Enregistrement rapide d'un match (W, L ou D)
-const logMatch = async (opponentId: string, result: 'win' | 'loss' | 'draw') => {
+// Formateur de score et infobulle pour match BO3
+const getBo3Score = (m: MatchWithRelations) => {
+  if (m.format !== 'bo3') return ''
+  const games = [m.game1, m.game2, m.game3].filter(Boolean)
+  const wins = games.filter(g => g === 'win').length
+  const losses = games.filter(g => g === 'loss').length
+  return `${wins}-${losses}`
+}
+
+const getBo3GamesTooltip = (m: MatchWithRelations) => {
+  if (m.format !== 'bo3') return ''
+  const g1 = m.game1 === 'win' ? 'W' : (m.game1 === 'loss' ? 'L' : 'D')
+  const g2 = m.game2 === 'win' ? 'W' : (m.game2 === 'loss' ? 'L' : 'D')
+  const g3 = m.game3 ? (m.game3 === 'win' ? 'W' : (m.game3 === 'loss' ? 'L' : 'D')) : null
+  return `Format BO3 — G1: ${g1} | G2: ${g2}${g3 ? ` | G3: ${g3}` : ''}`
+}
+
+// Enregistrement rapide d'un match (BO1 en 1-clic ou BO3 sélectionné)
+const logMatch = async (
+  opponentId: string,
+  matchData: 'win' | 'loss' | 'draw' | {
+    format?: 'bo1' | 'bo3'
+    result: 'win' | 'loss' | 'draw'
+    game1?: 'win' | 'loss' | 'draw' | null
+    game2?: 'win' | 'loss' | 'draw' | null
+    game3?: 'win' | 'loss' | 'draw' | null
+  }
+) => {
   if (!activeGameId.value || !activeDeckId.value) {
     toast.warning('Veuillez d’abord sélectionner un jeu et votre deck actif.')
     return
   }
+
+  const payload = typeof matchData === 'string'
+    ? {
+        format: 'bo1' as const,
+        result: matchData,
+        game1: matchData,
+        game2: null,
+        game3: null
+      }
+    : {
+        format: matchData.format || 'bo1',
+        result: matchData.result,
+        game1: matchData.game1 || matchData.result,
+        game2: matchData.game2 || null,
+        game3: matchData.game3 || null
+      }
 
   try {
     const newMatch = await $fetch<MatchWithRelations>('/api/matches', {
@@ -98,7 +140,7 @@ const logMatch = async (opponentId: string, result: 'win' | 'loss' | 'draw') => 
         gameId: activeGameId.value,
         myArchetypeId: activeDeckId.value,
         opponentArchetypeId: opponentId,
-        result
+        ...payload
       }
     })
 
@@ -250,13 +292,17 @@ const formatDate = (dateStr: string | Date) => {
               <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
                 <span
                   :class="[
-                    'w-11 sm:w-12 h-7 sm:h-8 rounded-lg flex items-center justify-center font-black text-[10px] sm:text-xs uppercase flex-shrink-0 shadow-sm tracking-wide',
+                    'px-2 min-w-[50px] sm:min-w-[58px] h-7 sm:h-8 rounded-lg flex items-center justify-center font-black text-[10px] sm:text-xs uppercase flex-shrink-0 shadow-sm tracking-wide gap-1',
                     m.result === 'win'
                       ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30'
                       : (m.result === 'loss' ? 'bg-red-500/20 text-red-700 dark:text-red-400 border border-red-500/30' : 'bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30')
                   ]"
+                  :title="m.format === 'bo3' ? getBo3GamesTooltip(m) : undefined"
                 >
-                  {{ m.result === 'win' ? 'WIN' : (m.result === 'loss' ? 'LOSS' : 'DRAW') }}
+                  <span>{{ m.result === 'win' ? 'WIN' : (m.result === 'loss' ? 'LOSS' : 'DRAW') }}</span>
+                  <span v-if="m.format === 'bo3'" class="font-mono text-[9px] sm:text-[10px] opacity-90 font-bold ml-0.5">
+                    {{ getBo3Score(m) }}
+                  </span>
                 </span>
 
                 <div class="min-w-0 flex-1">
@@ -264,9 +310,27 @@ const formatDate = (dateStr: string | Date) => {
                     vs {{ m.opponentArchetype?.name || 'Adversaire inconnu' }}
                     <span class="text-[11px] sm:text-xs font-normal text-slate-500 dark:text-slate-400 ml-1.5 hidden sm:inline">avec {{ m.myArchetype?.name }}</span>
                   </div>
-                  <div class="flex items-center gap-2 text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
+                  <div class="flex items-center flex-wrap gap-x-2 gap-y-0.5 text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
                     <span class="flex-shrink-0">{{ formatDate(m.createdAt) }}</span>
-                    <span v-if="m.notes" class="text-slate-600 dark:text-slate-400 italic truncate" :title="m.notes">"{{ m.notes }}"</span>
+                    <!-- Déroulé des manches si BO3 -->
+                    <span
+                      v-if="m.format === 'bo3'"
+                      class="inline-flex items-center gap-1 font-mono text-[10px] bg-slate-100 dark:bg-slate-800/80 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700/60"
+                      :title="getBo3GamesTooltip(m)"
+                    >
+                      <span class="font-semibold text-slate-600 dark:text-slate-300">BO3</span>
+                      <span class="text-slate-400 dark:text-slate-600">•</span>
+                      <span class="flex items-center gap-0.5 font-bold">
+                        <span :class="m.game1 === 'win' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'">G1:{{ m.game1 === 'win' ? 'W' : (m.game1 === 'loss' ? 'L' : 'D') }}</span>
+                        <span class="text-slate-300 dark:text-slate-600">|</span>
+                        <span :class="m.game2 === 'win' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'">G2:{{ m.game2 === 'win' ? 'W' : (m.game2 === 'loss' ? 'L' : 'D') }}</span>
+                        <template v-if="m.game3">
+                          <span class="text-slate-300 dark:text-slate-600">|</span>
+                          <span :class="m.game3 === 'win' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'">G3:{{ m.game3 === 'win' ? 'W' : (m.game3 === 'loss' ? 'L' : 'D') }}</span>
+                        </template>
+                      </span>
+                    </span>
+                    <span v-if="m.notes" class="text-slate-600 dark:text-slate-400 italic truncate max-w-[200px]" :title="m.notes">"{{ m.notes }}"</span>
                   </div>
                 </div>
               </div>

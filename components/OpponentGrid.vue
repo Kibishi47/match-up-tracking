@@ -16,8 +16,16 @@ const props = defineProps<{
   statsByOpponent: Record<string, OpponentStats>
 }>()
 
+export interface MatchLogPayload {
+  format?: 'bo1' | 'bo3'
+  result: 'win' | 'loss' | 'draw'
+  game1?: 'win' | 'loss' | 'draw' | null
+  game2?: 'win' | 'loss' | 'draw' | null
+  game3?: 'win' | 'loss' | 'draw' | null
+}
+
 const emit = defineEmits<{
-  (e: 'log-match', opponentId: string, result: 'win' | 'loss' | 'draw'): void
+  (e: 'log-match', opponentId: string, matchData: 'win' | 'loss' | 'draw' | MatchLogPayload): void
   (e: 'open-notes', opponent: Archetype): void
 }>()
 </script>
@@ -50,7 +58,7 @@ const emit = defineEmits<{
       <div
         v-for="opp in opponents"
         :key="opp.id"
-        class="glass-panel rounded-2xl border border-slate-200/90 dark:border-slate-800/90 hover:border-slate-300 dark:hover:border-slate-700 transition overflow-hidden flex flex-col justify-between p-4 group bg-white dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-900/80 min-h-[156px] shadow-sm"
+        class="glass-panel rounded-2xl border border-slate-200/90 dark:border-slate-800/90 hover:border-slate-300 dark:hover:border-slate-700 transition flex flex-col justify-between p-4 group bg-white dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-900/80 min-h-[156px] shadow-sm relative hover:z-20 focus-within:z-30"
       >
         <!-- Visuel et infos de l'adversaire -->
         <div>
@@ -179,39 +187,25 @@ const emit = defineEmits<{
         </div>
 
         <!-- Boutons d'action rapide Victoire (W) / Défaite (L) / Nul (D) -->
-        <div class="mt-2 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 grid grid-cols-3 gap-1.5">
-          <!-- Victoire avec flèche montante -->
-          <button
-            type="button"
-            @click="emit('log-match', opp.id, 'win')"
-            class="h-8 px-1 rounded-lg font-bold text-xs text-white bg-emerald-600 hover:bg-emerald-500 active:scale-95 transition flex items-center justify-center gap-1 shadow-sm cursor-pointer"
-            title="Enregistrer une Victoire (flèche montante)"
-          >
-            <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m5 12 7-7 7 7"/>
-              <path d="M12 19V5"/>
-            </svg>
-            <span>Win</span>
-          </button>
+        <div class="mt-2 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 grid grid-cols-3 gap-1.5 relative">
+          <!-- SplitButton Victoire (BO1 au clic simple / BO3 au dropdown, clic droit ou appui long) -->
+          <UiSplitButton
+            type="win"
+            @click-bo1="emit('log-match', opp.id, { format: 'bo1', result: 'win', game1: 'win' })"
+            @select-bo3="(payload) => emit('log-match', opp.id, payload)"
+          />
 
-          <!-- Défaite avec flèche descendante -->
-          <button
-            type="button"
-            @click="emit('log-match', opp.id, 'loss')"
-            class="h-8 px-1 rounded-lg font-bold text-xs text-white bg-red-600 hover:bg-red-500 active:scale-95 transition flex items-center justify-center gap-1 shadow-sm cursor-pointer"
-            title="Enregistrer une Défaite (flèche descendante)"
-          >
-            <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m19 12-7 7-7-7"/>
-              <path d="M12 5v14"/>
-            </svg>
-            <span>Loss</span>
-          </button>
+          <!-- SplitButton Défaite (BO1 au clic simple / BO3 au dropdown, clic droit ou appui long) -->
+          <UiSplitButton
+            type="loss"
+            @click-bo1="emit('log-match', opp.id, { format: 'bo1', result: 'loss', game1: 'loss' })"
+            @select-bo3="(payload) => emit('log-match', opp.id, payload)"
+          />
 
           <!-- Match Draw avec signe égal -->
           <button
             type="button"
-            @click="emit('log-match', opp.id, 'draw')"
+            @click="emit('log-match', opp.id, { format: 'bo1', result: 'draw', game1: 'draw' })"
             class="h-8 px-1 rounded-lg font-bold text-xs text-white bg-amber-600 hover:bg-amber-500 active:scale-95 transition flex items-center justify-center gap-1 shadow-sm cursor-pointer"
             title="Enregistrer un Draw"
           >

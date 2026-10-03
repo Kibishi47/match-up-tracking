@@ -18,6 +18,10 @@ const emit = defineEmits<{
 useScrollLock(computed(() => props.match !== null))
 
 const result = ref<'win' | 'loss' | 'draw'>('win')
+const format = ref<'bo1' | 'bo3'>('bo1')
+const game1 = ref<'win' | 'loss' | 'draw' | null>(null)
+const game2 = ref<'win' | 'loss' | 'draw' | null>(null)
+const game3 = ref<'win' | 'loss' | 'draw' | null>(null)
 const notes = ref('')
 const isSubmitting = ref(false)
 const errorMessage = ref<string | null>(null)
@@ -26,6 +30,10 @@ watch(() => props.match, (newMatch) => {
   if (newMatch) {
     result.value = newMatch.result
     notes.value = newMatch.notes || ''
+    format.value = newMatch.format || 'bo1'
+    game1.value = newMatch.game1 || newMatch.result
+    game2.value = newMatch.game2 || null
+    game3.value = newMatch.game3 || null
     errorMessage.value = null
   }
 }, { immediate: true })
@@ -36,12 +44,29 @@ const saveMatch = async () => {
   errorMessage.value = null
 
   try {
+    const payload: any = {
+      format: format.value,
+      result: result.value,
+      notes: notes.value
+    }
+
+    if (format.value === 'bo3') {
+      payload.game1 = game1.value
+      payload.game2 = game2.value
+      payload.game3 = game3.value
+
+      const games = [game1.value, game2.value, game3.value].filter(Boolean)
+      const wins = games.filter(g => g === 'win').length
+      const losses = games.filter(g => g === 'loss').length
+      if (wins >= 2) payload.result = 'win'
+      else if (losses >= 2) payload.result = 'loss'
+      else if (wins === losses && games.length >= 2) payload.result = 'draw'
+      result.value = payload.result
+    }
+
     const updated = await $fetch<Match>(`/api/matches/${props.match.id}`, {
       method: 'PUT',
-      body: {
-        result: result.value,
-        notes: notes.value
-      }
+      body: payload
     })
 
     emit('updated', updated)
@@ -84,8 +109,47 @@ const saveMatch = async () => {
             <div class="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-800 text-sm">
               <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
                 <span>Deck : <strong class="text-slate-900 dark:text-white">{{ match.myArchetype?.name || 'Mon Deck' }}</strong></span>
-                <span>vs</span>
-                <span>Adversaire : <strong class="text-slate-900 dark:text-white">{{ match.opponentArchetype?.name || 'Adversaire' }}</strong></span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                  {{ format === 'bo3' ? 'Format BO3' : 'Format BO1' }}
+                </span>
+                <span>vs : <strong class="text-slate-900 dark:text-white">{{ match.opponentArchetype?.name || 'Adversaire' }}</strong></span>
+              </div>
+            </div>
+
+            <!-- Détail des manches en BO3 -->
+            <div v-if="format === 'bo3'" class="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-semibold text-slate-700 dark:text-slate-300">Détail des manches (BO3)</span>
+                <span class="text-[11px] font-mono font-bold text-slate-500">
+                  Score : {{ [game1, game2, game3].filter(g => g === 'win').length }} - {{ [game1, game2, game3].filter(g => g === 'loss').length }}
+                </span>
+              </div>
+              <div class="grid grid-cols-3 gap-2">
+                <div class="text-center">
+                  <div class="text-[10px] uppercase font-bold text-slate-400 mb-1">Manche 1</div>
+                  <select v-model="game1" class="w-full text-xs font-semibold py-1.5 px-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white cursor-pointer">
+                    <option value="win">Win</option>
+                    <option value="loss">Loss</option>
+                    <option value="draw">Draw</option>
+                  </select>
+                </div>
+                <div class="text-center">
+                  <div class="text-[10px] uppercase font-bold text-slate-400 mb-1">Manche 2</div>
+                  <select v-model="game2" class="w-full text-xs font-semibold py-1.5 px-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white cursor-pointer">
+                    <option value="win">Win</option>
+                    <option value="loss">Loss</option>
+                    <option value="draw">Draw</option>
+                  </select>
+                </div>
+                <div class="text-center">
+                  <div class="text-[10px] uppercase font-bold text-slate-400 mb-1">Manche 3</div>
+                  <select v-model="game3" class="w-full text-xs font-semibold py-1.5 px-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white cursor-pointer">
+                    <option :value="null">Non jouée</option>
+                    <option value="win">Win</option>
+                    <option value="loss">Loss</option>
+                    <option value="draw">Draw</option>
+                  </select>
+                </div>
               </div>
             </div>
 
