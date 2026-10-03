@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Archetype } from '~/server/db/schema'
+import SplitButton from '~/components/ui/SplitButton.vue'
 
 export interface OpponentStats {
   wins: number
@@ -189,14 +190,14 @@ const emit = defineEmits<{
         <!-- Boutons d'action rapide Victoire (W) / Défaite (L) / Nul (D) -->
         <div class="mt-2 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 grid grid-cols-3 gap-1.5 relative">
           <!-- SplitButton Victoire (BO1 au clic simple / BO3 au dropdown, clic droit ou appui long) -->
-          <UiSplitButton
+          <SplitButton
             type="win"
             @click-bo1="emit('log-match', opp.id, { format: 'bo1', result: 'win', game1: 'win' })"
             @select-bo3="(payload) => emit('log-match', opp.id, payload)"
           />
 
           <!-- SplitButton Défaite (BO1 au clic simple / BO3 au dropdown, clic droit ou appui long) -->
-          <UiSplitButton
+          <SplitButton
             type="loss"
             @click-bo1="emit('log-match', opp.id, { format: 'bo1', result: 'loss', game1: 'loss' })"
             @select-bo3="(payload) => emit('log-match', opp.id, payload)"
