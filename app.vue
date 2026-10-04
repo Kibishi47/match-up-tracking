@@ -6,9 +6,9 @@ import PwaInstallPrompt from '~/components/ui/PwaInstallPrompt.vue'
 
 useSeoMeta({
   title: 'Metadex — TCG Matchup & Meta Tracker',
-  description: 'Suivez vos parties, analysez vos win rates (BO1 & BO3) et optimisez vos performances en tournoi TCG avec des statistiques méta en temps réel.',
+  description: 'Track your matches, analyze win rates (BO1 & BO3), and optimize your tournament performance with real-time TCG meta statistics.',
   ogTitle: 'Metadex — TCG Matchup & Meta Tracker',
-  ogDescription: 'Suivez vos parties, analysez vos win rates (BO1 & BO3) et optimisez vos performances en tournoi TCG avec des statistiques méta en temps réel.',
+  ogDescription: 'Track your matches, analyze win rates (BO1 & BO3), and optimize your tournament performance with real-time TCG meta statistics.',
   ogImage: '/og-image.png',
   ogImageWidth: 1200,
   ogImageHeight: 630,
@@ -17,7 +17,7 @@ useSeoMeta({
   ogType: 'website',
   twitterCard: 'summary_large_image',
   twitterTitle: 'Metadex — TCG Matchup & Meta Tracker',
-  twitterDescription: 'Suivez vos parties, analysez vos win rates (BO1 & BO3) et optimisez vos performances en tournoi TCG avec des statistiques méta en temps réel.',
+  twitterDescription: 'Track your matches, analyze win rates (BO1 & BO3), and optimize your tournament performance with real-time TCG meta statistics.',
   twitterImage: '/og-image.png'
 })
 </script>

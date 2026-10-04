@@ -11,7 +11,7 @@ const error = computed(() => route.query.error as string | undefined)
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-950 px-4 relative overflow-hidden transition-colors">
+  <div class="min-h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-950 px-4 pt-safe pb-safe relative overflow-hidden transition-colors">
     <!-- Ambient glow background effects -->
     <div class="absolute -top-32 -left-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
     <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
