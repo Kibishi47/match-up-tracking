@@ -41,6 +41,12 @@
   padding-top: env(safe-area-inset-top, 0px);
 }
 
+/* Enlever tout flou sur l'en-tête (iOS et navigateurs) */
+header {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
 /* Empêcher le zoom automatique sur iOS Safari lors du focus sur les champs de formulaire */
 @media screen and (max-width: 768px) {
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),

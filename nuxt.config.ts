@@ -16,7 +16,7 @@ export default defineNuxtConfig({
         { name: 'description', content: 'Track your matches, analyze win rates (BO1 & BO3), and optimize your tournament performance with real-time TCG meta statistics.' },
         { name: 'mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
-        { name: 'apple-mobile-web-app-status-bar-style', content: 'black' },
+        { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
         { name: 'apple-mobile-web-app-title', content: 'Metadex' },
         // Open Graph (Facebook, Discord, LinkedIn, etc.)
         { property: 'og:site_name', content: 'Metadex' },
