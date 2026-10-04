@@ -2,6 +2,7 @@ export function usePwaInstall() {
   const { $pwa } = useNuxtApp()
 
   const isStandalone = useState<boolean>('pwa_is_standalone', () => false)
+  const isMobile = useState<boolean>('pwa_is_mobile', () => false)
   const canInstall = useState<boolean>('pwa_can_install', () => false)
   const isIos = useState<boolean>('pwa_is_ios', () => false)
   const showIosGuide = useState<boolean>('pwa_show_ios_guide', () => false)
@@ -13,7 +14,20 @@ export function usePwaInstall() {
 
   const checkIsStandalone = (): boolean => {
     if (typeof window === 'undefined') return false
-    return window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true
+    return (
+      Boolean($pwa?.isPWAInstalled) ||
+      window.matchMedia('(display-mode: standalone)').matches ||
+      (window.navigator as any).standalone === true ||
+      document.referrer.includes('android-app://')
+    )
+  }
+
+  const checkIsMobile = (): boolean => {
+    if (typeof window === 'undefined') return false
+    const ua = window.navigator.userAgent
+    const isTouchMac = ua.includes('Macintosh') && navigator.maxTouchPoints > 1
+    const isMobileUa = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)
+    return isMobileUa || isTouchMac || window.innerWidth < 768
   }
 
   const checkIsIos = (): boolean => {
@@ -24,11 +38,14 @@ export function usePwaInstall() {
   }
 
   const init = () => {
-    if (typeof window === 'undefined' || isInitialized.value) return
-    isInitialized.value = true
+    if (typeof window === 'undefined') return
 
     isStandalone.value = checkIsStandalone()
+    isMobile.value = checkIsMobile()
     isIos.value = checkIsIos()
+
+    if (isInitialized.value) return
+    isInitialized.value = true
 
     try {
       const dismissedTime = localStorage.getItem(DISMISS_KEY)
@@ -47,6 +64,10 @@ export function usePwaInstall() {
       canInstall.value = false
       isStandalone.value = true
       deferredPrompt.value = null
+    })
+
+    window.addEventListener('resize', () => {
+      isMobile.value = checkIsMobile()
     })
   }
 
@@ -74,6 +95,7 @@ export function usePwaInstall() {
 
   return {
     isStandalone,
+    isMobile,
     canInstall,
     isIos,
     showIosGuide,

@@ -7,6 +7,7 @@ const { t } = useI18n()
 
 const {
   isStandalone,
+  isMobile,
   canInstall,
   isIos,
   showIosGuide,
@@ -22,6 +23,7 @@ onMounted(() => {
 
 const shouldShowBanner = computed(() => {
   if (isStandalone.value) return false
+  if (!isMobile.value) return false
   if (isDismissed.value) return false
   return canInstall.value || isIos.value
 })
@@ -86,7 +88,7 @@ const handleReloadApp = () => {
       <aside
         v-if="shouldShowBanner"
         aria-label="Installation de l'application Metadex"
-        class="pointer-events-auto fixed bottom-20 md:bottom-6 right-4 left-4 md:left-auto md:w-96 z-40 p-4 rounded-2xl bg-white/95 dark:bg-slate-900/95 border border-slate-200/90 dark:border-slate-800/90 shadow-2xl backdrop-blur-xl transition-all"
+        class="md:hidden pointer-events-auto fixed bottom-20 right-4 left-4 z-40 p-4 rounded-2xl bg-white/95 dark:bg-slate-900/95 border border-slate-200/90 dark:border-slate-800/90 shadow-2xl backdrop-blur-xl transition-all"
       >
         <div class="flex items-start gap-3.5">
           <!-- Icône Metadex -->
