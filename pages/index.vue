@@ -35,7 +35,7 @@ const {
   data: dashboardData,
   pending,
   refresh: refreshDashboard
-} = await useFetch<DashboardApiResponse>('/api/dashboard', {
+} = useLazyFetch<DashboardApiResponse>('/api/dashboard', {
   query: computed(() => ({
     gameId: activeGameId.value,
     metaId: activeMetaId.value || undefined,

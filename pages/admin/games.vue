@@ -5,7 +5,7 @@ definePageMeta({
   middleware: 'admin'
 })
 
-const { data: gamesList, refresh: refreshGames, status } = await useFetch<Game[]>('/api/admin/games')
+const { data: gamesList, refresh: refreshGames, status } = useLazyFetch<Game[]>('/api/admin/games')
 
 const isSubmitting = ref(false)
 const errorMessage = ref<string | null>(null)
@@ -255,8 +255,18 @@ const deleteGame = async (game: Game) => {
               </button>
             </div>
 
-            <div v-if="status === 'pending'" class="py-12 text-center text-slate-400 dark:text-slate-500 text-sm">
-              {{ $t('admin_games.loading') }}
+            <div v-if="status === 'pending'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div
+                v-for="i in 4"
+                :key="i"
+                class="glass-card p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/60 animate-pulse flex items-start gap-3.5"
+              >
+                <div class="w-12 h-12 rounded-xl bg-slate-200 dark:bg-slate-800" />
+                <div class="space-y-2 flex-1 min-w-0">
+                  <div class="h-4 bg-slate-300 dark:bg-slate-700 rounded w-2/3" />
+                  <div class="h-3 bg-slate-200 dark:bg-slate-800 rounded w-1/3" />
+                </div>
+              </div>
             </div>
 
             <div v-else-if="!gamesList || gamesList.length === 0" class="py-12 text-center">

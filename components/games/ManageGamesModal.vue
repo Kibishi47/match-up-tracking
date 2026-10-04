@@ -16,8 +16,8 @@ useScrollLock(toRef(props, 'isOpen'))
 
 const { games: userGames, refreshGames } = useGameSession()
 
-// Récupérer tout le catalogue global de jeux
-const { data: allCatalogGames, refresh: refreshCatalog, status: catalogStatus } = await useFetch<Game[]>('/api/games')
+// Récupérer tout le catalogue global de jeux sans suspendre le rendu
+const { data: allCatalogGames, refresh: refreshCatalog, status: catalogStatus } = useLazyFetch<Game[]>('/api/games')
 
 // Tri alphabétique insensible à la casse
 const sortedCatalogGames = computed(() => {
@@ -116,8 +116,18 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
 
         <!-- Corps : Liste des jeux du catalogue triée alphabétiquement -->
         <div class="py-4 overflow-y-auto space-y-2.5 flex-1 min-h-0 pr-1">
-          <div v-if="catalogStatus === 'pending'" class="py-8 text-center text-xs text-slate-400 dark:text-slate-500">
-            {{ $t('manage_games_modal.loading') }}
+          <div v-if="catalogStatus === 'pending'" class="space-y-2.5">
+            <div
+              v-for="i in 4"
+              :key="i"
+              class="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 animate-pulse"
+            >
+              <div class="flex items-center gap-3 flex-1">
+                <div class="w-10 h-10 rounded-lg bg-slate-200 dark:bg-slate-800" />
+                <div class="h-4 bg-slate-200 dark:bg-slate-800 rounded w-1/3" />
+              </div>
+              <div class="w-20 h-8 rounded-lg bg-slate-200 dark:bg-slate-800" />
+            </div>
           </div>
 
           <div v-else-if="!sortedCatalogGames || sortedCatalogGames.length === 0" class="py-8 text-center text-xs text-slate-400 dark:text-slate-500">

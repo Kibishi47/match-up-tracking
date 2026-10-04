@@ -32,7 +32,7 @@ const {
   data: statsData,
   pending,
   refresh: refreshStats
-} = await useFetch<FormatStatsResponse>('/api/stats/meta', {
+} = useLazyFetch<FormatStatsResponse>('/api/stats/meta', {
   query: computed(() => ({
     gameId: activeGameId.value || undefined,
     metaId: activeMetaId.value || undefined

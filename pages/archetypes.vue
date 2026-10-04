@@ -13,19 +13,23 @@ const selectedArchetypeToEdit = ref<Archetype | null>(null)
 const searchQuery = ref('')
 
 // Utiliser la session de jeu partagée (synchronisée avec le Header)
-const { activeGame, activeGameId } = useGameSession()
+const { activeGame, activeGameId, isSessionReady } = useGameSession()
 
 // Utiliser la session de méta active
 const { metas, activeMeta, activeMetaId, refreshMetas, setActiveMeta } = useMetaSession()
 
-// Charger les archétypes pour le jeu et la méta sélectionnés
-const { data: archetypesList, refresh: refreshArchetypes, status: loadingArchetypes } = await useFetch<Archetype[]>('/api/archetypes', {
+// Charger les archétypes pour le jeu et la méta sélectionnés sans bloquer le rendu initial
+const { data: archetypesList, refresh: refreshArchetypes, status: loadingArchetypes } = useLazyFetch<Archetype[]>('/api/archetypes', {
   query: computed(() => ({
     gameId: activeGameId.value || undefined,
     metaId: activeMetaId.value || undefined,
     includeArchived: false
   })),
   watch: [activeGameId, activeMetaId]
+})
+
+const isLoading = computed(() => {
+  return !isSessionReady.value || (loadingArchetypes.value === 'pending' && !archetypesList.value)
 })
 
 const { toast, confirmAction } = useNotify()
@@ -228,9 +232,9 @@ const deleteArchetype = async (arch: Archetype) => {
           </div>
         </div>
 
-        <!-- Chargement -->
-        <div v-if="loadingArchetypes === 'pending'" class="py-16 text-center text-slate-400 dark:text-slate-500 text-sm">
-          {{ $t('common.loading') }}
+        <!-- Chargement Skeleton (8 cartes) -->
+        <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <ArchetypeCardSkeleton v-for="i in 8" :key="i" />
         </div>
 
         <!-- Aucun archétype du tout pour ce format -->
