@@ -1,88 +1,75 @@
 # Feuille de Route & Liste des Tâches (Backlog)
 
-Ce document répertorie les tâches et évolutions futures du projet, classées selon **4 niveaux de priorité**.
+Ce document répertorie l'ensemble des chantiers et évolutions du projet, organisés selon **3 niveaux de priorité stratégique**.
 
 ---
 
-## 🔴 Priorité 1 — Correctifs UX & Stabilité Mobile (Immédiat)
+## 🔴 Priorité 1 — Mobile PWA & Expérience Hors-Ligne (Immédiat)
 
-Tâches critiques pour la fluidité et le confort d'utilisation au quotidien, en particulier sur smartphone.
+Amélioration critique de la robustesse et du confort visuel sur smartphone et application installée.
 
-- [x] **Verrouillage du scroll arrière-plan (Body Scroll Lock)**
-  - *Problème :* Lorsqu'une modale, popup ou bottom sheet est ouverte, faire défiler le contenu entraîne souvent le scroll de la page située derrière.
-  - *Solution :* Bloquer le scroll du `body` (via composable dédié `useScrollLock` ou `overflow: hidden` sur `body` / `html` avec compensation de la barre de défilement) à l'ouverture de n'importe quel composant modal ou bottom sheet.
+- [ ] **Correction définitive du flou / voile sur le header iOS en mode PWA**
+  - *Problème :* Sur iOS en mode application installée (PWA standalone), WebKit applique un voile ou flou translucide au niveau de la barre d'état et du dessus de l'en-tête, dégradant la netteté du design sombre.
+  - *Pistes de résolution :*
+    - Éliminer toute interférence de WebKit via un faux bloc de status bar opaque fixe (`div` d'arrière-plan rigide `h-[env(safe-area-inset-top)]` à fond uni).
+    - Tester l'interaction entre `viewport-fit=cover`, `theme-color`, et les variantes de `apple-mobile-web-app-status-bar-style` (`default`, `black-translucent`, ou retrait pour laisser le contrôle à `theme-color`).
+    - Empêcher tout débordement ou propagation d'effet de calque sur l'élément `<header>`.
 
-- [x] **Correction des notifications d'annulation de match sur mobile**
-  - *Problème :* Le toast / bandeau d'annulation ("Annuler le match") peut être mal positionné, tronqué ou masquer des actions clés sur mobile.
-  - *Solution :* Revoir l'ancrage, le z-index, la marge inférieure (`safe-area-inset-bottom`) et s'assurer que le toast d'undo reste parfaitement accessible sans gêner la navigation.
-
-- [x] **Refonte mobile de la section "Historique Récent" (en-tête prioritaire & lignes)**
-  - *Problème :* Sur smartphone, l'en-tête de la section (titre "Historique Récent", sous-compteur de matchs et bouton "Actualiser") rend particulièrement mal visuellement (alignements rigides, texte tronqué ou tassé). La disposition des lignes de matchs peut également être perfectionnée.
-  - *Solution :* Repenser en priorité l'en-tête mobile (titre épuré, badge compteur subtil, bouton actualiser compact avec icône optimisée) et harmoniser la structure des lignes de match en dessous pour un rendu fluide et équilibré.
-
----
-
-## 🟠 Priorité 2 — Nettoyage UI & Hiérarchie Visuelle (Design System)
-
-Épuration de l'interface graphique pour un rendu plus moderne, sobre et respirant.
-
-- [x] **Allègement de la hiérarchie et suppression de la sur-imbrication ("blocs dans des blocs")**
-  - *Problème :* Trop de panneaux imbriqués les uns dans les autres (panneau principal > bloc de section > cartes > sous-blocs) alourdissent la lisibilité.
-  - *Solution :* Aérer l'espace avec de simples séparateurs subtils, un contraste de fond mesuré ou des espaces négatifs plutôt que d'empiler des conteneurs encadrés.
-
-- [x] **Retrait des bordures et arrondis superflus**
-  - *Problème :* Trop de `rounded-*` et bordures cumulées (notamment dans la liste de l'historique récent des matchs).
-  - *Solution :* Adopter un style de liste continue plus épuré (diviseurs simples `divide-y`, sans cartes arrondies isolées pour chaque ligne d'historique).
-
-- [x] **Harmonisation des icônes d'en-tête de modale / bottom sheet**
-  - *Problème :* Les carrés arrondis colorés avec icône dans les en-têtes peuvent faire datés ou chargés.
-  - *Solution :* Explorer une approche plus légère (icône monochrome intégrée au titre, badge épuré, ou absence d'icône pour laisser respirer le titre).
-
-- [x] **Harmonisation de tous les boutons "Actualiser"**
-  - *Solution :* Standardisation de l'ensemble des boutons de rafraîchissement (Dashboard, Archétypes, Administration des jeux) sur le modèle du dashboard (icône SVG réactive compacte sur mobile, texte desktop, padding et styles de hover uniformes).
-
-- [x] **Alignement pleine largeur des actions de compte (Settings)**
-  - *Solution :* Suppression des contraintes `max-w-sm` / `sm:max-w-lg` sur les boutons *Se déconnecter* et *Supprimer mon compte* pour qu'ils épousent exactement la largeur des sections au-dessus sur mobile et desktop.
+- [ ] **Mode Hors-Connexion PWA & Synchronisation Automatique en Base de Données**
+  - *Objectif :* Permettre à un joueur d'utiliser l'application sans interruption dans des lieux à faible réseau (ex: salles de tournois en sous-sol, conventions) :
+    1. **Stockage local des actions :** Enregistrement des matchs, notes et changements de configuration dans le stockage local (IndexedDB via Dexie / idb ou LocalStorage) si `navigator.onLine === false` ou en cas d'échec réseau.
+    2. **File d'attente de synchronisation (Sync Queue) :** Dès que la connexion Internet est rétablie (écouteur `online` et retry automatique), envoi séquentiel des actions en attente vers l'API et la base de données PostgreSQL.
+    3. **Indicateur visuel d'état :** Badge discret indiquant l'état ("Hors ligne", "Synchronisation en cours...", "Tout est synchronisé") avec le nombre d'actions en attente.
+    4. **Cache de consultation :** Mise en cache des archétypes, métas et derniers matchs via le Service Worker pour consulter ses stats et son deck sans aucun chargement.
 
 ---
 
-## 🟡 Priorité 3 — Ergonomie & Expérience d'Édition (Workflows)
+## 🟠 Priorité 2 — Conformité Légale & RGPD (Obligations Européennes)
 
-Amélioration des parcours de saisie et préparation à l'international.
+Mise en conformité juridique complète avant l'ouverture à un public élargi et l'arrivée de la publicité/monétisation.
 
-- [x] **Modal / Bottom Sheet pour la création et l'édition d'archétypes**
-  - *Objectif :* Remplacer le formulaire fixe ou accordéon actuel de la page `/archetypes` par une expérience unifiée en modale (desktop) et bottom sheet (mobile), similaire à la sélection de deck et à l'édition de match.
-  - *Bénéfice :* Cohérence absolue des interactions et libération d'espace visuel sur la page des archétypes.
+- [ ] **Bannière et Gestionnaire de Consentement Cookies / Traceurs (RGPD & ePrivacy)**
+  - *Obligation légale :* Requis dès lors que des cookies tiers, des publicités ou des outils d'analyse d'audience sont intégrés.
+  - *Spécifications :*
+    - Bandeau d'information clair avec choix équilibrés : **« Tout accepter »**, **« Tout refuser »** et **« Paramétrer »**.
+    - Blocage strict de tout chargement de script publicitaire ou analytique tant que l'accord n'a pas été donné.
+    - Mémorisation du choix et possibilité pour l'utilisateur de modifier ses préférences à tout moment depuis les paramètres du compte ou le pied de page.
 
-- [x] **Barre de recherche pour les archétypes (Dashboard Matchups & Page Archétypes)**
-  - *Objectif :* Intégrer un champ de recherche instantané (filtrant par nom d'archétype et noms de cartes clés) :
-    1. Sur la grille des **Matchups** du dashboard principal (retrouver immédiatement un adversaire pour saisir un match sans défiler).
-    2. Sur la page de gestion des **Archétypes** (`/archetypes`).
-  - *Bénéfice :* Saisie et navigation ultra-rapides sur les métas comportant un grand nombre d'archétypes.
+- [ ] **Politique de Confidentialité & Mentions Légales dédiées**
+  - *Obligation légale :* Mise en ligne de pages transparentes accessibles depuis l'application (`/privacy` et `/terms`).
+  - *Contenu :*
+    - Détail des données collectées (compte Discord : pseudo, avatar, ID Discord ; parties saisies, archétypes et statistiques).
+    - Base légale et finalité des traitements (authentification, calcul des statistiques).
+    - Durées de conservation et droits des utilisateurs (accès, rectification, suppression).
 
-- [x] **Internationalisation du site (i18n)**
-  - *Objectif :* Traduction multilingue (ex: FR / EN) via `@nuxtjs/i18n`.
-  - *Règle stricte :* Conserver les termes et boutons de match en anglais universel : `Win`, `Loss` et `Draw` (ne pas les traduire en Victoire / Défaite / Nul).
-
-- [x] **Statistiques globales par archétype et par méta (joué & affronté)**
-  - *Objectif :* Disposer d'une vue d'analyse globale des performances de chaque archétype au sein d'une méta donnée, qu'il soit joué par l'utilisateur ou affronté.
-  - *Indicateurs clés :*
-    - **En tant que deck joué :** Winrate global du joueur avec cet archétype, volume de parties (W/L/D) et historique agrégé.
-    - **En tant qu'adversaire :** Winrate global face à cet archétype (tous mes decks confondus), volume de confrontations et taux de présence global (Show Rate) dans la méta.
-    - Filtrage réactif par jeu et méta sélectionnée pour comparer la performance globale des archétypes.
+- [ ] **Portabilité & Export des Données Utilisateur (Droit d'accès RGPD)**
+  - *Objectif :* Permettre à chaque joueur d'exporter l'intégralité de son historique (matchs, notes, archétypes, winrates) en un clic au format JSON standardisé dans la page des Paramètres.
+  - *Bénéfice :* Respect de l'article 20 du RGPD et garantie pour l'utilisateur de conserver ses données.
 
 ---
 
-## 🟢 Priorité 4 — Partage, Plateforme & Fonctionnalités Avancées
+## 🟡 Priorité 3 — Monétisation, Nom de Domaine & Modèle Économique
 
-Évolutions majeures pour ouvrir l'application vers l'extérieur et améliorer la distribution mobile.
+Assurer la viabilité financière de la plateforme pour couvrir l'achat d'un nom de domaine propre et les coûts d'infrastructure.
 
-- [ ] **Système de partage par lien (Share Link)**
-  - *Objectif :* Pouvoir générer un lien direct pour partager une vue précise, un match, un matchup ou un récapitulatif de deck.
+- [ ] **Page et Système de Don / Soutien (Donateurs & Supporters)**
+  - *Objectif :* Permettre aux joueurs réguliers de soutenir le projet financièrement pour financer le nom de domaine et le serveur.
+  - *Spécifications :*
+    - Création d'une page dédiée `/support` ou `/donate` expliquant les coûts de fonctionnement.
+    - Liens ou intégration simplifiée vers des plateformes reconnues et sécurisées (Ko-fi, Buy Me a Coffee, Stripe Payment Links ou GitHub Sponsors).
+    - Attribution d'un badge ou rôle "Supporter" valorisant l'utilisateur sur son profil et le menu utilisateur.
 
-- [ ] **Profil et statistiques en mode public**
-  - *Objectif :* Permettre à un utilisateur d'exposer son tableau de bord et ses matchups publiquement en lecture seule sans exiger de compte aux visiteurs.
+- [ ] **Intégration d'Espaces Publicitaires Éthiques et Non-Intrusifs**
+  - *Objectif :* Monétiser l'audience gratuite sans dégrader l'ergonomie de jeu :
+    - Emplacements discrets (ex: bas de page ou encart dédié dans les statistiques), sans jamais bloquer la saisie rapide des matchs.
+    - Intégration d'une régie publicitaire conforme (Google AdSense, EthicalAds ou régie orientée TCG).
+    - Conditionnement direct au consentement préalable des cookies publicitaires (RGPD).
 
-- [x] **Transformation en Progressive Web App (PWA)**
-  - *Objectif :* Installation de l'application sur l'écran d'accueil (iOS / Android) sans passer par les stores.
-  - *Spécifications :* Web App Manifest, icônes d'application, thème splash screen, mode plein écran autonome (`standalone`) et mise en cache hors-ligne de base.
+- [ ] **Avantage Supporter : Expérience 100% sans publicité (Ad-Free)**
+  - *Spécification :* Désactivation automatique de tous les encarts publicitaires pour les utilisateurs ayant fait un don ou disposant du statut "Supporter" (champ booléen `isSupporter` en base de données).
+
+- [ ] **Migration & Déploiement sur Nom de Domaine Personnalisé**
+  - *Spécifications :*
+    - Configuration DNS (A/CNAME), certificat SSL automatique (Let's Encrypt / Cloudflare).
+    - Adaptation des URLs de redirection OAuth Discord (`NUXT_OAUTH_DISCORD_REDIRECT_URL`).
+    - Mise à jour des balises canonical, Open Graph URL absolue et génération automatique d'un `sitemap.xml` et `robots.txt` optimisés.
