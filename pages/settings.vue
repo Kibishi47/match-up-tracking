@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { usePwaInstall } from '~/composables/usePwaInstall'
+
 definePageMeta({
   middleware: 'auth'
 })

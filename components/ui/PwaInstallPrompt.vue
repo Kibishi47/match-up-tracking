@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Download, X, Share, PlusSquare, Sparkles, RefreshCw } from 'lucide-vue-next'
+import { usePwaInstall } from '~/composables/usePwaInstall'
 
 const { $pwa } = useNuxtApp()
 const { t } = useI18n()
