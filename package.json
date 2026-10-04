@@ -33,7 +33,9 @@
   },
   "devDependencies": {
     "@types/node": "^22.13.4",
+    "@vite-pwa/nuxt": "^1.1.1",
     "drizzle-kit": "^0.30.4",
+    "sharp": "^0.35.5",
     "tsx": "^4.19.3"
   }
 }

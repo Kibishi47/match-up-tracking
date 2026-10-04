@@ -366,6 +366,20 @@
       "reset_search": "Reset search"
     }
   },
+  "pwa": {
+    "install_app": "Install App",
+    "install_title": "Install Metadex",
+    "install_desc": "Install the app on your home screen for instant access and a full-screen experience.",
+    "install_btn": "Install",
+    "dismiss": "Maybe later",
+    "ios_instruction_title": "Install on iOS",
+    "ios_instruction_step1": "Tap the Share button in Safari",
+    "ios_instruction_step2": "Scroll down and tap \"Add to Home Screen\"",
+    "ios_instruction_step3": "Tap \"Add\" in the top right corner",
+    "app_ready_offline": "App ready to work offline.",
+    "update_available": "A new version of Metadex is available.",
+    "reload": "Reload"
+  },
   "common": {
     "close": "Close",
     "cancel": "Cancel",

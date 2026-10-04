@@ -83,6 +83,6 @@ Amélioration des parcours de saisie et préparation à l'international.
 - [ ] **Profil et statistiques en mode public**
   - *Objectif :* Permettre à un utilisateur d'exposer son tableau de bord et ses matchups publiquement en lecture seule sans exiger de compte aux visiteurs.
 
-- [ ] **Transformation en Progressive Web App (PWA)**
+- [x] **Transformation en Progressive Web App (PWA)**
   - *Objectif :* Installation de l'application sur l'écran d'accueil (iOS / Android) sans passer par les stores.
   - *Spécifications :* Web App Manifest, icônes d'application, thème splash screen, mode plein écran autonome (`standalone`) et mise en cache hors-ligne de base.

@@ -32,9 +32,20 @@
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-/* Safe area padding pour la navigation mobile */
+/* Safe area padding pour la navigation mobile et le mode PWA autonome */
 .pb-safe {
   padding-bottom: max(env(safe-area-inset-bottom, 0px), 0.5rem);
+}
+
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* En mode PWA standalone iOS, étendre l'en-tête sous la barre d'état */
+@supports (padding-top: env(safe-area-inset-top)) {
+  header.glass-panel {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
 }
 
 /* Empêcher le zoom automatique sur iOS Safari lors du focus sur les champs de formulaire */
