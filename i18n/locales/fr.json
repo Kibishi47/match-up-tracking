@@ -287,7 +287,7 @@
     "pwa_installed_desc": "Vous utilisez actuellement Metadex en mode application autonome.",
     "pwa_install_btn": "Installer l'application",
     "pwa_install_card_title": "Installer Metadex sur cet appareil",
-    "pwa_install_card_desc": "Profitez d'un affichage plein écran, de performances optimales et d'une utilisation hors-ligne.",
+    "pwa_install_card_desc": "Profitez d'un affichage plein écran, de performances optimales et d'un accès direct depuis votre écran d'accueil.",
     "account_title": "Compte & Session",
     "account_desc": "Gestion de votre compte connecté",
     "logout": "Se déconnecter",
@@ -394,7 +394,7 @@
     "android_instruction_step1": "Appuyez sur le menu (icône ⋮ en haut à droite)",
     "android_instruction_step2": "Choisissez « Installer l'application » ou « Ajouter à l'écran d'accueil »",
     "android_instruction_step3": "Validez en appuyant sur « Installer »",
-    "app_ready_offline": "Application prête pour une utilisation hors-ligne.",
+    "app_ready_offline": "Mise à jour prête à être activée.",
     "update_available": "Une nouvelle mise à jour est disponible.",
     "reload": "Recharger"
   },
