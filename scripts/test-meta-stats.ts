@@ -185,19 +185,17 @@ async function runTests() {
       for (const id of archIds) {
         const acc = accMap.get(id)!
         const playedTotal = acc.playedWins + acc.playedLosses + acc.playedDraws
-        const playedDecided = acc.playedWins + acc.playedLosses
-        const playedWinrate = playedDecided > 0 ? Math.round((acc.playedWins / playedDecided) * 100) : null
+        const playedWinrate = playedTotal > 0 ? Math.round((acc.playedWins / playedTotal) * 100) : null
 
         const facedTotal = acc.facedWins + acc.facedLosses + acc.facedDraws
-        const facedDecided = acc.facedWins + acc.facedLosses
-        const facedWinrate = facedDecided > 0 ? Math.round((acc.facedWins / facedDecided) * 100) : null
+        const facedWinrate = facedTotal > 0 ? Math.round((acc.facedWins / facedTotal) * 100) : null
         const showRate = totalMetaMatches > 0 ? Math.round((facedTotal / totalMetaMatches) * 100) : 0
 
         const archWins = acc.playedWins + acc.facedLosses
         const archLosses = acc.playedLosses + acc.facedWins
         const archDraws = acc.playedDraws + acc.facedDraws
-        const archDecided = archWins + archLosses
-        const overallWinrate = archDecided > 0 ? Math.round((archWins / archDecided) * 100) : 0
+        const archTotal = archWins + archLosses + archDraws
+        const overallWinrate = archTotal > 0 ? Math.round((archWins / archTotal) * 100) : 0
 
         const distinctMatches = acc.distinctMatchIds.size
         const presenceRate = totalMetaMatches > 0 ? Math.round((distinctMatches / totalMetaMatches) * 100) : 0
@@ -357,6 +355,46 @@ async function runTests() {
     console.log(`[PASS] Weak deck has strictly 0% WR (lost as played & lost as faced)`)
     console.log(`[PASS] Strong deck has strictly 100% WR (won as played & won as faced)`)
 
+    // --- TEST SUITE 4: Draws Taking into Account (Win / Total Matches) ---
+    console.log('\n--- Test 4: Draws in Win Rate Calculations ---')
+    // Match 7: Player with Deck A vs Deck B -> Draw
+    const [m7] = await db.insert(matches).values({
+      matchupId: muAvsB.id,
+      userId: testUserId,
+      format: 'bo1',
+      result: 'draw',
+      game1: 'draw'
+    }).returning()
+    createdMatchIds.push(m7.id)
+
+    // Test a sample with 1 Win and 1 Draw:
+    // Deck X plays 2 matches: 1 win, 1 draw
+    const drawSampleMatches = [
+      { id: 'sample-1', result: 'win', myArchetypeId: deckAId, opponentArchetypeId: deckBId },
+      { id: 'sample-2', result: 'draw', myArchetypeId: deckAId, opponentArchetypeId: deckBId }
+    ]
+    const drawSampleStats = computeStats(drawSampleMatches, [deckAId, deckBId])
+    const deckADrawStat = drawSampleStats.get(deckAId)
+    // 1 win / 2 total matches = 50% WR (and NOT 1 / (1 + 0) = 100%)
+    if (deckADrawStat.played.winrate !== 50) {
+      throw new Error(`Draw WR failed: expected 50% for 1W-0L-1D, got ${deckADrawStat.played.winrate}%`)
+    }
+    if (deckADrawStat.overall.winrate !== 50) {
+      throw new Error(`Overall Draw WR failed: expected 50% for 1W-0L-1D, got ${deckADrawStat.overall.winrate}%`)
+    }
+    console.log(`[PASS] Sample with 1 Win and 1 Draw yields strictly 50% WR (wins / total matches, properly accounting for draws)`)
+
+    // Mirror match ending in draw:
+    const mirrorDrawMatches = [
+      { id: 'sample-mirror-draw', result: 'draw', myArchetypeId: deckAId, opponentArchetypeId: deckAId }
+    ]
+    const mirrorDrawStats = computeStats(mirrorDrawMatches, [deckAId])
+    const mirrorDrawStat = mirrorDrawStats.get(deckAId)
+    if (mirrorDrawStat.overall.winrate !== 0 || mirrorDrawStat.overall.draws !== 2) {
+      throw new Error(`Mirror Draw WR failed: expected 0% WR with 2 draws, got ${mirrorDrawStat.overall.winrate}%`)
+    }
+    console.log(`[PASS] Mirror match draw yields 0% WR and 2 archetype draws`)
+
     // Verify against database query execution as in server/api/stats/meta.get.ts
     const dbMatches = await db
       .select({
@@ -369,11 +407,11 @@ async function runTests() {
       .innerJoin(matchups, eq(matches.matchupId, matchups.id))
       .where(and(eq(matches.userId, testUserId), eq(matchups.metaId, testMetaId)))
 
-    if (dbMatches.length !== 6) {
-      throw new Error(`Expected 6 matches in DB, got ${dbMatches.length}`)
+    if (dbMatches.length !== 7) {
+      throw new Error(`Expected 7 matches in DB, got ${dbMatches.length}`)
     }
     const fullDbStats = computeStats(dbMatches, [deckAId, deckBId, deckCId, deckWeakId, deckStrongId])
-    console.log('[PASS] Full database query and calculation verified for all 5 archetypes and 6 matches')
+    console.log('[PASS] Full database query and calculation verified for all 5 archetypes and 7 matches')
 
     console.log('\n--- ALL VERIFICATION TESTS PASSED SUCCESSFULLY! ---')
   } finally {

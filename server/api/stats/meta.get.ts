@@ -236,16 +236,14 @@ export default defineEventHandler(async (event): Promise<FormatStatsResponse> =>
 
     // A. Bilan Joueur (DECK JOUÉ)
     const playedTotal = acc.playedWins + acc.playedLosses + acc.playedDraws
-    const playedDecided = acc.playedWins + acc.playedLosses
-    const playedWinrate = playedDecided > 0
-      ? Math.round((acc.playedWins / playedDecided) * 100)
+    const playedWinrate = playedTotal > 0
+      ? Math.round((acc.playedWins / playedTotal) * 100)
       : null
 
     // B. Bilan Adversaire (ADVERSAIRE)
     const facedTotal = acc.facedWins + acc.facedLosses + acc.facedDraws
-    const facedDecided = acc.facedWins + acc.facedLosses
-    const facedWinrate = facedDecided > 0
-      ? Math.round((acc.facedWins / facedDecided) * 100)
+    const facedWinrate = facedTotal > 0
+      ? Math.round((acc.facedWins / facedTotal) * 100)
       : null
     const showRate = totalMetaMatches > 0
       ? Math.round((facedTotal / totalMetaMatches) * 100)
@@ -257,9 +255,9 @@ export default defineEventHandler(async (event): Promise<FormatStatsResponse> =>
     // L_arch = L_joué + W_affronté (le deck perd quand le joueur perd avec OU quand le joueur bat l'adversaire qui le jouait)
     const archLosses = acc.playedLosses + acc.facedWins
     const archDraws = acc.playedDraws + acc.facedDraws
-    const archDecided = archWins + archLosses
-    const overallWinrate = archDecided > 0
-      ? Math.round((archWins / archDecided) * 100)
+    const archTotal = archWins + archLosses + archDraws
+    const overallWinrate = archTotal > 0
+      ? Math.round((archWins / archTotal) * 100)
       : 0
 
     // D. Présence Méta & Volume dédoublonné
@@ -330,9 +328,8 @@ export default defineEventHandler(async (event): Promise<FormatStatsResponse> =>
     }
   }
 
-  const metaDecided = totalMetaWins + totalMetaLosses
-  const overallMetaWinrate = metaDecided > 0
-    ? Math.round((totalMetaWins / metaDecided) * 100)
+  const overallMetaWinrate = totalMetaMatches > 0
+    ? Math.round((totalMetaWins / totalMetaMatches) * 100)
     : 0
 
   return {
