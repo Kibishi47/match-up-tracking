@@ -41,13 +41,6 @@
   padding-top: env(safe-area-inset-top, 0px);
 }
 
-/* En mode PWA standalone iOS, étendre l'en-tête sous la barre d'état */
-@supports (padding-top: env(safe-area-inset-top)) {
-  header.glass-panel {
-    padding-top: env(safe-area-inset-top, 0px);
-  }
-}
-
 /* Empêcher le zoom automatique sur iOS Safari lors du focus sur les champs de formulaire */
 @media screen and (max-width: 768px) {
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),

@@ -13,7 +13,7 @@ const isGameMetaModalOpen = ref(false)
 </script>
 
 <template>
-  <header class="glass-panel border-b border-slate-200/80 dark:border-slate-800/80 sticky top-0 z-40 bg-white/85 dark:bg-slate-950/85 backdrop-blur-md">
+  <header class="border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40 bg-white dark:bg-slate-950 transition-colors">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
       <!-- Logo & Navigation -->
       <div class="flex items-center gap-3 sm:gap-6 min-w-0">
