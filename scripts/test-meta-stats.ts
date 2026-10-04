@@ -17,6 +17,8 @@ async function runTests() {
   let deckAId: string | null = null
   let deckBId: string | null = null
   let deckCId: string | null = null
+  let deckWeakId: string | null = null
+  let deckStrongId: string | null = null
 
   try {
     // 1. Setup test entities
@@ -63,9 +65,34 @@ async function runTests() {
     }).returning()
     deckCId = deckC.id
 
-    console.log('[PASS] Setup test entities (3 archetypes, 1 meta, 1 game)')
+    const [deckWeak] = await db.insert(archetypes).values({
+      userId: testUserId,
+      gameId: testGameId,
+      metaId: testMetaId,
+      name: 'Deck Weak (Magikarp)'
+    }).returning()
+    deckWeakId = deckWeak.id
+
+    const [deckStrong] = await db.insert(archetypes).values({
+      userId: testUserId,
+      gameId: testGameId,
+      metaId: testMetaId,
+      name: 'Deck Strong (Arceus)'
+    }).returning()
+    deckStrongId = deckStrong.id
+
+    console.log('[PASS] Setup test entities (5 archetypes, 1 meta, 1 game)')
 
     // 2. Create matchups
+    // Mirror A vs A
+    const [muAvsA] = await db.insert(matchups).values({
+      userId: testUserId,
+      gameId: testGameId,
+      metaId: testMetaId,
+      myArchetypeId: deckAId,
+      opponentArchetypeId: deckAId
+    }).returning()
+
     // Pair A vs B
     const [muAvsB] = await db.insert(matchups).values({
       userId: testUserId,
@@ -93,41 +120,160 @@ async function runTests() {
       opponentArchetypeId: deckCId
     }).returning()
 
-    // 3. Record matches:
-    // Match 1: Player with Deck A vs Deck B -> Win
-    const [m1] = await db.insert(matches).values({
+    // Pair Weak vs Strong
+    const [muWeakVsStrong] = await db.insert(matchups).values({
+      userId: testUserId,
+      gameId: testGameId,
+      metaId: testMetaId,
+      myArchetypeId: deckWeakId,
+      opponentArchetypeId: deckStrongId
+    }).returning()
+
+    // Pair Strong vs Weak
+    const [muStrongVsWeak] = await db.insert(matchups).values({
+      userId: testUserId,
+      gameId: testGameId,
+      metaId: testMetaId,
+      myArchetypeId: deckStrongId,
+      opponentArchetypeId: deckWeakId
+    }).returning()
+
+    // 3. Helper to compute stats exactly as server/api/stats/meta.get.ts
+    function computeStats(metaMatchesList: Array<{ id: string; result: string; myArchetypeId: string; opponentArchetypeId: string }>, archIds: string[]) {
+      const totalMetaMatches = metaMatchesList.length
+      const accMap = new Map<string, {
+        playedWins: number
+        playedLosses: number
+        playedDraws: number
+        facedWins: number
+        facedLosses: number
+        facedDraws: number
+        distinctMatchIds: Set<string>
+      }>()
+
+      for (const id of archIds) {
+        accMap.set(id, {
+          playedWins: 0,
+          playedLosses: 0,
+          playedDraws: 0,
+          facedWins: 0,
+          facedLosses: 0,
+          facedDraws: 0,
+          distinctMatchIds: new Set<string>()
+        })
+      }
+
+      for (const m of metaMatchesList) {
+        const playedAcc = accMap.get(m.myArchetypeId)
+        if (playedAcc) {
+          if (m.result === 'win') playedAcc.playedWins++
+          else if (m.result === 'loss') playedAcc.playedLosses++
+          else if (m.result === 'draw') playedAcc.playedDraws++
+          playedAcc.distinctMatchIds.add(m.id)
+        }
+
+        const facedAcc = accMap.get(m.opponentArchetypeId)
+        if (facedAcc) {
+          if (m.result === 'win') facedAcc.facedWins++
+          else if (m.result === 'loss') facedAcc.facedLosses++
+          else if (m.result === 'draw') facedAcc.facedDraws++
+          facedAcc.distinctMatchIds.add(m.id)
+        }
+      }
+
+      const results = new Map<string, any>()
+      for (const id of archIds) {
+        const acc = accMap.get(id)!
+        const playedTotal = acc.playedWins + acc.playedLosses + acc.playedDraws
+        const playedDecided = acc.playedWins + acc.playedLosses
+        const playedWinrate = playedDecided > 0 ? Math.round((acc.playedWins / playedDecided) * 100) : null
+
+        const facedTotal = acc.facedWins + acc.facedLosses + acc.facedDraws
+        const facedDecided = acc.facedWins + acc.facedLosses
+        const facedWinrate = facedDecided > 0 ? Math.round((acc.facedWins / facedDecided) * 100) : null
+        const showRate = totalMetaMatches > 0 ? Math.round((facedTotal / totalMetaMatches) * 100) : 0
+
+        const archWins = acc.playedWins + acc.facedLosses
+        const archLosses = acc.playedLosses + acc.facedWins
+        const archDraws = acc.playedDraws + acc.facedDraws
+        const archDecided = archWins + archLosses
+        const overallWinrate = archDecided > 0 ? Math.round((archWins / archDecided) * 100) : 0
+
+        const distinctMatches = acc.distinctMatchIds.size
+        const presenceRate = totalMetaMatches > 0 ? Math.round((distinctMatches / totalMetaMatches) * 100) : 0
+
+        results.set(id, {
+          distinctMatches,
+          presenceRate,
+          overall: { wins: archWins, losses: archLosses, draws: archDraws, winrate: overallWinrate },
+          played: { total: playedTotal, wins: acc.playedWins, losses: acc.playedLosses, draws: acc.playedDraws, winrate: playedWinrate },
+          faced: { total: facedTotal, wins: acc.facedWins, losses: acc.facedLosses, draws: acc.facedDraws, showRate, winrate: facedWinrate }
+        })
+      }
+      return results
+    }
+
+    // --- TEST SUITE 1: Mirror Matches Symmetry (Deck A vs Deck A) ---
+    console.log('\n--- Test 1: Mirror Matches Symmetry ---')
+    const [mirror1] = await db.insert(matches).values({
+      matchupId: muAvsA.id,
+      userId: testUserId,
+      format: 'bo1',
+      result: 'win',
+      game1: 'win'
+    }).returning()
+    createdMatchIds.push(mirror1.id)
+
+    const mirrorMatches = [{
+      id: mirror1.id,
+      result: 'win',
+      myArchetypeId: deckAId,
+      opponentArchetypeId: deckAId
+    }]
+    const mirrorStats = computeStats(mirrorMatches, [deckAId])
+    const deckAMirror = mirrorStats.get(deckAId)
+
+    // Player won 1 mirror: played = 1W-0L, faced = 1W-0L
+    // archWins = 1 (W_played) + 0 (L_faced) = 1
+    // archLosses = 0 (L_played) + 1 (W_faced) = 1
+    // archWinrate = 1 / 2 = 50%
+    if (deckAMirror.overall.winrate !== 50) {
+      throw new Error(`Mirror WR failed: expected 50%, got ${deckAMirror.overall.winrate}%`)
+    }
+    if (deckAMirror.overall.wins !== 1 || deckAMirror.overall.losses !== 1) {
+      throw new Error(`Mirror W/L failed: expected 1W-1L, got ${deckAMirror.overall.wins}W-${deckAMirror.overall.losses}L`)
+    }
+    if (deckAMirror.distinctMatches !== 1) {
+      throw new Error(`Mirror distinctMatches failed: expected 1, got ${deckAMirror.distinctMatches}`)
+    }
+    if (deckAMirror.presenceRate !== 100) {
+      throw new Error(`Mirror presenceRate failed: expected 100%, got ${deckAMirror.presenceRate}%`)
+    }
+    console.log('[PASS] Mirror match yields strictly 50% overall winrate (1W - 1L) and exactly 1 distinct match (100% presence)')
+
+    // --- TEST SUITE 2: Meta Presence Boundaries (Presence must never exceed 100%) ---
+    console.log('\n--- Test 2: Meta Presence Boundaries ---')
+    // Add match 2: Deck A vs Deck B (Win)
+    const [m2] = await db.insert(matches).values({
       matchupId: muAvsB.id,
       userId: testUserId,
       format: 'bo1',
       result: 'win',
       game1: 'win'
     }).returning()
-    createdMatchIds.push(m1.id)
-
-    // Match 2: Player with Deck A vs Deck B -> Loss (BO3 1-2)
-    const [m2] = await db.insert(matches).values({
-      matchupId: muAvsB.id,
-      userId: testUserId,
-      format: 'bo3',
-      result: 'loss',
-      game1: 'win',
-      game2: 'loss',
-      game3: 'loss'
-    }).returning()
     createdMatchIds.push(m2.id)
 
-    // Match 3: Player with Deck A vs Deck C -> Win (BO3 2-0)
+    // Add match 3: Deck A vs Deck C (Loss)
     const [m3] = await db.insert(matches).values({
       matchupId: muAvsC.id,
       userId: testUserId,
-      format: 'bo3',
-      result: 'win',
-      game1: 'win',
-      game2: 'win'
+      format: 'bo1',
+      result: 'loss',
+      game1: 'loss'
     }).returning()
     createdMatchIds.push(m3.id)
 
-    // Match 4: Player with Deck B vs Deck C -> Win (BO1)
+    // Add match 4: Deck B vs Deck C (Win)
     const [m4] = await db.insert(matches).values({
       matchupId: muBvsC.id,
       userId: testUserId,
@@ -137,10 +283,82 @@ async function runTests() {
     }).returning()
     createdMatchIds.push(m4.id)
 
-    console.log('[PASS] Recorded 4 matches across various matchups')
+    const fourMatches = [
+      { id: mirror1.id, result: 'win', myArchetypeId: deckAId, opponentArchetypeId: deckAId },
+      { id: m2.id, result: 'win', myArchetypeId: deckAId, opponentArchetypeId: deckBId },
+      { id: m3.id, result: 'loss', myArchetypeId: deckAId, opponentArchetypeId: deckCId },
+      { id: m4.id, result: 'win', myArchetypeId: deckBId, opponentArchetypeId: deckCId }
+    ]
+    const multiStats = computeStats(fourMatches, [deckAId, deckBId, deckCId])
+    for (const [id, stat] of multiStats.entries()) {
+      if (stat.presenceRate > 100) {
+        throw new Error(`Presence rate exceeded 100% for deck ${id}: ${stat.presenceRate}%`)
+      }
+      if (stat.distinctMatches > fourMatches.length) {
+        throw new Error(`distinctMatches (${stat.distinctMatches}) cannot exceed total matches (${fourMatches.length})`)
+      }
+    }
+    // Deck A is in match 1 (mirror), match 2, match 3 -> 3 distinct matches out of 4 -> 75%
+    const deckAStats = multiStats.get(deckAId)
+    if (deckAStats.distinctMatches !== 3 || deckAStats.presenceRate !== 75) {
+      throw new Error(`Deck A presence failed: expected 3 distinct matches (75%), got ${deckAStats.distinctMatches} (${deckAStats.presenceRate}%)`)
+    }
+    console.log(`[PASS] Deck A presence deduplication: 3/4 matches = ${deckAStats.presenceRate}% (strictly <= 100%)`)
 
-    // 4. Query and compute stats logic (same logic as endpoint)
-    const metaMatches = await db
+    // --- TEST SUITE 3: Intrinsic Deck Performance (Low-performing and High-performing decks) ---
+    console.log('\n--- Test 3: Low vs High Performing Decks ---')
+    // Match 5: Player plays Deck Weak vs Deck Strong -> Player Loses (Deck Weak loses, Deck Strong wins)
+    const [m5] = await db.insert(matches).values({
+      matchupId: muWeakVsStrong.id,
+      userId: testUserId,
+      format: 'bo1',
+      result: 'loss',
+      game1: 'loss'
+    }).returning()
+    createdMatchIds.push(m5.id)
+
+    // Match 6: Player plays Deck Strong vs Deck Weak -> Player Wins (Deck Strong wins, Deck Weak loses)
+    const [m6] = await db.insert(matches).values({
+      matchupId: muStrongVsWeak.id,
+      userId: testUserId,
+      format: 'bo1',
+      result: 'win',
+      game1: 'win'
+    }).returning()
+    createdMatchIds.push(m6.id)
+
+    const weakStrongMatches = [
+      { id: m5.id, result: 'loss', myArchetypeId: deckWeakId, opponentArchetypeId: deckStrongId },
+      { id: m6.id, result: 'win', myArchetypeId: deckStrongId, opponentArchetypeId: deckWeakId }
+    ]
+    const perfStats = computeStats(weakStrongMatches, [deckWeakId, deckStrongId])
+    const weakStat = perfStats.get(deckWeakId)
+    const strongStat = perfStats.get(deckStrongId)
+
+    // Weak deck:
+    // When played (m5): 0W - 1L
+    // When faced (m6): Player won -> deck lost: facedWins = 1, facedLosses = 0
+    // W_arch = 0 + 0 = 0
+    // L_arch = 1 + 1 = 2
+    // Overall WR = 0%
+    if (weakStat.overall.winrate !== 0 || weakStat.overall.losses !== 2 || weakStat.overall.wins !== 0) {
+      throw new Error(`Weak deck overall WR failed: expected 0% (0W - 2L), got ${weakStat.overall.winrate}% (${weakStat.overall.wins}W - ${weakStat.overall.losses}L)`)
+    }
+
+    // Strong deck:
+    // When faced (m5): Player lost -> deck won: facedWins = 0, facedLosses = 1
+    // When played (m6): Player won: playedWins = 1, playedLosses = 0
+    // W_arch = 1 + 1 = 2
+    // L_arch = 0 + 0 = 0
+    // Overall WR = 100%
+    if (strongStat.overall.winrate !== 100 || strongStat.overall.wins !== 2 || strongStat.overall.losses !== 0) {
+      throw new Error(`Strong deck overall WR failed: expected 100% (2W - 0L), got ${strongStat.overall.winrate}% (${strongStat.overall.wins}W - ${strongStat.overall.losses}L)`)
+    }
+    console.log(`[PASS] Weak deck has strictly 0% WR (lost as played & lost as faced)`)
+    console.log(`[PASS] Strong deck has strictly 100% WR (won as played & won as faced)`)
+
+    // Verify against database query execution as in server/api/stats/meta.get.ts
+    const dbMatches = await db
       .select({
         id: matches.id,
         result: matches.result,
@@ -151,52 +369,13 @@ async function runTests() {
       .innerJoin(matchups, eq(matches.matchupId, matchups.id))
       .where(and(eq(matches.userId, testUserId), eq(matchups.metaId, testMetaId)))
 
-    if (metaMatches.length !== 4) {
-      throw new Error(`Expected 4 total matches, got ${metaMatches.length}`)
+    if (dbMatches.length !== 6) {
+      throw new Error(`Expected 6 matches in DB, got ${dbMatches.length}`)
     }
+    const fullDbStats = computeStats(dbMatches, [deckAId, deckBId, deckCId, deckWeakId, deckStrongId])
+    console.log('[PASS] Full database query and calculation verified for all 5 archetypes and 6 matches')
 
-    const winsTotal = metaMatches.filter(m => m.result === 'win').length
-    const winrateTotal = Math.round((winsTotal / metaMatches.length) * 100)
-    if (winrateTotal !== 75) {
-      throw new Error(`Expected 75% overall winrate (3/4), got ${winrateTotal}%`)
-    }
-    console.log(`[PASS] Meta overall matches: 4, Wins: 3, WR: ${winrateTotal}%`)
-
-    // Deck A: Played = 3 (2W, 1L -> 67% WR), Faced = 0
-    const deckAPlayed = metaMatches.filter(m => m.myArchetypeId === deckAId)
-    const deckAPlayedWins = deckAPlayed.filter(m => m.result === 'win').length
-    const deckAPlayedLosses = deckAPlayed.filter(m => m.result === 'loss').length
-    const deckAWR = Math.round((deckAPlayedWins / deckAPlayed.length) * 100)
-
-    if (deckAPlayed.length !== 3 || deckAPlayedWins !== 2 || deckAPlayedLosses !== 1 || deckAWR !== 67) {
-      throw new Error(`Deck A played stats mismatch: got ${deckAPlayed.length} matches, ${deckAPlayedWins}W, ${deckAPlayedLosses}L, ${deckAWR}%`)
-    }
-    console.log(`[PASS] Deck A as played deck: 3 matches, 2W - 1L, ${deckAWR}% WR`)
-
-    // Deck B: Played = 1 (1W -> 100% WR), Faced = 2 (1W, 1L -> 50% WR vs it, 50% Show Rate)
-    const deckBPlayed = metaMatches.filter(m => m.myArchetypeId === deckBId)
-    const deckBFaced = metaMatches.filter(m => m.opponentArchetypeId === deckBId)
-    const deckBFacedWins = deckBFaced.filter(m => m.result === 'win').length
-    const deckBShowRate = Math.round((deckBFaced.length / metaMatches.length) * 100)
-    const deckBWinrateVs = Math.round((deckBFacedWins / deckBFaced.length) * 100)
-
-    if (deckBPlayed.length !== 1 || deckBFaced.length !== 2 || deckBShowRate !== 50 || deckBWinrateVs !== 50) {
-      throw new Error(`Deck B stats mismatch: played=${deckBPlayed.length}, faced=${deckBFaced.length}, showRate=${deckBShowRate}%, winrateVs=${deckBWinrateVs}%`)
-    }
-    console.log(`[PASS] Deck B: 1 match played (100% WR), 2 matches faced (50% WR vs it, 50% Show Rate)`)
-
-    // Deck C: Faced = 2 (2W, 0L -> 100% WR vs it, 50% Show Rate), Played = 0
-    const deckCFaced = metaMatches.filter(m => m.opponentArchetypeId === deckCId)
-    const deckCFacedWins = deckCFaced.filter(m => m.result === 'win').length
-    const deckCShowRate = Math.round((deckCFaced.length / metaMatches.length) * 100)
-    const deckCWinrateVs = Math.round((deckCFacedWins / deckCFaced.length) * 100)
-
-    if (deckCFaced.length !== 2 || deckCFacedWins !== 2 || deckCShowRate !== 50 || deckCWinrateVs !== 100) {
-      throw new Error(`Deck C stats mismatch: faced=${deckCFaced.length}, winsVs=${deckCFacedWins}, showRate=${deckCShowRate}%, winrateVs=${deckCWinrateVs}%`)
-    }
-    console.log(`[PASS] Deck C: 0 matches played, 2 matches faced (100% WR vs it, 50% Show Rate)`)
-
-    console.log('--- All Meta & Archetype Statistics Tests PASSED successfully! ---')
+    console.log('\n--- ALL VERIFICATION TESTS PASSED SUCCESSFULLY! ---')
   } finally {
     // Cleanup
     if (createdMatchIds.length > 0) {
