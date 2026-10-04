@@ -21,7 +21,6 @@ export const users = pgTable('users', {
 export const games = pgTable('games', {
   id: uuid('id').defaultRandom().primaryKey(),
   name: text('name').notNull().unique(),
-  slug: text('slug').notNull().unique(),
   logoUrl: text('logo_url'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()

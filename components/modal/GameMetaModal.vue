@@ -353,7 +353,6 @@ const { sheetRef, sheetStyle, backdropStyle, dragHandleProps, isDragging, isDrag
                       {{ $t('game_meta_modal.current_badge') }}
                     </span>
                   </div>
-                  <span class="text-xs text-slate-400 dark:text-slate-500">{{ game.slug }}</span>
                 </div>
                 <div v-if="selectedGameId === game.id" class="w-2.5 h-2.5 rounded-full bg-indigo-500 shadow-sm shadow-indigo-500/80"></div>
               </button>

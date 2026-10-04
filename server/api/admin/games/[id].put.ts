@@ -1,7 +1,6 @@
 import { and, eq, ne } from 'drizzle-orm'
 import { useDb, games } from '../../../db'
 import { requireAdminUser } from '../../../utils/auth'
-import { slugify } from '../../../utils/slug'
 
 export default defineEventHandler(async (event) => {
   await requireAdminUser(event)
@@ -23,27 +22,23 @@ export default defineEventHandler(async (event) => {
   }
 
   const name = body.name.trim()
-  const slug = (body.slug && typeof body.slug === 'string' && body.slug.trim())
-    ? slugify(body.slug)
-    : slugify(name)
-
   const logoUrl = body.logoUrl !== undefined
     ? (typeof body.logoUrl === 'string' && body.logoUrl.trim() !== '' ? body.logoUrl.trim() : null)
     : undefined
 
   const db = useDb()
 
-  // Vérifier si le slug est utilisé par un autre jeu
+  // Vérifier si le nom est utilisé par un autre jeu
   const conflict = await db
     .select()
     .from(games)
-    .where(and(eq(games.slug, slug), ne(games.id, gameId)))
+    .where(and(eq(games.name, name), ne(games.id, gameId)))
     .limit(1)
 
   if (conflict.length > 0) {
     throw createError({
       statusCode: 409,
-      statusMessage: `Un autre jeu utilise déjà le slug "${slug}"`
+      statusMessage: `Un autre jeu utilise déjà le nom "${name}"`
     })
   }
 
@@ -51,7 +46,6 @@ export default defineEventHandler(async (event) => {
     .update(games)
     .set({
       name,
-      slug,
       ...(logoUrl !== undefined ? { logoUrl } : {}),
       updatedAt: new Date()
     })

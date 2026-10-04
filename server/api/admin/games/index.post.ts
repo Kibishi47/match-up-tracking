@@ -1,7 +1,6 @@
 import { eq } from 'drizzle-orm'
 import { useDb, games } from '../../../db'
 import { requireAdminUser } from '../../../utils/auth'
-import { slugify } from '../../../utils/slug'
 
 export default defineEventHandler(async (event) => {
   await requireAdminUser(event)
@@ -15,27 +14,23 @@ export default defineEventHandler(async (event) => {
   }
 
   const name = body.name.trim()
-  const slug = (body.slug && typeof body.slug === 'string' && body.slug.trim())
-    ? slugify(body.slug)
-    : slugify(name)
-
   const logoUrl = body.logoUrl && typeof body.logoUrl === 'string'
     ? body.logoUrl.trim()
     : null
 
   const db = useDb()
 
-  // Vérifier si le slug existe déjà
+  // Vérifier si un jeu avec le même nom existe déjà
   const existing = await db
     .select()
     .from(games)
-    .where(eq(games.slug, slug))
+    .where(eq(games.name, name))
     .limit(1)
 
   if (existing.length > 0) {
     throw createError({
       statusCode: 409,
-      statusMessage: `Un jeu avec l'identifiant slug "${slug}" existe déjà`
+      statusMessage: `Un jeu avec le nom "${name}" existe déjà`
     })
   }
 
@@ -43,7 +38,6 @@ export default defineEventHandler(async (event) => {
     .insert(games)
     .values({
       name,
-      slug,
       logoUrl
     })
     .returning()

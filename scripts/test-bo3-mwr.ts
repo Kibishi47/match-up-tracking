@@ -27,8 +27,7 @@ async function runTests() {
     testUserId = testUser.id
 
     const [testGame] = await db.insert(games).values({
-      name: `Test Game ${Date.now()}`,
-      slug: `test-game-${Date.now()}`
+      name: `Test Game ${Date.now()}`
     }).returning()
     testGameId = testGame.id
 

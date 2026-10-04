@@ -13,7 +13,6 @@ export default defineEventHandler(async (event) => {
     .select({
       id: games.id,
       name: games.name,
-      slug: games.slug,
       logoUrl: games.logoUrl,
       createdAt: games.createdAt,
       updatedAt: games.updatedAt

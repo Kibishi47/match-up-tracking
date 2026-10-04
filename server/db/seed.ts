@@ -38,7 +38,6 @@ interface SeedArchetype {
 
 interface SeedGame {
   name: string
-  slug: string
   logoUrl?: string
   metaName: string
   archetypes: SeedArchetype[]
@@ -47,7 +46,6 @@ interface SeedGame {
 const seedData: SeedGame[] = [
   {
     name: 'Riftbound',
-    slug: 'riftbound',
     logoUrl: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=120&auto=format&fit=crop&q=80',
     metaName: 'Set 1 - Origin',
     archetypes: [
@@ -76,7 +74,6 @@ const seedData: SeedGame[] = [
   },
   {
     name: 'Pokémon TCG',
-    slug: 'pokemon-tcg',
     logoUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png',
     metaName: 'Format Standard',
     archetypes: [
@@ -112,7 +109,6 @@ const seedData: SeedGame[] = [
   },
   {
     name: 'One Piece Card Game',
-    slug: 'one-piece-card-game',
     logoUrl: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=120&auto=format&fit=crop&q=80',
     metaName: 'OP-06',
     archetypes: [
@@ -148,7 +144,6 @@ const seedData: SeedGame[] = [
   },
   {
     name: 'Star Wars: Unlimited',
-    slug: 'star-wars-unlimited',
     logoUrl: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=120&auto=format&fit=crop&q=80',
     metaName: 'Spark of Rebellion',
     archetypes: [
@@ -205,13 +200,13 @@ async function seed() {
 
     // 2. Traitement pour chaque jeu
     for (const gameData of seedData) {
-      console.log(`\n🎮 Traitement du jeu: ${gameData.name} (${gameData.slug})`)
+      console.log(`\n🎮 Traitement du jeu: ${gameData.name}`)
 
       // Vérifier si le jeu existe déjà
       let existingGame = await db
         .select()
         .from(games)
-        .where(eq(games.slug, gameData.slug))
+        .where(eq(games.name, gameData.name))
         .limit(1)
         .then(rows => rows[0])
 
@@ -221,7 +216,6 @@ async function seed() {
           .insert(games)
           .values({
             name: gameData.name,
-            slug: gameData.slug,
             logoUrl: gameData.logoUrl || null
           })
           .returning()

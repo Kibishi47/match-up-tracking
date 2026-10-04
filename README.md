@@ -22,7 +22,7 @@ Application web de suivi de confrontations et de statistiques (matchups) pour le
 
 2. **Catalogue Global des Jeux (Admin) :**
    - CRUD complet des jeux TCG (`/admin/games`) réservé aux administrateurs.
-   - Gestion des noms, slugs uniques et logos.
+   - Gestion des noms uniques et logos.
    - Sélection des jeux par les utilisateurs.
 
 3. **Archétypes 100% Isolés par Utilisateur :**
