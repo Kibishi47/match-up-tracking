@@ -7,6 +7,11 @@ const { user, fetch: refreshSession, clear } = useUserSession()
 const colorMode = useColorMode()
 const { showToast } = useNotify()
 const { locale, setLocale, t } = useI18n()
+const { isStandalone, init: initPwa, install: handleInstallPwa } = usePwaInstall()
+
+onMounted(() => {
+  initPwa()
+})
 
 // Formulaire Profil
 const usernameInput = ref(user.value?.username || '')
@@ -363,6 +368,70 @@ const handleLogout = async () => {
               Langue française
             </div>
           </div>
+        </button>
+      </div>
+    </section>
+
+    <!-- 4. Section Application PWA -->
+    <section class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-sm">
+      <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-1 flex items-center gap-2.5">
+        <svg class="w-5 h-5 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="14" height="20" x="5" y="2" rx="2" ry="2" />
+          <path d="M12 18h.01" />
+        </svg>
+        {{ $t('settings.pwa_title') }}
+      </h2>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">
+        {{ $t('settings.pwa_desc') }}
+      </p>
+
+      <!-- Si l'application est déjà installée en mode autonome -->
+      <div v-if="isStandalone" class="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 flex items-center gap-3.5">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-500 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
+        <div>
+          <div class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            {{ $t('settings.pwa_installed_badge') }}
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500 text-white">Actif</span>
+          </div>
+          <div class="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+            {{ $t('settings.pwa_installed_desc') }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Si l'application est consultée depuis un navigateur classique -->
+      <div v-else class="p-4 sm:p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-3.5">
+          <img
+            src="/pwa-192x192.png"
+            alt="Metadex"
+            class="w-12 h-12 rounded-xl shadow-md border border-slate-200 dark:border-slate-800 shrink-0"
+          />
+          <div>
+            <div class="font-bold text-sm text-slate-900 dark:text-white">
+              {{ $t('settings.pwa_install_card_title') }}
+            </div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              {{ $t('settings.pwa_install_card_desc') }}
+            </div>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          @click="handleInstallPwa"
+          class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-md shadow-emerald-900/20 transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 shrink-0"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" x2="12" y1="15" y2="3" />
+          </svg>
+          <span>{{ $t('settings.pwa_install_btn') }}</span>
         </button>
       </div>
     </section>

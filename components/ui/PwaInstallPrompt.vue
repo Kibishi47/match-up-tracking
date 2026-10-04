@@ -4,83 +4,26 @@ import { Download, X, Share, PlusSquare, Sparkles, RefreshCw } from 'lucide-vue-
 const { $pwa } = useNuxtApp()
 const { t } = useI18n()
 
-const isStandalone = ref(true) // Par défaut true pour éviter tout flash avant montage client
-const isDismissed = ref(false)
-const isIos = ref(false)
-const showIosGuide = ref(false)
-const nativePromptEvent = ref<any>(null)
-const canInstall = ref(false)
-
-const DISMISS_KEY = 'metadex_pwa_dismissed_at'
-
-const checkIsStandalone = () => {
-  if (typeof window === 'undefined') return true
-  const isStand = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true
-  return isStand
-}
-
-const checkIsIos = () => {
-  if (typeof window === 'undefined') return false
-  const ua = window.navigator.userAgent
-  const isIpad = ua.includes('Macintosh') && navigator.maxTouchPoints > 1
-  return /iPad|iPhone|iPod/.test(ua) || isIpad
-}
+const {
+  isStandalone,
+  canInstall,
+  isIos,
+  showIosGuide,
+  isDismissed,
+  init,
+  install: handleInstall,
+  dismiss: handleDismiss
+} = usePwaInstall()
 
 onMounted(() => {
-  isStandalone.value = checkIsStandalone()
-  isIos.value = checkIsIos()
-
-  // Vérifier si l'utilisateur a masqué l'invitation récemment (7 jours)
-  try {
-    const dismissedTime = localStorage.getItem(DISMISS_KEY)
-    if (dismissedTime && Date.now() - parseInt(dismissedTime, 10) < 7 * 24 * 60 * 60 * 1000) {
-      isDismissed.value = true
-    }
-  } catch {}
-
-  // Écouter l'événement standard du navigateur
-  window.addEventListener('beforeinstallprompt', (e: Event) => {
-    e.preventDefault()
-    nativePromptEvent.value = e
-    canInstall.value = true
-  })
-
-  // Détecter l'installation réussie
-  window.addEventListener('appinstalled', () => {
-    canInstall.value = false
-    isStandalone.value = true
-    nativePromptEvent.value = null
-  })
+  init()
 })
 
 const shouldShowBanner = computed(() => {
   if (isStandalone.value) return false
   if (isDismissed.value) return false
-  // Afficher si le navigateur supporte l'installation native ou si c'est un appareil iOS
   return canInstall.value || isIos.value
 })
-
-const handleInstall = async () => {
-  if (nativePromptEvent.value) {
-    nativePromptEvent.value.prompt()
-    const { outcome } = await nativePromptEvent.value.userChoice
-    if (outcome === 'accepted') {
-      canInstall.value = false
-    }
-    nativePromptEvent.value = null
-  } else if ($pwa?.install) {
-    await $pwa.install()
-  } else if (isIos.value) {
-    showIosGuide.value = true
-  }
-}
-
-const handleDismiss = () => {
-  isDismissed.value = true
-  try {
-    localStorage.setItem(DISMISS_KEY, Date.now().toString())
-  } catch {}
-}
 
 const handleReloadApp = () => {
   if ($pwa?.updateServiceWorker) {
