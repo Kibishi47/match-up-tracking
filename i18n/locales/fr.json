@@ -347,7 +347,7 @@
       "show_rate_label": "Show Rate",
       "not_involved": "Aucun match dans ce format",
       "not_played": "Jamais joué en deck actif",
-      "not_faced": "Jamais affronté en match",
+      "not_faced": "Jamais affronté",
       "record_label": "Bilan",
       "involvements": "{count} match total | {count} matchs totaux"
     },

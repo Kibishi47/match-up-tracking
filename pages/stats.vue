@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ArchetypeMetaStats, MetaOverviewStats } from '~/server/api/stats/meta.get'
+import type { ArchetypeFormatStats, FormatStatsResponse } from '~/server/api/stats/meta.get'
 import GameMetaModal from '~/components/modal/GameMetaModal.vue'
 
 definePageMeta({
@@ -28,18 +28,11 @@ const activeTab = ref<'all' | 'played' | 'faced'>('all')
 const sortBy = ref<'volume' | 'overall_wr' | 'played_wr' | 'faced_wr' | 'showrate' | 'name'>('volume')
 
 // 2. Récupération réactive des statistiques de la méta
-interface MetaStatsApiResponse {
-  game: any
-  meta: any
-  overview: MetaOverviewStats
-  archetypes: ArchetypeMetaStats[]
-}
-
 const {
   data: statsData,
   pending,
   refresh: refreshStats
-} = await useFetch<MetaStatsApiResponse>('/api/stats/meta', {
+} = await useFetch<FormatStatsResponse>('/api/stats/meta', {
   query: computed(() => ({
     gameId: activeGameId.value || undefined,
     metaId: activeMetaId.value || undefined
@@ -51,20 +44,22 @@ const isLoading = computed(() => {
   return !isSessionReady.value || (pending.value && !statsData.value)
 })
 
-const overview = computed<MetaOverviewStats>(() => {
-  return statsData.value?.overview || {
-    totalMatches: 0,
-    totalWins: 0,
-    totalLosses: 0,
-    totalDraws: 0,
-    overallWinrate: 0,
-    archetypesCount: 0,
-    mostPlayedArchetype: null,
-    mostFacedArchetype: null
+const overview = computed(() => {
+  const d = statsData.value
+  const fallback = d?.overview
+  return {
+    totalMatches: d?.totalMatches ?? fallback?.totalMatches ?? 0,
+    totalWins: d?.totalWins ?? fallback?.totalWins ?? 0,
+    totalLosses: d?.totalLosses ?? fallback?.totalLosses ?? 0,
+    totalDraws: d?.totalDraws ?? fallback?.totalDraws ?? 0,
+    overallWinrate: d?.overallWinrate ?? fallback?.overallWinrate ?? 0,
+    archetypesCount: d?.archetypesCount ?? fallback?.archetypesCount ?? 0,
+    mostPlayedDeck: d?.mostPlayedDeck ?? fallback?.mostPlayedArchetype ?? null,
+    mostFacedDeck: d?.mostFacedDeck ?? (fallback?.mostFacedArchetype ? { id: fallback.mostFacedArchetype.id, name: fallback.mostFacedArchetype.name, total: fallback.mostFacedArchetype.total, showRate: fallback.mostFacedArchetype.showRate } : null)
   }
 })
 
-const allArchetypes = computed<ArchetypeMetaStats[]>(() => {
+const allArchetypes = computed<ArchetypeFormatStats[]>(() => {
   return statsData.value?.archetypes || []
 })
 
@@ -90,17 +85,23 @@ const filteredArchetypes = computed(() => {
     })
   }
 
-  // Tri
+  // Tri opérationnel selon les spécifications
   list.sort((a, b) => {
     switch (sortBy.value) {
       case 'volume':
-        return b.totalInvolvements - a.totalInvolvements
+        return b.distinctMatches - a.distinctMatches || b.overall.winrate - a.overall.winrate
       case 'overall_wr':
-        return b.overall.winrate - a.overall.winrate || b.totalInvolvements - a.totalInvolvements
-      case 'played_wr':
-        return b.played.winrate - a.played.winrate || b.played.total - a.played.total
-      case 'faced_wr':
-        return b.faced.winrate - a.faced.winrate || b.faced.total - a.faced.total
+        return b.overall.winrate - a.overall.winrate || b.distinctMatches - a.distinctMatches
+      case 'played_wr': {
+        const aWr = a.played.winrate ?? -1
+        const bWr = b.played.winrate ?? -1
+        return bWr - aWr || b.played.total - a.played.total
+      }
+      case 'faced_wr': {
+        const aWr = a.faced.winrate ?? -1
+        const bWr = b.faced.winrate ?? -1
+        return bWr - aWr || b.faced.total - a.faced.total
+      }
       case 'showrate':
         return b.faced.showRate - a.faced.showRate || b.faced.total - a.faced.total
       case 'name':
@@ -114,15 +115,16 @@ const filteredArchetypes = computed(() => {
 })
 
 // Helpers de couleur de winrate
-const getWinrateBadgeClass = (rate: number, total: number) => {
-  if (total === 0) return 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 border-slate-200 dark:border-slate-700'
+const getWinrateBadgeClass = (rate: number | null, total: number) => {
+  if (total === 0 || rate === null) return 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 border-slate-200 dark:border-slate-700'
   if (rate >= 60) return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
   if (rate >= 50) return 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/30'
   if (rate >= 40) return 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30'
   return 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30'
 }
 
-const getWinrateBarClass = (rate: number) => {
+const getWinrateBarClass = (rate: number | null) => {
+  if (rate === null) return 'bg-slate-400'
   if (rate >= 60) return 'bg-emerald-500'
   if (rate >= 50) return 'bg-sky-500'
   if (rate >= 40) return 'bg-amber-500'
@@ -300,15 +302,15 @@ const getWinrateBarClass = (rate: number) => {
                   </svg>
                 </span>
               </div>
-              <div v-if="overview.mostPlayedArchetype" class="mt-2.5">
+              <div v-if="overview.mostPlayedDeck" class="mt-2.5">
                 <p class="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate">
-                  {{ overview.mostPlayedArchetype.name }}
+                  {{ overview.mostPlayedDeck.name }}
                 </p>
                 <div class="mt-1 flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
-                  <span>{{ overview.mostPlayedArchetype.total }} {{ $t('deck_banner.matches') }}</span>
+                  <span>{{ overview.mostPlayedDeck.total }} {{ $t('deck_banner.matches') }}</span>
                   <span class="opacity-40">•</span>
                   <span class="font-bold text-emerald-600 dark:text-emerald-400">
-                    {{ overview.mostPlayedArchetype.winrate }}% WR
+                    {{ overview.mostPlayedDeck.winrate }}% WR
                   </span>
                 </div>
               </div>
@@ -330,15 +332,15 @@ const getWinrateBarClass = (rate: number) => {
                   </svg>
                 </span>
               </div>
-              <div v-if="overview.mostFacedArchetype" class="mt-2.5">
+              <div v-if="overview.mostFacedDeck" class="mt-2.5">
                 <p class="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate">
-                  {{ overview.mostFacedArchetype.name }}
+                  {{ overview.mostFacedDeck.name }}
                 </p>
                 <div class="mt-1 flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
-                  <span>{{ overview.mostFacedArchetype.total }} {{ $t('deck_banner.matches') }}</span>
+                  <span>{{ overview.mostFacedDeck.total }} {{ $t('deck_banner.matches') }}</span>
                   <span class="opacity-40">•</span>
                   <span class="font-bold text-purple-600 dark:text-purple-400">
-                    {{ overview.mostFacedArchetype.showRate }}% Show Rate
+                    {{ overview.mostFacedDeck.showRate }}% Show Rate
                   </span>
                 </div>
               </div>
@@ -588,41 +590,44 @@ const getWinrateBarClass = (rate: number) => {
                     <span v-if="arch.card1Name && arch.card2Name"> / </span>
                     <span v-if="arch.card2Name">{{ arch.card2Name }}</span>
                   </div>
-                  <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
-                    {{ $t('stats_page.cards.involvements', { count: arch.totalInvolvements }) }}
+                  <!-- Volume dédoublonné : [distinctMatches] matchs totaux -->
+                  <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 font-medium">
+                    {{ $t('stats_page.cards.involvements', { count: arch.distinctMatches }) }}
                   </div>
                 </div>
               </div>
 
-              <!-- Colonnes Droite : 3 Blocs (Bilan Global / En tant que deck joué / En tant qu'adversaire) -->
+              <!-- Colonnes Droite : 3 Blocs (GLOBAL / DECK JOUÉ / ADVERSAIRE) -->
               <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3.5 flex-1">
-                <!-- Bloc 1 : Overall (Bilan Global) -->
+                <!-- Bloc 1 : GLOBAL (Performance intrinsèque de l'archétype) -->
                 <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800/80 flex flex-col justify-between">
                   <div class="flex items-center justify-between gap-2 min-w-0">
                     <span class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 truncate">
                       {{ $t('stats_page.cards.overall') }}
                     </span>
                     <div class="flex items-center gap-1.5 flex-shrink-0">
+                      <!-- Badge de présence Méta en bleu ciel / cyan -->
                       <span
-                        v-if="arch.overall.total > 0"
-                        class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 whitespace-nowrap"
+                        v-if="arch.distinctMatches > 0"
+                        class="px-2 py-0.5 rounded-md text-xs font-bold bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 whitespace-nowrap"
                         :title="$t('stats_page.cards.presence_rate_label')"
                       >
-                        {{ arch.overall.presenceRate }}%
+                        {{ arch.presenceRate }}%
                       </span>
+                      <!-- Badge Win Rate Global de l'archétype -->
                       <span
                         class="px-2 py-0.5 rounded-md text-xs font-bold border whitespace-nowrap"
-                        :class="getWinrateBadgeClass(arch.overall.winrate, arch.overall.total)"
+                        :class="getWinrateBadgeClass(arch.overall.winrate, arch.distinctMatches)"
                       >
-                        {{ arch.overall.total > 0 ? `${arch.overall.winrate}% WR` : '—' }}
+                        {{ arch.distinctMatches > 0 ? `${arch.overall.winrate}% WR` : '—' }}
                       </span>
                     </div>
                   </div>
 
-                  <div v-if="arch.overall.total > 0" class="mt-2.5 space-y-2">
+                  <div v-if="arch.distinctMatches > 0" class="mt-2.5 space-y-2">
                     <div class="flex items-center justify-between text-xs">
                       <span class="font-medium text-slate-600 dark:text-slate-300">
-                        {{ $t('stats_page.cards.matches_count', { count: arch.overall.total }) }}
+                        {{ $t('stats_page.cards.matches_count', { count: arch.distinctMatches }) }}
                       </span>
                       <span class="font-semibold text-slate-900 dark:text-slate-100">
                         <span class="text-emerald-600 dark:text-emerald-400">{{ arch.overall.wins }}W</span>
@@ -635,7 +640,7 @@ const getWinrateBarClass = (rate: number) => {
                       </span>
                     </div>
 
-                    <!-- Mini barre de progression WR global -->
+                    <!-- Barre de progression colorée sous le bloc -->
                     <div class="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
                       <div
                         class="h-full rounded-full transition-all duration-300"
@@ -650,18 +655,18 @@ const getWinrateBarClass = (rate: number) => {
                   </div>
                 </div>
 
-                <!-- Bloc 2 : En tant que Deck Joué -->
+                <!-- Bloc 2 : DECK JOUÉ (Ta rentabilité personnelle) -->
                 <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800/80 flex flex-col justify-between">
                   <div class="flex items-center justify-between gap-2 min-w-0">
                     <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">
                       {{ $t('stats_page.cards.as_played') }}
                     </span>
-                    <div class="flex items-center gap-1.5 flex-shrink-0">
+                    <div v-if="arch.played.total > 0" class="flex items-center gap-1.5 flex-shrink-0">
                       <span
                         class="px-2 py-0.5 rounded-md text-xs font-bold border whitespace-nowrap"
                         :class="getWinrateBadgeClass(arch.played.winrate, arch.played.total)"
                       >
-                        {{ arch.played.total > 0 ? `${arch.played.winrate}% WR` : '—' }}
+                        {{ arch.played.winrate !== null ? `${arch.played.winrate}% WR` : '—' }}
                       </span>
                     </div>
                   </div>
@@ -687,36 +692,38 @@ const getWinrateBarClass = (rate: number) => {
                       <div
                         class="h-full rounded-full transition-all duration-300"
                         :class="getWinrateBarClass(arch.played.winrate)"
-                        :style="{ width: `${arch.played.winrate}%` }"
+                        :style="{ width: `${arch.played.winrate ?? 0}%` }"
                       />
                     </div>
                   </div>
 
+                  <!-- Si played.total === 0 : mention sobre « Jamais joué en deck actif » -->
                   <div v-else class="mt-2 text-xs text-slate-400 dark:text-slate-500 italic">
                     {{ $t('stats_page.cards.not_played') }}
                   </div>
                 </div>
 
-                <!-- Bloc 3 : En tant qu'Adversaire -->
+                <!-- Bloc 3 : ADVERSAIRE (La menace adverse) -->
                 <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800/80 flex flex-col justify-between">
                   <div class="flex items-center justify-between gap-2 min-w-0">
                     <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">
                       {{ $t('stats_page.cards.as_faced') }}
                     </span>
-                    <div class="flex items-center gap-1.5 flex-shrink-0">
+                    <div v-if="arch.faced.total > 0" class="flex items-center gap-1.5 flex-shrink-0">
+                      <!-- Badge Show Rate (% SR) -->
                       <span
-                        v-if="arch.faced.total > 0"
-                        class="text-[11px] font-semibold text-purple-600 dark:text-purple-400 whitespace-nowrap"
+                        class="px-2 py-0.5 rounded-md text-xs font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 whitespace-nowrap"
                         :title="$t('stats_page.cards.show_rate_label')"
                       >
                         {{ arch.faced.showRate }}% SR
                       </span>
+                      <!-- Badge WR vs Deck -->
                       <span
                         class="px-2 py-0.5 rounded-md text-xs font-bold border whitespace-nowrap"
                         :class="getWinrateBadgeClass(arch.faced.winrate, arch.faced.total)"
-                        :title="$t('matchups.subtitle')"
+                        :title="$t('stats_page.sort.faced_wr_desc')"
                       >
-                        {{ arch.faced.total > 0 ? `${arch.faced.winrate}% WR` : '—' }}
+                        {{ arch.faced.winrate !== null ? `${arch.faced.winrate}% WR` : '—' }}
                       </span>
                     </div>
                   </div>
@@ -737,7 +744,7 @@ const getWinrateBarClass = (rate: number) => {
                       </span>
                     </div>
 
-                    <!-- Mini barre de Show Rate (présence dans la méta) -->
+                    <!-- Mini barre de Show Rate -->
                     <div class="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
                       <div
                         class="h-full rounded-full bg-purple-500 transition-all duration-300"
@@ -746,6 +753,7 @@ const getWinrateBarClass = (rate: number) => {
                     </div>
                   </div>
 
+                  <!-- Si faced.total === 0 : mention sobre « Jamais affronté » -->
                   <div v-else class="mt-2 text-xs text-slate-400 dark:text-slate-500 italic">
                     {{ $t('stats_page.cards.not_faced') }}
                   </div>
