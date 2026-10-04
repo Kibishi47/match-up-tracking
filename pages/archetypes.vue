@@ -20,6 +20,7 @@ const { metas, activeMeta, activeMetaId, refreshMetas, setActiveMeta } = useMeta
 
 // Charger les archétypes pour le jeu et la méta sélectionnés sans bloquer le rendu initial
 const { data: archetypesList, refresh: refreshArchetypes, status: loadingArchetypes } = useLazyFetch<Archetype[]>('/api/archetypes', {
+  key: 'archetypes-list',
   query: computed(() => ({
     gameId: activeGameId.value || undefined,
     metaId: activeMetaId.value || undefined,

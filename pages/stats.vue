@@ -23,6 +23,7 @@ const {
   pending,
   refresh: refreshStats
 } = useLazyFetch<FormatStatsResponse>('/api/stats/meta', {
+  key: 'meta-format-stats',
   query: computed(() => ({
     gameId: activeGameId.value || undefined,
     metaId: activeMetaId.value || undefined

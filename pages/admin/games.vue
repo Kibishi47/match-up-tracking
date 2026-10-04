@@ -10,7 +10,9 @@ const isGameModalOpen = ref(false)
 const selectedGameToEdit = ref<Game | null>(null)
 const searchQuery = ref('')
 
-const { data: gamesList, refresh: refreshGames, status: loadingGames } = useLazyFetch<Game[]>('/api/admin/games')
+const { data: gamesList, refresh: refreshGames, status: loadingGames } = useLazyFetch<Game[]>('/api/admin/games', {
+  key: 'admin-games-list'
+})
 
 const isLoading = computed(() => {
   return loadingGames.value === 'pending' && !gamesList.value

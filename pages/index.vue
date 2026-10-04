@@ -36,10 +36,11 @@ const {
   pending,
   refresh: refreshDashboard
 } = useLazyFetch<DashboardApiResponse>('/api/dashboard', {
+  key: 'user-dashboard-data',
   query: computed(() => ({
-    gameId: activeGameId.value,
+    gameId: activeGameId.value || undefined,
     metaId: activeMetaId.value || undefined,
-    myDeckId: activeDeckId.value
+    myDeckId: activeDeckId.value || undefined
   })),
   watch: [activeGameId, activeMetaId, activeDeckId]
 })

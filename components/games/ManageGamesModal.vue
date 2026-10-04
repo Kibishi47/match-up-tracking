@@ -16,8 +16,21 @@ useScrollLock(toRef(props, 'isOpen'))
 
 const { games: userGames, refreshGames } = useGameSession()
 
-// Récupérer tout le catalogue global de jeux sans suspendre le rendu
-const { data: allCatalogGames, refresh: refreshCatalog, status: catalogStatus } = useLazyFetch<Game[]>('/api/games')
+// Récupérer le catalogue global uniquement quand la modale est ouverte pour éviter un fetch inutile au chargement
+const { data: allCatalogGames, refresh: refreshCatalog, status: catalogStatus, execute } = useLazyFetch<Game[]>('/api/games', {
+  immediate: false,
+  key: 'catalog-all-games'
+})
+
+watch(
+  () => props.isOpen,
+  (open) => {
+    if (open && (!allCatalogGames.value || allCatalogGames.value.length === 0)) {
+      execute()
+    }
+  },
+  { immediate: true }
+)
 
 // Tri alphabétique insensible à la casse
 const sortedCatalogGames = computed(() => {

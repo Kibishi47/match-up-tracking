@@ -1,5 +1,8 @@
 import type { Game } from '~/server/db/schema'
 
+// Promesse partagée unique au niveau du module pour dédupliquer les requêtes concurrentes (Anti-spam réseau)
+let userGamesPromise: Promise<Game[]> | null = null
+
 export function useGameSession() {
   const getStored = (key: string): string | null => {
     try {
@@ -19,28 +22,25 @@ export function useGameSession() {
     } catch {}
   }
 
-  // Initialisation immédiate depuis le localStorage dès l'instanciation (SPA pur)
+  // Initialisation immédiate et synchrone depuis le localStorage dès l'instanciation (SPA pur)
   const initialGameId = getStored('tcg_active_game')
   const initialDeckId = initialGameId ? getStored(`tcg_deck_${initialGameId}`) : null
 
+  // Singletons partagés par toute l'application via useState
   const activeGameId = useState<string | null>('tcg_active_game_id', () => initialGameId)
   const activeDeckId = useState<string | null>('tcg_active_deck_id', () => initialDeckId)
   const isSessionReady = useState<boolean>('tcg_session_ready', () => false)
-
-  // Récupération de la liste des jeux disponibles dans la collection de l'utilisateur
-  const { data: games, refresh: refreshGames, status: gamesStatus } = useFetch<Game[]>('/api/user/games')
-
-  const isLoadingGames = computed(() => gamesStatus.value === 'pending')
+  const games = useState<Game[]>('tcg_user_games_data', () => [])
+  const isLoadingGames = useState<boolean>('tcg_loading_games', () => false)
+  const hasLoadedGames = useState<boolean>('tcg_has_loaded_games', () => false)
 
   const activeGame = computed(() => {
-    return games.value?.find(g => g.id === activeGameId.value) || null
+    return games.value.find(g => g.id === activeGameId.value) || null
   })
 
-  // Synchronisation avec la liste des jeux reçus
-  const syncSession = () => {
-    if (!games.value) return
-
-    if (games.value.length === 0) {
+  // Synchronisation de la session de jeu
+  const syncSession = (gamesList: Game[]) => {
+    if (gamesList.length === 0) {
       activeGameId.value = null
       activeDeckId.value = null
       setStored('tcg_active_game', null)
@@ -48,15 +48,17 @@ export function useGameSession() {
       return
     }
 
-    let targetGameId = activeGameId.value || getStored('tcg_active_game')
+    const targetGameId = activeGameId.value || getStored('tcg_active_game')
 
     // Si le jeu ciblé existe dans la liste
-    if (targetGameId && games.value.some(g => g.id === targetGameId)) {
-      activeGameId.value = targetGameId
+    if (targetGameId && gamesList.some(g => g.id === targetGameId)) {
+      if (activeGameId.value !== targetGameId) {
+        activeGameId.value = targetGameId
+      }
       setStored('tcg_active_game', targetGameId)
     } else {
       // Sinon prendre le premier par défaut
-      const firstGameId = games.value[0].id
+      const firstGameId = gamesList[0].id
       activeGameId.value = firstGameId
       setStored('tcg_active_game', firstGameId)
     }
@@ -70,10 +72,42 @@ export function useGameSession() {
     isSessionReady.value = true
   }
 
-  // Initialisation à la réception des jeux
-  watch(games, () => {
-    syncSession()
-  }, { immediate: true })
+  // Fonction de récupération dédupliquée
+  const fetchGames = async (force = false): Promise<Game[]> => {
+    if (hasLoadedGames.value && !force && games.value.length > 0) {
+      return games.value
+    }
+
+    // Si une requête est déjà en vol, retourner la même promesse pour ne pas relancer un second fetch
+    if (userGamesPromise) {
+      return userGamesPromise
+    }
+
+    isLoadingGames.value = true
+
+    userGamesPromise = $fetch<Game[]>('/api/user/games')
+      .then((data) => {
+        games.value = data || []
+        hasLoadedGames.value = true
+        syncSession(data || [])
+        return games.value
+      })
+      .catch((err) => {
+        console.error('Erreur chargement jeux utilisateur:', err)
+        return []
+      })
+      .finally(() => {
+        isLoadingGames.value = false
+        userGamesPromise = null
+      })
+
+    return userGamesPromise
+  }
+
+  // Déclencher le chargement unique au montage si pas encore fait
+  if (!hasLoadedGames.value && !userGamesPromise) {
+    fetchGames()
+  }
 
   // Permuter de jeu actif
   const setActiveGame = (gameId: string) => {
@@ -105,6 +139,8 @@ export function useGameSession() {
       setActiveDeck(availableDecks[0].id)
     }
   }
+
+  const refreshGames = () => fetchGames(true)
 
   return {
     games,
