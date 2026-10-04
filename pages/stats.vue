@@ -8,16 +8,6 @@ definePageMeta({
 
 const { t } = useI18n()
 
-useHead({
-  title: computed(() => `${t('stats_page.title')} - Metadex`),
-  meta: [
-    {
-      name: 'description',
-      content: computed(() => t('stats_page.subtitle'))
-    }
-  ]
-})
-
 // 1. Session de Jeu & Méta partagées
 const { activeGameId, activeGame, isSessionReady } = useGameSession()
 const { activeMetaId, activeMeta } = useMetaSession()

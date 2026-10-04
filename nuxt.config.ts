@@ -9,14 +9,29 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
-      title: 'Metadex — TCG Matchup Tracker',
+      title: 'Metadex — TCG Matchup & Meta Tracker',
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
         { name: 'theme-color', content: '#020617' },
+        { name: 'description', content: 'Suivez vos parties, analysez vos win rates (BO1 & BO3) et optimisez vos performances en tournoi TCG avec des statistiques méta en temps réel.' },
         { name: 'mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black' },
-        { name: 'apple-mobile-web-app-title', content: 'Metadex' }
+        { name: 'apple-mobile-web-app-title', content: 'Metadex' },
+        // Open Graph (Facebook, Discord, LinkedIn, etc.)
+        { property: 'og:site_name', content: 'Metadex' },
+        { property: 'og:type', content: 'website' },
+        { property: 'og:title', content: 'Metadex — TCG Matchup & Meta Tracker' },
+        { property: 'og:description', content: 'Suivez vos parties, analysez vos win rates (BO1 & BO3) et optimisez vos performances en tournoi TCG avec des statistiques méta en temps réel.' },
+        { property: 'og:image', content: '/og-image.png' },
+        { property: 'og:image:width', content: '1200' },
+        { property: 'og:image:height', content: '630' },
+        { property: 'og:image:alt', content: 'Metadex — TCG Matchup & Meta Tracker' },
+        // Twitter Card
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: 'Metadex — TCG Matchup & Meta Tracker' },
+        { name: 'twitter:description', content: 'Suivez vos parties, analysez vos win rates (BO1 & BO3) et optimisez vos performances en tournoi TCG avec des statistiques méta en temps réel.' },
+        { name: 'twitter:image', content: '/og-image.png' }
       ],
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
