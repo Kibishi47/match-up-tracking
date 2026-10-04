@@ -383,6 +383,10 @@
     "ios_instruction_step1": "Tap the Share button in Safari",
     "ios_instruction_step2": "Scroll down and tap \"Add to Home Screen\"",
     "ios_instruction_step3": "Tap \"Add\" in the top right corner",
+    "android_instruction_title": "Install on Android / Browser",
+    "android_instruction_step1": "Tap the browser menu (⋮ icon in the top right)",
+    "android_instruction_step2": "Select \"Install app\" or \"Add to Home screen\"",
+    "android_instruction_step3": "Tap \"Install\" to confirm",
     "app_ready_offline": "App ready to work offline.",
     "update_available": "A new version of Metadex is available.",
     "reload": "Reload"

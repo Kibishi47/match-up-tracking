@@ -383,6 +383,10 @@
     "ios_instruction_step1": "Appuyez sur l'icône de partage dans Safari",
     "ios_instruction_step2": "Faites défiler et choisissez « Sur l'écran d'accueil »",
     "ios_instruction_step3": "Validez en appuyant sur « Ajouter »",
+    "android_instruction_title": "Installer sur Android / Navigateur",
+    "android_instruction_step1": "Appuyez sur le menu (icône ⋮ en haut à droite)",
+    "android_instruction_step2": "Choisissez « Installer l'application » ou « Ajouter à l'écran d'accueil »",
+    "android_instruction_step3": "Validez en appuyant sur « Installer »",
     "app_ready_offline": "Application prête pour une utilisation hors-ligne.",
     "update_available": "Une nouvelle mise à jour est disponible.",
     "reload": "Recharger"

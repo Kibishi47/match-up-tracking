@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Download, X, Share, PlusSquare, Sparkles, RefreshCw } from 'lucide-vue-next'
+import { Download, X, Share, PlusSquare, Sparkles, RefreshCw, MoreVertical } from 'lucide-vue-next'
 import { usePwaInstall } from '~/composables/usePwaInstall'
 
 const { $pwa } = useNuxtApp()
@@ -10,7 +10,7 @@ const {
   isMobile,
   canInstall,
   isIos,
-  showIosGuide,
+  showGuide,
   isDismissed,
   init,
   install: handleInstall,
@@ -76,7 +76,7 @@ const handleReloadApp = () => {
       </aside>
     </Transition>
 
-    <!-- 2. Bannière d'installation PWA (Flottante, non intrusive) -->
+    <!-- 2. Bannière d'installation PWA (Uniquement sur mobile et si non encore installée) -->
     <Transition
       enter-active-class="transition duration-400 ease-out transform"
       enter-from-class="opacity-0 translate-y-8 scale-95"
@@ -145,7 +145,7 @@ const handleReloadApp = () => {
       </aside>
     </Transition>
 
-    <!-- 3. Modal / Fiche explicative d'installation pour iOS -->
+    <!-- 3. Modal / Fiche explicative d'installation (iOS & Android/Browser fallback) -->
     <Transition
       enter-active-class="transition duration-300 ease-out"
       enter-from-class="opacity-0"
@@ -155,9 +155,9 @@ const handleReloadApp = () => {
       leave-to-class="opacity-0"
     >
       <div
-        v-if="showIosGuide"
+        v-if="showGuide"
         class="pointer-events-auto fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm"
-        @click.self="showIosGuide = false"
+        @click.self="showGuide = false"
       >
         <div
           class="w-full max-w-sm rounded-3xl bg-slate-900 border border-slate-800 p-6 text-white shadow-2xl space-y-4"
@@ -167,21 +167,24 @@ const handleReloadApp = () => {
               <img src="/pwa-192x192.png" alt="Metadex" class="w-10 h-10 rounded-xl" />
               <div>
                 <h3 class="font-bold text-base text-white">
-                  {{ t('pwa.ios_instruction_title') }}
+                  {{ isIos ? t('pwa.ios_instruction_title') : t('pwa.android_instruction_title') }}
                 </h3>
-                <p class="text-xs text-slate-400">Safari iOS</p>
+                <p class="text-xs text-slate-400">
+                  {{ isIos ? 'Safari iOS' : 'Chrome / Navigateur' }}
+                </p>
               </div>
             </div>
             <button
               type="button"
               class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
-              @click="showIosGuide = false"
+              @click="showGuide = false"
             >
               <X class="w-5 h-5" />
             </button>
           </div>
 
-          <div class="space-y-3 pt-2 text-sm text-slate-300">
+          <!-- Guide iOS -->
+          <div v-if="isIos" class="space-y-3 pt-2 text-sm text-slate-300">
             <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-800/60 border border-slate-700/50">
               <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
                 <Share class="w-4 h-4" />
@@ -210,10 +213,40 @@ const handleReloadApp = () => {
             </div>
           </div>
 
+          <!-- Guide Android / Navigateur -->
+          <div v-else class="space-y-3 pt-2 text-sm text-slate-300">
+            <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-800/60 border border-slate-700/50">
+              <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
+                <MoreVertical class="w-4 h-4" />
+              </div>
+              <p class="text-xs leading-relaxed self-center">
+                1. {{ t('pwa.android_instruction_step1') }}
+              </p>
+            </div>
+
+            <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-800/60 border border-slate-700/50">
+              <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                <Download class="w-4 h-4" />
+              </div>
+              <p class="text-xs leading-relaxed self-center">
+                2. {{ t('pwa.android_instruction_step2') }}
+              </p>
+            </div>
+
+            <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-800/60 border border-slate-700/50">
+              <div class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center shrink-0">
+                <Sparkles class="w-4 h-4" />
+              </div>
+              <p class="text-xs leading-relaxed self-center">
+                3. {{ t('pwa.android_instruction_step3') }}
+              </p>
+            </div>
+          </div>
+
           <button
             type="button"
-            class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold transition"
-            @click="showIosGuide = false"
+            class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition"
+            @click="showGuide = false"
           >
             {{ t('common.confirm') }}
           </button>

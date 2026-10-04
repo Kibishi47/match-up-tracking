@@ -1,3 +1,7 @@
+// Module-level global state shared across all components and pages
+let globalDeferredPrompt: any = null
+let hasAttachedWindowListeners = false
+
 export function usePwaInstall() {
   const { $pwa } = useNuxtApp()
 
@@ -5,11 +9,9 @@ export function usePwaInstall() {
   const isMobile = useState<boolean>('pwa_is_mobile', () => false)
   const canInstall = useState<boolean>('pwa_can_install', () => false)
   const isIos = useState<boolean>('pwa_is_ios', () => false)
-  const showIosGuide = useState<boolean>('pwa_show_ios_guide', () => false)
+  const showGuide = useState<boolean>('pwa_show_guide', () => false)
   const isDismissed = useState<boolean>('pwa_is_dismissed', () => false)
-  const isInitialized = useState<boolean>('pwa_is_initialized', () => false)
 
-  const deferredPrompt = ref<any>(null)
   const DISMISS_KEY = 'metadex_pwa_dismissed_at'
 
   const checkIsStandalone = (): boolean => {
@@ -44,9 +46,6 @@ export function usePwaInstall() {
     isMobile.value = checkIsMobile()
     isIos.value = checkIsIos()
 
-    if (isInitialized.value) return
-    isInitialized.value = true
-
     try {
       const dismissedTime = localStorage.getItem(DISMISS_KEY)
       if (dismissedTime && Date.now() - parseInt(dismissedTime, 10) < 7 * 24 * 60 * 60 * 1000) {
@@ -54,36 +53,67 @@ export function usePwaInstall() {
       }
     } catch {}
 
-    window.addEventListener('beforeinstallprompt', (e: Event) => {
-      e.preventDefault()
-      deferredPrompt.value = e
+    if (globalDeferredPrompt) {
       canInstall.value = true
-    })
+    }
 
-    window.addEventListener('appinstalled', () => {
-      canInstall.value = false
-      isStandalone.value = true
-      deferredPrompt.value = null
-    })
+    if (!hasAttachedWindowListeners) {
+      hasAttachedWindowListeners = true
 
-    window.addEventListener('resize', () => {
-      isMobile.value = checkIsMobile()
-    })
+      window.addEventListener('beforeinstallprompt', (e: Event) => {
+        e.preventDefault()
+        globalDeferredPrompt = e
+        canInstall.value = true
+      })
+
+      window.addEventListener('appinstalled', () => {
+        canInstall.value = false
+        isStandalone.value = true
+        globalDeferredPrompt = null
+        showGuide.value = false
+      })
+
+      window.addEventListener('resize', () => {
+        isMobile.value = checkIsMobile()
+      })
+    }
   }
 
   const install = async () => {
-    if (deferredPrompt.value) {
-      deferredPrompt.value.prompt()
-      const { outcome } = await deferredPrompt.value.userChoice
-      if (outcome === 'accepted') {
-        canInstall.value = false
+    init()
+
+    // 1. Si on a l'événement natif avant prompt (Chromium / Android)
+    if (globalDeferredPrompt) {
+      try {
+        globalDeferredPrompt.prompt()
+        const choice = await globalDeferredPrompt.userChoice
+        if (choice?.outcome === 'accepted') {
+          canInstall.value = false
+          isStandalone.value = true
+          globalDeferredPrompt = null
+          return
+        }
+      } catch (e) {
+        console.warn('Native prompt failed:', e)
       }
-      deferredPrompt.value = null
-    } else if ($pwa?.install) {
-      await $pwa.install()
-    } else if (isIos.value) {
-      showIosGuide.value = true
     }
+
+    // 2. Si le module Vite PWA a son prompt actif
+    if ($pwa?.showInstallPrompt && typeof $pwa.install === 'function') {
+      try {
+        const choice = await $pwa.install()
+        if (choice?.outcome === 'accepted') {
+          isStandalone.value = true
+          return
+        }
+      } catch (e) {
+        console.warn('$pwa.install failed:', e)
+      }
+    }
+
+    // 3. Fallback immédiat : si le navigateur ne supporte pas le prompt automatique (ex: iOS Safari, Firefox Mobile, ou HTTP local)
+    // Ouvre la boîte de dialogue avec les instructions pas à pas
+    showGuide.value = true
   }
 
   const dismiss = () => {
@@ -98,7 +128,7 @@ export function usePwaInstall() {
     isMobile,
     canInstall,
     isIos,
-    showIosGuide,
+    showGuide,
     isDismissed,
     init,
     install,
