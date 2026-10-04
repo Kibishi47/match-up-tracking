@@ -15,11 +15,12 @@ export interface ArchetypeFormatStats {
   distinctMatches: number
   presenceRate: number // 0-100%
 
-  // Bloc 1: Performance globale de l'archétype
+  // Bloc 1: Performance globale de l'archétype (hors miroir)
   overall: {
     wins: number
     losses: number
     draws: number
+    mirrorMatches: number
     winrate: number // 0-100%
   }
 
@@ -181,6 +182,10 @@ export default defineEventHandler(async (event): Promise<FormatStatsResponse> =>
     facedWins: number // victoires du joueur face à cet archétype
     facedLosses: number // défaites du joueur face à cet archétype (l'archétype a gagné)
     facedDraws: number
+    overallWins: number // victoires de l'archétype hors miroir
+    overallLosses: number // défaites de l'archétype hors miroir
+    overallDraws: number // nuls de l'archétype hors miroir
+    mirrorMatches: number // matchs miroirs (exclus du winrate global)
     distinctMatchIds: Set<string>
   }
 
@@ -194,6 +199,10 @@ export default defineEventHandler(async (event): Promise<FormatStatsResponse> =>
       facedWins: 0,
       facedLosses: 0,
       facedDraws: 0,
+      overallWins: 0,
+      overallLosses: 0,
+      overallDraws: 0,
+      mirrorMatches: 0,
       distinctMatchIds: new Set<string>()
     })
   }
@@ -203,6 +212,8 @@ export default defineEventHandler(async (event): Promise<FormatStatsResponse> =>
     else if (m.result === 'loss') totalMetaLosses++
     else if (m.result === 'draw') totalMetaDraws++
 
+    const isMirror = m.myArchetypeId === m.opponentArchetypeId
+
     // Enregistrement deck joué
     const playedAcc = accMap.get(m.myArchetypeId)
     if (playedAcc) {
@@ -210,6 +221,15 @@ export default defineEventHandler(async (event): Promise<FormatStatsResponse> =>
       else if (m.result === 'loss') playedAcc.playedLosses++
       else if (m.result === 'draw') playedAcc.playedDraws++
       playedAcc.distinctMatchIds.add(m.id)
+
+      if (isMirror) {
+        playedAcc.mirrorMatches++
+      } else {
+        // Deck joué hors miroir : POV deck = résultat du joueur
+        if (m.result === 'win') playedAcc.overallWins++
+        else if (m.result === 'loss') playedAcc.overallLosses++
+        else if (m.result === 'draw') playedAcc.overallDraws++
+      }
     }
 
     // Enregistrement deck adverse affronté
@@ -219,6 +239,13 @@ export default defineEventHandler(async (event): Promise<FormatStatsResponse> =>
       else if (m.result === 'loss') facedAcc.facedLosses++
       else if (m.result === 'draw') facedAcc.facedDraws++
       facedAcc.distinctMatchIds.add(m.id)
+
+      if (!isMirror) {
+        // Deck adverse hors miroir : POV deck = inverse du résultat joueur
+        if (m.result === 'win') facedAcc.overallLosses++
+        else if (m.result === 'loss') facedAcc.overallWins++
+        else if (m.result === 'draw') facedAcc.overallDraws++
+      }
     }
   }
 
@@ -231,6 +258,10 @@ export default defineEventHandler(async (event): Promise<FormatStatsResponse> =>
       facedWins: 0,
       facedLosses: 0,
       facedDraws: 0,
+      overallWins: 0,
+      overallLosses: 0,
+      overallDraws: 0,
+      mirrorMatches: 0,
       distinctMatchIds: new Set<string>()
     }
 
@@ -249,15 +280,10 @@ export default defineEventHandler(async (event): Promise<FormatStatsResponse> =>
       ? Math.round((facedTotal / totalMetaMatches) * 100)
       : 0
 
-    // C. Bilan et Win Rate GLOBAL de l'archétype (Performance intrinsèque)
-    // W_arch = W_joué + L_affronté (le deck gagne quand le joueur gagne avec OU quand l'adversaire bat le joueur avec)
-    const archWins = acc.playedWins + acc.facedLosses
-    // L_arch = L_joué + W_affronté (le deck perd quand le joueur perd avec OU quand le joueur bat l'adversaire qui le jouait)
-    const archLosses = acc.playedLosses + acc.facedWins
-    const archDraws = acc.playedDraws + acc.facedDraws
-    const archTotal = archWins + archLosses + archDraws
-    const overallWinrate = archTotal > 0
-      ? Math.round((archWins / archTotal) * 100)
+    // C. Bilan et Win Rate GLOBAL de l'archétype (Performance intrinsèque hors miroir)
+    const nonMirrorTotal = acc.overallWins + acc.overallLosses + acc.overallDraws
+    const overallWinrate = nonMirrorTotal > 0
+      ? Math.round((acc.overallWins / nonMirrorTotal) * 100)
       : 0
 
     // D. Présence Méta & Volume dédoublonné
@@ -279,9 +305,10 @@ export default defineEventHandler(async (event): Promise<FormatStatsResponse> =>
       presenceRate,
 
       overall: {
-        wins: archWins,
-        losses: archLosses,
-        draws: archDraws,
+        wins: acc.overallWins,
+        losses: acc.overallLosses,
+        draws: acc.overallDraws,
+        mirrorMatches: acc.mirrorMatches,
         winrate: overallWinrate
       },
 

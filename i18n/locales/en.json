@@ -349,6 +349,7 @@
       "not_played": "Never played as active deck",
       "not_faced": "Never faced",
       "record_label": "Record",
+      "mirror_matches": "{count} mirror | {count} mirrors",
       "involvements": "{count} total match | {count} total matches"
     },
     "empty": {

@@ -148,6 +148,10 @@ async function runTests() {
         facedWins: number
         facedLosses: number
         facedDraws: number
+        overallWins: number
+        overallLosses: number
+        overallDraws: number
+        mirrorMatches: number
         distinctMatchIds: Set<string>
       }>()
 
@@ -159,17 +163,31 @@ async function runTests() {
           facedWins: 0,
           facedLosses: 0,
           facedDraws: 0,
+          overallWins: 0,
+          overallLosses: 0,
+          overallDraws: 0,
+          mirrorMatches: 0,
           distinctMatchIds: new Set<string>()
         })
       }
 
       for (const m of metaMatchesList) {
+        const isMirror = m.myArchetypeId === m.opponentArchetypeId
+
         const playedAcc = accMap.get(m.myArchetypeId)
         if (playedAcc) {
           if (m.result === 'win') playedAcc.playedWins++
           else if (m.result === 'loss') playedAcc.playedLosses++
           else if (m.result === 'draw') playedAcc.playedDraws++
           playedAcc.distinctMatchIds.add(m.id)
+
+          if (isMirror) {
+            playedAcc.mirrorMatches++
+          } else {
+            if (m.result === 'win') playedAcc.overallWins++
+            else if (m.result === 'loss') playedAcc.overallLosses++
+            else if (m.result === 'draw') playedAcc.overallDraws++
+          }
         }
 
         const facedAcc = accMap.get(m.opponentArchetypeId)
@@ -178,6 +196,12 @@ async function runTests() {
           else if (m.result === 'loss') facedAcc.facedLosses++
           else if (m.result === 'draw') facedAcc.facedDraws++
           facedAcc.distinctMatchIds.add(m.id)
+
+          if (!isMirror) {
+            if (m.result === 'win') facedAcc.overallLosses++
+            else if (m.result === 'loss') facedAcc.overallWins++
+            else if (m.result === 'draw') facedAcc.overallDraws++
+          }
         }
       }
 
@@ -191,11 +215,8 @@ async function runTests() {
         const facedWinrate = facedTotal > 0 ? Math.round((acc.facedWins / facedTotal) * 100) : null
         const showRate = totalMetaMatches > 0 ? Math.round((facedTotal / totalMetaMatches) * 100) : 0
 
-        const archWins = acc.playedWins + acc.facedLosses
-        const archLosses = acc.playedLosses + acc.facedWins
-        const archDraws = acc.playedDraws + acc.facedDraws
-        const archTotal = archWins + archLosses + archDraws
-        const overallWinrate = archTotal > 0 ? Math.round((archWins / archTotal) * 100) : 0
+        const nonMirrorTotal = acc.overallWins + acc.overallLosses + acc.overallDraws
+        const overallWinrate = nonMirrorTotal > 0 ? Math.round((acc.overallWins / nonMirrorTotal) * 100) : 0
 
         const distinctMatches = acc.distinctMatchIds.size
         const presenceRate = totalMetaMatches > 0 ? Math.round((distinctMatches / totalMetaMatches) * 100) : 0
@@ -203,7 +224,13 @@ async function runTests() {
         results.set(id, {
           distinctMatches,
           presenceRate,
-          overall: { wins: archWins, losses: archLosses, draws: archDraws, winrate: overallWinrate },
+          overall: {
+            wins: acc.overallWins,
+            losses: acc.overallLosses,
+            draws: acc.overallDraws,
+            mirrorMatches: acc.mirrorMatches,
+            winrate: overallWinrate
+          },
           played: { total: playedTotal, wins: acc.playedWins, losses: acc.playedLosses, draws: acc.playedDraws, winrate: playedWinrate },
           faced: { total: facedTotal, wins: acc.facedWins, losses: acc.facedLosses, draws: acc.facedDraws, showRate, winrate: facedWinrate }
         })
@@ -211,8 +238,8 @@ async function runTests() {
       return results
     }
 
-    // --- TEST SUITE 1: Mirror Matches Symmetry (Deck A vs Deck A) ---
-    console.log('\n--- Test 1: Mirror Matches Symmetry ---')
+    // --- TEST SUITE 1: Mirror Matches Exclusion in Overall ---
+    console.log('\n--- Test 1: Mirror Matches Exclusion in Overall ---')
     const [mirror1] = await db.insert(matches).values({
       matchupId: muAvsA.id,
       userId: testUserId,
@@ -232,14 +259,14 @@ async function runTests() {
     const deckAMirror = mirrorStats.get(deckAId)
 
     // Player won 1 mirror: played = 1W-0L, faced = 1W-0L
-    // archWins = 1 (W_played) + 0 (L_faced) = 1
-    // archLosses = 0 (L_played) + 1 (W_faced) = 1
-    // archWinrate = 1 / 2 = 50%
-    if (deckAMirror.overall.winrate !== 50) {
-      throw new Error(`Mirror WR failed: expected 50%, got ${deckAMirror.overall.winrate}%`)
+    // Overall excludes mirror matches:
+    // overall.wins = 0, overall.losses = 0, overall.draws = 0, overall.mirrorMatches = 1
+    // nonMirrorTotal = 0 -> overall.winrate = 0%
+    if (deckAMirror.overall.winrate !== 0) {
+      throw new Error(`Mirror WR failed: expected 0% (0 non-mirror matches), got ${deckAMirror.overall.winrate}%`)
     }
-    if (deckAMirror.overall.wins !== 1 || deckAMirror.overall.losses !== 1) {
-      throw new Error(`Mirror W/L failed: expected 1W-1L, got ${deckAMirror.overall.wins}W-${deckAMirror.overall.losses}L`)
+    if (deckAMirror.overall.wins !== 0 || deckAMirror.overall.losses !== 0 || deckAMirror.overall.mirrorMatches !== 1) {
+      throw new Error(`Mirror exclusion failed: expected 0W-0L-1M, got ${deckAMirror.overall.wins}W-${deckAMirror.overall.losses}L-${deckAMirror.overall.mirrorMatches}M`)
     }
     if (deckAMirror.distinctMatches !== 1) {
       throw new Error(`Mirror distinctMatches failed: expected 1, got ${deckAMirror.distinctMatches}`)
@@ -247,7 +274,7 @@ async function runTests() {
     if (deckAMirror.presenceRate !== 100) {
       throw new Error(`Mirror presenceRate failed: expected 100%, got ${deckAMirror.presenceRate}%`)
     }
-    console.log('[PASS] Mirror match yields strictly 50% overall winrate (1W - 1L) and exactly 1 distinct match (100% presence)')
+    console.log('[PASS] Mirror match is properly excluded from overall W/L/D and counted under mirrorMatches')
 
     // --- TEST SUITE 2: Meta Presence Boundaries (Presence must never exceed 100%) ---
     console.log('\n--- Test 2: Meta Presence Boundaries ---')
@@ -390,10 +417,10 @@ async function runTests() {
     ]
     const mirrorDrawStats = computeStats(mirrorDrawMatches, [deckAId])
     const mirrorDrawStat = mirrorDrawStats.get(deckAId)
-    if (mirrorDrawStat.overall.winrate !== 0 || mirrorDrawStat.overall.draws !== 2) {
-      throw new Error(`Mirror Draw WR failed: expected 0% WR with 2 draws, got ${mirrorDrawStat.overall.winrate}%`)
+    if (mirrorDrawStat.overall.winrate !== 0 || mirrorDrawStat.overall.mirrorMatches !== 1 || mirrorDrawStat.overall.draws !== 0) {
+      throw new Error(`Mirror Draw WR failed: expected 0% WR with 1 mirror, got ${mirrorDrawStat.overall.winrate}%`)
     }
-    console.log(`[PASS] Mirror match draw yields 0% WR and 2 archetype draws`)
+    console.log(`[PASS] Mirror match draw yields 0% WR and is counted under mirrorMatches (0 overall draws)`)
 
     // Verify against database query execution as in server/api/stats/meta.get.ts
     const dbMatches = await db

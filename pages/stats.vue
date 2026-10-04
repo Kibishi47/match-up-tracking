@@ -637,6 +637,15 @@ const getWinrateBarClass = (rate: number | null) => {
                           <span class="mx-1 text-slate-400">-</span>
                           <span class="text-amber-600 dark:text-amber-400">{{ arch.overall.draws }}D</span>
                         </template>
+                        <template v-if="arch.overall.mirrorMatches > 0">
+                          <span class="mx-1 text-slate-400">•</span>
+                          <span
+                            class="text-slate-500 dark:text-slate-400 font-normal"
+                            :title="$t('stats_page.cards.mirror_matches', { count: arch.overall.mirrorMatches })"
+                          >
+                            {{ arch.overall.mirrorMatches }}M
+                          </span>
+                        </template>
                       </span>
                     </div>
 
