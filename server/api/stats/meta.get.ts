@@ -1,8 +1,8 @@
-import { and, desc, eq, inArray } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { useDb, matches, archetypes, matchups, games, metas } from '../../db'
 import { requireAuthUser } from '../../utils/auth'
 
-export interface ArchetypeMetaStats {
+export interface ArchetypeFormatStats {
   id: string
   name: string
   card1Name: string | null
@@ -10,66 +10,99 @@ export interface ArchetypeMetaStats {
   card2Name: string | null
   card2ImageUrl: string | null
   isArchived: boolean
+
+  // Volume réel dédoublonné
+  distinctMatches: number
+  presenceRate: number // 0-100%
+
+  // Bloc 1: Performance globale de l'archétype
   overall: {
-    total: number
     wins: number
     losses: number
     draws: number
-    winrate: number
-    presenceRate: number
+    winrate: number // 0-100%
   }
+
+  // Bloc 2: Piloté par le joueur
   played: {
     total: number
     wins: number
     losses: number
     draws: number
-    winrate: number
+    winrate: number | null // null si 0 match
   }
+
+  // Bloc 3: Affronté chez l'adversaire
   faced: {
     total: number
     wins: number
     losses: number
     draws: number
-    winrate: number
-    showRate: number
+    showRate: number // 0-100%
+    winrate: number | null // null si 0 confrontation
   }
-  totalInvolvements: number
 }
 
-export interface MetaOverviewStats {
+export interface FormatStatsResponse {
+  game: any
+  meta: any
   totalMatches: number
   totalWins: number
   totalLosses: number
   totalDraws: number
   overallWinrate: number
   archetypesCount: number
-  mostPlayedArchetype: { id: string; name: string; total: number; winrate: number } | null
-  mostFacedArchetype: { id: string; name: string; total: number; winrate: number; showRate: number } | null
+  mostPlayedDeck: { id: string; name: string; total: number; winrate: number } | null
+  mostFacedDeck: { id: string; name: string; total: number; showRate: number } | null
+  overview?: {
+    totalMatches: number
+    totalWins: number
+    totalLosses: number
+    totalDraws: number
+    overallWinrate: number
+    archetypesCount: number
+    mostPlayedArchetype: { id: string; name: string; total: number; winrate: number } | null
+    mostFacedArchetype: { id: string; name: string; total: number; winrate: number; showRate: number } | null
+  }
+  archetypes: ArchetypeFormatStats[]
 }
 
-export default defineEventHandler(async (event) => {
+export type ArchetypeMetaStats = ArchetypeFormatStats
+export type MetaOverviewStats = NonNullable<FormatStatsResponse['overview']>
+
+export default defineEventHandler(async (event): Promise<FormatStatsResponse> => {
   const user = await requireAuthUser(event)
   const query = getQuery(event)
 
   const gameId = query.gameId ? String(query.gameId) : null
   const metaId = query.metaId ? String(query.metaId) : null
 
+  const emptyResponse: FormatStatsResponse = {
+    game: null,
+    meta: null,
+    totalMatches: 0,
+    totalWins: 0,
+    totalLosses: 0,
+    totalDraws: 0,
+    overallWinrate: 0,
+    archetypesCount: 0,
+    mostPlayedDeck: null,
+    mostFacedDeck: null,
+    overview: {
+      totalMatches: 0,
+      totalWins: 0,
+      totalLosses: 0,
+      totalDraws: 0,
+      overallWinrate: 0,
+      archetypesCount: 0,
+      mostPlayedArchetype: null,
+      mostFacedArchetype: null
+    },
+    archetypes: []
+  }
+
   if (!gameId || !metaId) {
-    return {
-      game: null,
-      meta: null,
-      overview: {
-        totalMatches: 0,
-        totalWins: 0,
-        totalLosses: 0,
-        totalDraws: 0,
-        overallWinrate: 0,
-        archetypesCount: 0,
-        mostPlayedArchetype: null,
-        mostFacedArchetype: null
-      },
-      archetypes: []
-    }
+    return emptyResponse
   }
 
   const db = useDb()
@@ -84,10 +117,16 @@ export default defineEventHandler(async (event) => {
   const [selectedMeta] = await db
     .select()
     .from(metas)
-    .where(and(eq(metas.id, metaId), eq(metas.userId, user.id)))
+    .where(
+      and(
+        eq(metas.id, metaId),
+        eq(metas.userId, user.id),
+        eq(metas.gameId, gameId)
+      )
+    )
     .limit(1)
 
-  // 2. Tous les archétypes de la méta pour cet utilisateur (non archivés)
+  // 2. Tous les archétypes non archivés de la méta pour cet utilisateur
   const metaArchetypes = await db
     .select()
     .from(archetypes)
@@ -95,26 +134,17 @@ export default defineEventHandler(async (event) => {
       and(
         eq(archetypes.userId, user.id),
         eq(archetypes.gameId, gameId),
-        eq(archetypes.metaId, metaId)
+        eq(archetypes.metaId, metaId),
+        eq(archetypes.isArchived, false)
       )
     )
     .orderBy(archetypes.name)
 
   if (metaArchetypes.length === 0) {
     return {
+      ...emptyResponse,
       game: selectedGame || null,
-      meta: selectedMeta || null,
-      overview: {
-        totalMatches: 0,
-        totalWins: 0,
-        totalLosses: 0,
-        totalDraws: 0,
-        overallWinrate: 0,
-        archetypesCount: 0,
-        mostPlayedArchetype: null,
-        mostFacedArchetype: null
-      },
-      archetypes: []
+      meta: selectedMeta || null
     }
   }
 
@@ -133,6 +163,7 @@ export default defineEventHandler(async (event) => {
     .where(
       and(
         eq(matches.userId, user.id),
+        eq(matchups.gameId, gameId),
         eq(matchups.metaId, metaId)
       )
     )
@@ -142,14 +173,15 @@ export default defineEventHandler(async (event) => {
   let totalMetaLosses = 0
   let totalMetaDraws = 0
 
-  // Structures d'agrégation par archétype
+  // 4. Structures d'agrégation brute par archétype
   interface StatAcc {
     playedWins: number
     playedLosses: number
     playedDraws: number
-    facedWins: number // matches user won against this archetype
-    facedLosses: number // matches user lost against this archetype
-    facedDraws: number // matches user drew against this archetype
+    facedWins: number // victoires du joueur face à cet archétype
+    facedLosses: number // défaites du joueur face à cet archétype (l'archétype a gagné)
+    facedDraws: number
+    distinctMatchIds: Set<string>
   }
 
   const accMap = new Map<string, StatAcc>()
@@ -161,7 +193,8 @@ export default defineEventHandler(async (event) => {
       playedDraws: 0,
       facedWins: 0,
       facedLosses: 0,
-      facedDraws: 0
+      facedDraws: 0,
+      distinctMatchIds: new Set<string>()
     })
   }
 
@@ -170,47 +203,70 @@ export default defineEventHandler(async (event) => {
     else if (m.result === 'loss') totalMetaLosses++
     else if (m.result === 'draw') totalMetaDraws++
 
-    // Deck joué par l'utilisateur
+    // Enregistrement deck joué
     const playedAcc = accMap.get(m.myArchetypeId)
     if (playedAcc) {
       if (m.result === 'win') playedAcc.playedWins++
       else if (m.result === 'loss') playedAcc.playedLosses++
       else if (m.result === 'draw') playedAcc.playedDraws++
+      playedAcc.distinctMatchIds.add(m.id)
     }
 
-    // Deck affronté par l'utilisateur
+    // Enregistrement deck adverse affronté
     const facedAcc = accMap.get(m.opponentArchetypeId)
     if (facedAcc) {
       if (m.result === 'win') facedAcc.facedWins++
       else if (m.result === 'loss') facedAcc.facedLosses++
       else if (m.result === 'draw') facedAcc.facedDraws++
+      facedAcc.distinctMatchIds.add(m.id)
     }
   }
 
-  // Construction de la liste détaillée
-  const statsList: ArchetypeMetaStats[] = metaArchetypes.map((arch) => {
+  // 5. Calcul des métriques statistiques conformes à la Théorie des Jeux TCG
+  const statsList: ArchetypeFormatStats[] = metaArchetypes.map((arch) => {
     const acc = accMap.get(arch.id) || {
       playedWins: 0,
       playedLosses: 0,
       playedDraws: 0,
       facedWins: 0,
       facedLosses: 0,
-      facedDraws: 0
+      facedDraws: 0,
+      distinctMatchIds: new Set<string>()
     }
 
+    // A. Bilan Joueur (DECK JOUÉ)
     const playedTotal = acc.playedWins + acc.playedLosses + acc.playedDraws
-    const playedWinrate = playedTotal > 0 ? Math.round((acc.playedWins / playedTotal) * 100) : 0
+    const playedDecided = acc.playedWins + acc.playedLosses
+    const playedWinrate = playedDecided > 0
+      ? Math.round((acc.playedWins / playedDecided) * 100)
+      : null
 
+    // B. Bilan Adversaire (ADVERSAIRE)
     const facedTotal = acc.facedWins + acc.facedLosses + acc.facedDraws
-    const facedWinrate = facedTotal > 0 ? Math.round((acc.facedWins / facedTotal) * 100) : 0
-    const showRate = totalMetaMatches > 0 ? Math.round((facedTotal / totalMetaMatches) * 100) : 0
+    const facedDecided = acc.facedWins + acc.facedLosses
+    const facedWinrate = facedDecided > 0
+      ? Math.round((acc.facedWins / facedDecided) * 100)
+      : null
+    const showRate = totalMetaMatches > 0
+      ? Math.round((facedTotal / totalMetaMatches) * 100)
+      : 0
 
-    const totalInvolvements = playedTotal + facedTotal
-    const overallWins = acc.playedWins + acc.facedWins
-    const overallLosses = acc.playedLosses + acc.facedLosses
-    const overallDraws = acc.playedDraws + acc.facedDraws
-    const overallWinrate = totalInvolvements > 0 ? Math.round((overallWins / totalInvolvements) * 100) : 0
-    const presenceRate = totalMetaMatches > 0 ? Math.round((totalInvolvements / totalMetaMatches) * 100) : 0
+    // C. Bilan et Win Rate GLOBAL de l'archétype (Performance intrinsèque)
+    // W_arch = W_joué + L_affronté (le deck gagne quand le joueur gagne avec OU quand l'adversaire bat le joueur avec)
+    const archWins = acc.playedWins + acc.facedLosses
+    // L_arch = L_joué + W_affronté (le deck perd quand le joueur perd avec OU quand le joueur bat l'adversaire qui le jouait)
+    const archLosses = acc.playedLosses + acc.facedWins
+    const archDraws = acc.playedDraws + acc.facedDraws
+    const archDecided = archWins + archLosses
+    const overallWinrate = archDecided > 0
+      ? Math.round((archWins / archDecided) * 100)
+      : 0
+
+    // D. Présence Méta & Volume dédoublonné
+    const distinctMatches = acc.distinctMatchIds.size
+    const presenceRate = totalMetaMatches > 0
+      ? Math.round((distinctMatches / totalMetaMatches) * 100)
+      : 0
 
     return {
       id: arch.id,
@@ -220,14 +276,17 @@ export default defineEventHandler(async (event) => {
       card2Name: arch.card2Name,
       card2ImageUrl: arch.card2ImageUrl,
       isArchived: arch.isArchived,
+
+      distinctMatches,
+      presenceRate,
+
       overall: {
-        total: totalInvolvements,
-        wins: overallWins,
-        losses: overallLosses,
-        draws: overallDraws,
-        winrate: overallWinrate,
-        presenceRate
+        wins: archWins,
+        losses: archLosses,
+        draws: archDraws,
+        winrate: overallWinrate
       },
+
       played: {
         total: playedTotal,
         wins: acc.playedWins,
@@ -235,21 +294,21 @@ export default defineEventHandler(async (event) => {
         draws: acc.playedDraws,
         winrate: playedWinrate
       },
+
       faced: {
         total: facedTotal,
         wins: acc.facedWins,
         losses: acc.facedLosses,
         draws: acc.facedDraws,
-        winrate: facedWinrate,
-        showRate
-      },
-      totalInvolvements
+        showRate,
+        winrate: facedWinrate
+      }
     }
   })
 
-  // Identifier le plus joué et le plus affronté
+  // 6. Identifier le deck le plus joué et le plus affronté
   let mostPlayed: { id: string; name: string; total: number; winrate: number } | null = null
-  let mostFaced: { id: string; name: string; total: number; winrate: number; showRate: number } | null = null
+  let mostFaced: { id: string; name: string; total: number; showRate: number; winrate?: number } | null = null
 
   for (const item of statsList) {
     if (item.played.total > 0 && (!mostPlayed || item.played.total > mostPlayed.total)) {
@@ -257,7 +316,7 @@ export default defineEventHandler(async (event) => {
         id: item.id,
         name: item.name,
         total: item.played.total,
-        winrate: item.played.winrate
+        winrate: item.played.winrate ?? 0
       }
     }
     if (item.faced.total > 0 && (!mostFaced || item.faced.total > mostFaced.total)) {
@@ -265,26 +324,37 @@ export default defineEventHandler(async (event) => {
         id: item.id,
         name: item.name,
         total: item.faced.total,
-        winrate: item.faced.winrate,
-        showRate: item.faced.showRate
+        showRate: item.faced.showRate,
+        winrate: item.faced.winrate ?? 0
       }
     }
   }
 
-  const overallWinrate = totalMetaMatches > 0 ? Math.round((totalMetaWins / totalMetaMatches) * 100) : 0
+  const metaDecided = totalMetaWins + totalMetaLosses
+  const overallMetaWinrate = metaDecided > 0
+    ? Math.round((totalMetaWins / metaDecided) * 100)
+    : 0
 
   return {
     game: selectedGame || null,
     meta: selectedMeta || null,
+    totalMatches: totalMetaMatches,
+    totalWins: totalMetaWins,
+    totalLosses: totalMetaLosses,
+    totalDraws: totalMetaDraws,
+    overallWinrate: overallMetaWinrate,
+    archetypesCount: metaArchetypes.length,
+    mostPlayedDeck: mostPlayed,
+    mostFacedDeck: mostFaced ? { id: mostFaced.id, name: mostFaced.name, total: mostFaced.total, showRate: mostFaced.showRate } : null,
     overview: {
       totalMatches: totalMetaMatches,
       totalWins: totalMetaWins,
       totalLosses: totalMetaLosses,
       totalDraws: totalMetaDraws,
-      overallWinrate,
+      overallWinrate: overallMetaWinrate,
       archetypesCount: metaArchetypes.length,
       mostPlayedArchetype: mostPlayed,
-      mostFacedArchetype: mostFaced
+      mostFacedArchetype: mostFaced ? { id: mostFaced.id, name: mostFaced.name, total: mostFaced.total, winrate: mostFaced.winrate ?? 0, showRate: mostFaced.showRate } : null
     },
     archetypes: statsList
   }
